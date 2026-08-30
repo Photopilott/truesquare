@@ -20,6 +20,7 @@ const navigation = [
   { label: 'Coverage', href: '#coverage' },
   { label: 'How it works', href: '#evidence' },
   { label: 'Explorer', href: '/explore' },
+  { label: 'Developer ratings', href: '/developer-ratings.html' },
 ];
 
 const paths = [
