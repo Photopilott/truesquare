@@ -22,7 +22,6 @@ import {
   Info,
   LockKeyhole,
   Search,
-  ShieldCheck,
 } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -351,102 +350,42 @@ function findComparableMatch(
   };
 }
 
-function BrandMark() {
-  return (
-    <span
-      className="grid size-8 shrink-0 place-items-center rounded-[11px] bg-foreground"
-      aria-hidden="true"
-    >
-      <span className="size-3 rounded-full bg-background" />
-    </span>
-  );
-}
-
 export function AppHeader({ active }: { active: 'owner' | 'buyer' | 'explore' }) {
   return (
     <>
-      <header className="sticky top-3 z-40 px-4">
-        <div className="ts-shell flex min-h-[74px] items-center justify-between gap-6 rounded-[14px] border border-foreground/10 bg-card/95 px-4 shadow-[0_10px_26px_rgba(38,29,18,.10)] backdrop-blur-xl sm:px-6">
-          <Link
-            className="flex items-center gap-3"
-            href="/"
-            aria-label="TrueSquare home"
-          >
-            <BrandMark />
-            <span className="font-heading text-[31px] font-medium leading-none tracking-[-0.03em]">
-              TrueSquare
-            </span>
-          </Link>
-          <nav
-            className="hidden items-center gap-1 lg:flex"
-            aria-label="Product navigation"
-          >
+      <div className="ts-orb-announcement"><strong>EVIDENCE-FIRST</strong><span>No listings sold. No leads sold. No data sold.</span></div>
+      <header className="ts-orb-shell ts-orb-nav">
+          <Link className="ts-orb-brand" href="/" aria-label="TrueSquare home">TrueSquare</Link>
+          <nav className="ts-orb-nav-links" aria-label="Product navigation">
             <Link
               href="/owner"
-              className={`rounded-[8px] px-4 py-2.5 text-[13px] font-medium ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+              className={active === 'owner' ? 'font-semibold' : ''}
             >
               For owners
             </Link>
             <Link
               href="/buyer"
-              className={`rounded-[8px] px-4 py-2.5 text-[13px] font-medium ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+              className={active === 'buyer' ? 'font-semibold' : ''}
             >
               For buyers
             </Link>
             <Link
               href="/explore"
-              className={`rounded-[8px] px-4 py-2.5 text-[13px] font-medium ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+              className={active === 'explore' ? 'font-semibold' : ''}
             >
               Explore
             </Link>
             <Link
               href="/developer-ratings.html"
-              className="rounded-[8px] px-4 py-2.5 text-[13px] font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
             >
               Developer ratings
             </Link>
           </nav>
-          <div className="hidden items-center gap-2 text-[11px] text-muted-foreground xl:flex">
-            <ShieldCheck className="size-4 text-[#126D38]" />
-            Evidence-first
+          <div className="ts-orb-nav-actions">
+            <Link href="/explore" className="ts-orb-button ts-orb-button-small">Browse</Link>
+            <Link href="/developer-ratings.html" className="ts-orb-button ts-orb-button-dark ts-orb-button-small">Developer ratings</Link>
           </div>
-        </div>
       </header>
-      <nav
-        className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-md items-center justify-around rounded-[14px] border border-border bg-card/95 p-1.5 shadow-[0_16px_50px_rgba(34,27,19,.16)] backdrop-blur-xl lg:hidden"
-        aria-label="Mobile product navigation"
-      >
-        <Link
-          href="/"
-          className="grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] text-muted-foreground"
-        >
-          HOME
-        </Link>
-        <Link
-          href="/owner"
-          className={`grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
-        >
-          OWNER
-        </Link>
-        <Link
-          href="/buyer"
-          className={`grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
-        >
-          BUYER
-        </Link>
-        <Link
-          href="/explore"
-          className={`grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
-        >
-          EXPLORE
-        </Link>
-        <Link
-          href="/developer-ratings.html"
-          className="grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] text-muted-foreground"
-        >
-          RATINGS
-        </Link>
-      </nav>
     </>
   );
 }
@@ -750,7 +689,7 @@ export function PropertyIntelligenceApp({
   }
 
   return (
-    <main className="min-h-screen bg-background pb-24 text-foreground lg:pb-0">
+    <main className="ts-orb min-h-screen">
       <AppHeader active={view === 'buyer' ? 'buyer' : 'owner'} />
       {view === 'home' && (
         <HomeView
@@ -760,16 +699,16 @@ export function PropertyIntelligenceApp({
         />
       )}
       {view === 'buyer' && (
-        <div id="buyer-catalogue" className="ts-shell scroll-mt-24 py-12 sm:py-20">
+        <div id="buyer-catalogue" className="ts-orb-shell ts-orb-section scroll-mt-24">
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
           </Button>
-          <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr] lg:gap-16">
-            <section>
+          <div className="ts-orb-profile-layout">
+            <section className="min-w-0">
               <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
                 BUYER CATALOGUE
               </p>
-              <h1 className="mt-4 text-balance font-heading text-[50px] font-normal leading-[.96] tracking-[-0.03em] sm:text-[68px]">
+              <h1 className="ts-orb-page-title">
                 Your first home shouldn&apos;t require this much price guessing.
               </h1>
               <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
@@ -777,7 +716,7 @@ export function PropertyIntelligenceApp({
                 want to open a society&apos;s full evidence. Email is all the
                 production gate will ask for.
               </p>
-              <div className="mt-8 grid gap-4 rounded-[15px] bg-foreground p-5 text-background shadow-[0_18px_50px_rgba(34,27,19,.10)] sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="ts-orb-finder mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <FormField label="Search society">
                   <Input
                     value={searchQuery}
@@ -862,14 +801,14 @@ export function PropertyIntelligenceApp({
                   invalid evidence are excluded.
                 </AlertDescription>
               </Alert>
-              <div className="mt-5 rounded-[12px] border border-border bg-card p-5 text-sm leading-6 text-muted-foreground">
+              <div className="ts-orb-panel mt-5 p-5 text-sm leading-6 text-muted-foreground">
                 <p>Listing portals show what sellers hope for.</p>
                 <p>Brokers show what closes the deal in front of them.</p>
                 <p>Developers show what they&apos;ve priced this quarter.</p>
                 <p className="mt-3 font-medium text-foreground">Nobody publishes what apartments in these societies have actually sold for. So we did.</p>
               </div>
             </section>
-            <section>
+            <section className="ts-orb-review-panel p-6">
               <div className="mb-5 flex items-center justify-between">
                 <p className="font-mono text-[10px] tracking-[0.1em] text-muted-foreground">
                   {filteredSocieties.length} SOCIETIES FOUND
@@ -878,7 +817,7 @@ export function PropertyIntelligenceApp({
                   NO PAID RANKING
                 </span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="ts-orb-card-grid">
                 {filteredSocieties.slice(0, visibleSocieties).map((society) => {
                   const buyerEvidence = getBuyerEvidence(society, bhkFilter);
                   const matchingRecords = buyerEvidence.records;
@@ -1001,16 +940,16 @@ export function PropertyIntelligenceApp({
       )}
 
       {view === 'owner' && !valuation && (
-        <div className="ts-shell py-12 sm:py-20">
+        <div className="ts-orb-shell ts-orb-section">
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
           </Button>
-          <div className="grid min-w-0 gap-12 lg:grid-cols-[.76fr_1.24fr] lg:gap-16">
-            <aside className="min-w-0">
+          <div className="ts-orb-profile-layout">
+            <aside className="ts-orb-profile-summary min-w-0">
               <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
                 OWNER VALUATION
               </p>
-              <h1 className="mt-4 text-balance font-heading text-[52px] font-normal leading-[.96] tracking-[-0.03em] sm:text-[70px]">
+              <h1 className="ts-orb-page-title">
                 Your flat is an asset. Track it like one.
               </h1>
               <p className="mt-5 text-[15px] leading-7 text-muted-foreground">
@@ -1050,7 +989,7 @@ export function PropertyIntelligenceApp({
             <form
               id="property-form"
               onSubmit={beginOwnerReveal}
-              className="min-w-0 rounded-[14px] border border-border bg-card p-5 shadow-[0_18px_50px_rgba(34,27,19,.10)] sm:p-8"
+              className="ts-orb-form-panel min-w-0"
             >
               <div className="mb-7">
                 <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
@@ -1775,7 +1714,7 @@ function OwnerResult({
         )
       : '—';
   return (
-    <div className="ts-shell py-12 sm:py-20">
+    <div className="ts-orb-shell ts-orb-section">
       <Button variant="ghost" className="mb-5 -ml-3" onClick={onBack}>
         <ArrowLeft /> Review inputs
       </Button>
@@ -1914,7 +1853,7 @@ function OwnerResult({
           </h2>
         </div>
         {result.comparables.length ? (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="ts-orb-card-grid">
             {result.comparables.map((record) => (
               <Card key={record.id} size="sm">
                 <CardHeader>
@@ -1950,7 +1889,7 @@ function OwnerResult({
           </div>
         ) : null}
       </section>
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="ts-orb-card-grid mt-8">
         <Card>
           <CardHeader>
             <CardTitle>Development signals</CardTitle>
