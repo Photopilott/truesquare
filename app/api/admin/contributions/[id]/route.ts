@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 
 import { getSql, hasDatabase } from '@/db';
-import { isAdminRequest } from '@/lib/admin-auth';
+import {
+  getAdminSessionFromRequest,
+  isSameOriginRequest,
+} from '@/lib/admin-auth';
 import { MINIMUM_PUBLIC_CONTRIBUTIONS } from '@/lib/owner-aggregates';
 
 export const runtime = 'nodejs';
@@ -12,7 +15,11 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!isAdminRequest(request)) {
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });
+  }
+  const session = await getAdminSessionFromRequest(request);
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
   if (!hasDatabase()) {
@@ -59,7 +66,7 @@ export async function PATCH(
         SET
           status = ${status},
           reviewed_at = NOW(),
-          reviewed_by = 'admin',
+          reviewed_by = ${session.email},
           review_notes = ${notes}
         WHERE id = ${id}
       `,

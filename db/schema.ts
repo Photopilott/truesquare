@@ -123,3 +123,41 @@ export const registeredTransactions = pgTable(
     index('registered_transactions_location_bhk_idx').on(table.location, table.bhk),
   ],
 );
+
+export const adminOtpChallenges = pgTable(
+  'admin_otp_challenges',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    codeHash: text('code_hash').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    attemptsRemaining: integer('attempts_remaining').default(5).notNull(),
+    requestFingerprint: text('request_fingerprint').notNull(),
+    requestedAt: timestamp('requested_at', { withTimezone: true }).defaultNow().notNull(),
+    consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  },
+  (table) => [
+    index('admin_otp_email_requested_idx').on(table.email, table.requestedAt),
+    index('admin_otp_fingerprint_requested_idx').on(
+      table.requestFingerprint,
+      table.requestedAt,
+    ),
+  ],
+);
+
+export const adminSessions = pgTable(
+  'admin_sessions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('admin_sessions_token_unique').on(table.tokenHash),
+    index('admin_sessions_email_expires_idx').on(table.email, table.expiresAt),
+  ],
+);

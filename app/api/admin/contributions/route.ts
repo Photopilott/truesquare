@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 
 import { getSql, hasDatabase } from '@/db';
-import { isAdminRequest } from '@/lib/admin-auth';
+import { getAdminSessionFromRequest } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  if (!isAdminRequest(request)) {
+  const session = await getAdminSessionFromRequest(request);
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
   if (!hasDatabase()) {
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
       LIMIT 200
     `;
 
-    return NextResponse.json({ contributions: rows }, {
+    return NextResponse.json({ contributions: rows, admin: session.email }, {
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch (error) {
