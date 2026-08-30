@@ -7,7 +7,12 @@ const dmMono = DM_Mono({ variable: '--font-dm-mono', subsets: ['latin'], weight:
 const instrumentSerif = Instrument_Serif({ variable: '--font-instrument-serif', subsets: ['latin'], weight: '400' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : 'http://localhost:3000'),
+  ),
   title: 'TrueSquare — Bengaluru Property Intelligence',
   description: 'Independent, evidence-based apartment valuation and registered transaction intelligence for Bengaluru owners and buyers.',
   openGraph: {
