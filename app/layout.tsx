@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { Manrope, Source_Serif_4 } from 'next/font/google';
+import { DM_Mono, DM_Sans, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 
-const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
-const sourceSerif = Source_Serif_4({ variable: '--font-source-serif', subsets: ['latin'] });
+const dmSans = DM_Sans({ variable: '--font-dm-sans', subsets: ['latin'] });
+const dmMono = DM_Mono({ variable: '--font-dm-mono', subsets: ['latin'], weight: ['400', '500'] });
+const instrumentSerif = Instrument_Serif({ variable: '--font-instrument-serif', subsets: ['latin'], weight: '400' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? 'http://localhost:3000'),
@@ -23,5 +24,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${manrope.variable} ${sourceSerif.variable} antialiased`}>{children}</body></html>;
+  return <html lang="en"><body className={`${dmSans.variable} ${dmMono.variable} ${instrumentSerif.variable} antialiased`}>{children}</body></html>;
 }

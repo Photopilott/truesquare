@@ -1,6 +1,5 @@
-import propertyData from '@/data/property-data.json';
-import { PropertyIntelligenceApp } from '@/components/property-intelligence-app';
+import { HomeNavigation } from '@/components/home-navigation';
 
 export default function Home() {
-  return <PropertyIntelligenceApp societies={propertyData.societies} records={propertyData.records} />;
+  return <HomeNavigation />;
 }
