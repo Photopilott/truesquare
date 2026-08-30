@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight, Building2, Check, Menu, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, Menu, ShieldCheck } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -49,6 +49,7 @@ function Mark({ compact = false }: { compact?: boolean }) {
 export function HomeNavigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPath, setSelectedPath] = useState<(typeof paths)[number]['id']>('owner');
+  const selectedHref = selectedPath === 'owner' ? '/owner' : '/buyer';
 
   return (
     <main id="home" className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -187,9 +188,9 @@ export function HomeNavigation() {
           </div>
 
           <div className="mx-auto mt-6 flex max-w-4xl justify-center">
-            <div className="flex min-h-14 w-full max-w-md items-center justify-center gap-3 rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.13em] text-background opacity-60" aria-label="Selected path will be connected when its module is built">
-              {selectedPath === 'owner' ? 'OWNER MODULE COMES NEXT' : selectedPath === 'buyer' ? 'BUYER MODULE COMES NEXT' : 'BROWSE MODULE COMES NEXT'}
-            </div>
+            <a href={selectedHref} className="flex min-h-14 w-full max-w-md items-center justify-center gap-3 rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.13em] text-background shadow-[0_12px_30px_rgba(11,12,42,.14)] transition-transform hover:-translate-y-0.5">
+              {selectedPath === 'owner' ? 'START OWNER VALUATION' : selectedPath === 'buyer' ? 'EXPLORE AS A BUYER' : 'BROWSE THE COVERAGE'} <ArrowRight className="size-4" />
+            </a>
           </div>
         </div>
       </section>
