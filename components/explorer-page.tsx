@@ -64,7 +64,7 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
           <p>Real-estate information in Bengaluru is fragmented, delayed, anecdotal, and usually held by someone who earns from the transaction.</p>
           <p>Owners know a ballpark. Buyers know an asking price. Neither can easily check either.</p>
           <p>So we are building the missing record: registered transactions plus purchase prices contributed privately by owners, pooled anonymously and published only as safe ranges.</p>
-          <p className="font-medium text-foreground">The more owners contribute, the sharper it gets—for everyone. Until production pooling is connected, this prototype relies on the supplied transaction workbook.</p>
+          <p className="font-medium text-foreground">The more owners contribute, the sharper it gets—for everyone. Until secure owner pooling is connected, this release relies on the supplied transaction workbook.</p>
         </div>
       </section>
 

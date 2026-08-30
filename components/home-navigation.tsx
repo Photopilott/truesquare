@@ -137,7 +137,7 @@ export function HomeNavigation() {
               <p className="font-mono text-[10px] tracking-[0.13em] text-muted-foreground">SOCIETY EVIDENCE</p>
               <h2 className="mt-2 font-heading text-[29px] leading-none">A clearer starting point</h2>
             </div>
-            <span className="rounded-full bg-[#E6F3EB] px-3 py-1.5 text-[11px] font-medium text-[#157F4F]">Source-led</span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#157F4F]">Source-led evidence</span>
           </div>
           <div className="mt-7 space-y-3">
             {[
@@ -224,7 +224,7 @@ export function HomeNavigation() {
           </div>
           <div className="space-y-5 border-l border-background/15 pl-6 text-[14px] leading-relaxed text-background/70 sm:pl-8">
             <p>Owners privately share what they paid. TrueSquare is designed to pool those contributions anonymously with registered transactions. Everyone gets a price they can check.</p>
-            <p>The current prototype uses the supplied registered-transaction workbook. Owner pooling begins only when secure production storage is connected.</p>
+            <p>The current release uses the supplied registered-transaction workbook. Owner pooling begins only when secure production storage is connected.</p>
           </div>
         </div>
       </section>

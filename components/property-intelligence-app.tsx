@@ -8,7 +8,6 @@ import {
   SyntheticEvent,
   useEffect,
   useId,
-  useMemo,
   useState,
 } from 'react';
 import Link from 'next/link';
@@ -114,6 +113,24 @@ type ValuationResult = {
   annualizedReturn: number | null;
   returnAfterCosts: number | null;
   loanInterest: number;
+  matchTier: ComparableTier;
+  matchLabel: string;
+};
+
+type ComparableTier =
+  | 'exact-society-bhk'
+  | 'same-society-any-bhk'
+  | 'same-market-bhk'
+  | 'insufficient';
+
+type ComparableMatch = {
+  tier: ComparableTier;
+  label: string;
+  records: TransactionRecord[];
+};
+
+type BuyerEvidence = ComparableMatch & {
+  bhkBreakdown: string;
 };
 
 const EMPTY_FORM: OwnerForm = {
@@ -137,11 +154,6 @@ const EMPTY_FORM: OwnerForm = {
 };
 
 const LOCATIONS = ['Sarjapur Road', 'Bellandur', 'Marathahalli', 'Haralur'];
-function valuationCutoff(referenceDate = new Date()) {
-  const cutoff = new Date(referenceDate);
-  cutoff.setFullYear(cutoff.getFullYear() - 3);
-  return cutoff;
-}
 
 function parseIsoDate(value: string) {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -198,6 +210,21 @@ function formatInr(value: number | null, compact = false) {
     currency: 'INR',
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatRoundedInr(value: number) {
+  const step = 500_000;
+  return formatInr(Math.round(value / step) * step, true);
+}
+
+function formatRoundedInrRange(low: number, high: number) {
+  return `roughly ${formatRoundedInr(low)}–${formatRoundedInr(high)}`;
+}
+
+function formatRoundedPercentRange(low: number, high: number) {
+  const roundedLow = Math.floor((Math.min(low, high) * 100) / 5) * 5;
+  const roundedHigh = Math.ceil((Math.max(low, high) * 100) / 5) * 5;
+  return `roughly ${roundedLow}–${roundedHigh}% over the period`;
 }
 
 function formatDate(value: string | null) {
@@ -280,6 +307,48 @@ function isValidEvidence(record: TransactionRecord) {
     record.pricePerSqFt &&
     record.pricePerSqFt > 0,
   );
+}
+
+function findComparableMatch(
+  records: TransactionRecord[],
+  target: { society: string; bhk: string; location: string },
+): ComparableMatch {
+  const eligible = records.filter(isValidEvidence);
+  const tiers: Array<
+    Omit<ComparableMatch, 'records'> & {
+      matches: (record: TransactionRecord) => boolean;
+    }
+  > = [
+    {
+      tier: 'exact-society-bhk',
+      label: 'Exact society + BHK',
+      matches: (record) =>
+        record.society === target.society && record.bhk === target.bhk,
+    },
+    {
+      tier: 'same-society-any-bhk',
+      label: 'Same society · any BHK',
+      matches: (record) => record.society === target.society,
+    },
+    {
+      tier: 'same-market-bhk',
+      label: 'Same micro-market + BHK',
+      matches: (record) =>
+        record.location === target.location && record.bhk === target.bhk,
+    },
+  ];
+
+  for (const tier of tiers) {
+    const matches = eligible.filter(tier.matches);
+    if (matches.length)
+      return { tier: tier.tier, label: tier.label, records: matches };
+  }
+
+  return {
+    tier: 'insufficient',
+    label: 'No evidence in any matching tier',
+    records: [],
+  };
 }
 
 function BrandMark() {
@@ -427,29 +496,65 @@ export function PropertyIntelligenceApp({
       );
   }, [ownerForm, valuation, view]);
 
+  function getBuyerEvidence(
+    society: SocietySummary,
+    selectedBhk: string,
+  ): BuyerEvidence {
+    if (selectedBhk !== 'All') {
+      const match = findComparableMatch(records, {
+        society: society.name,
+        bhk: selectedBhk,
+        location: society.location,
+      });
+      return {
+        ...match,
+        bhkBreakdown: `${selectedBhk} BHK (${match.records.length})`,
+      };
+    }
+
+    const matches = society.bhks.map((bhk) => ({
+      bhk,
+      match: findComparableMatch(records, {
+        society: society.name,
+        bhk,
+        location: society.location,
+      }),
+    }));
+    const uniqueRecords = [
+      ...new Map(
+        matches
+          .flatMap(({ match }) => match.records)
+          .map((record) => [record.id, record]),
+      ).values(),
+    ];
+    return {
+      tier: uniqueRecords.length ? 'same-society-any-bhk' : 'insufficient',
+      label: uniqueRecords.length
+        ? 'Tiered evidence across available BHKs'
+        : 'No evidence in any matching tier',
+      records: uniqueRecords,
+      bhkBreakdown:
+        matches
+          .filter(({ match }) => match.records.length)
+          .map(({ bhk, match }) => `${bhk} BHK (${match.records.length})`)
+          .join(', ') || 'Sparse',
+    };
+  }
+
   const selectedSocietySummary = societies.find(
     (society) => society.name === ownerForm.society,
   );
-  const buyerSocietyRecords = selectedSociety
-    ? records.filter(
-        (record) =>
-          record.society === selectedSociety.name &&
-          (bhkFilter === 'All' || record.bhk === bhkFilter) &&
-          isValidEvidence(record),
-      )
-    : [];
+  const buyerSocietyEvidence = selectedSociety
+    ? getBuyerEvidence(selectedSociety, bhkFilter)
+    : null;
+  const buyerSocietyRecords = buyerSocietyEvidence?.records ?? [];
 
-  const filteredSocieties = useMemo(() => {
+  const filteredSocieties = (() => {
     const budget = budgetFilter === 'All' ? Infinity : Number(budgetFilter);
     return societies.filter((society) => {
       const matchesLocation =
         locationFilter === 'All' || society.location === locationFilter;
-      const matchingRecords = records.filter(
-        (record) =>
-          record.society === society.name &&
-          (bhkFilter === 'All' || record.bhk === bhkFilter) &&
-          isValidEvidence(record),
-      );
+      const matchingRecords = getBuyerEvidence(society, bhkFilter).records;
       const matchesBhk = bhkFilter === 'All' || matchingRecords.length > 0;
       const matchingMedian = median(
         matchingRecords
@@ -464,14 +569,7 @@ export function PropertyIntelligenceApp({
         .includes(searchQuery.toLowerCase());
       return matchesLocation && matchesBhk && matchesBudget && matchesSearch;
     });
-  }, [
-    bhkFilter,
-    budgetFilter,
-    locationFilter,
-    records,
-    searchQuery,
-    societies,
-  ]);
+  })();
 
   function updateOwner<K extends keyof OwnerForm>(key: K, value: OwnerForm[K]) {
     setOwnerForm((current) => ({ ...current, [key]: value }));
@@ -485,28 +583,17 @@ export function PropertyIntelligenceApp({
   }
 
   function eligibleComparables(form: OwnerForm) {
-    const targetBasis = form.areaType === 'carpet' ? 'carpet' : 'super built';
-    return records.filter((record) => {
-      if (record.society !== form.society || record.bhk !== form.bhk)
-        return false;
-      if (
-        !record.registrationDate ||
-        new Date(record.registrationDate) < valuationCutoff()
-      )
-        return false;
-      if (
-        !record.price ||
-        !record.effectiveArea ||
-        !record.pricePerSqFt ||
-        !record.areaBasis
-      )
-        return false;
-      return record.areaBasis.toLowerCase().includes(targetBasis);
+    const society = societies.find((item) => item.name === form.society);
+    return findComparableMatch(records, {
+      society: form.society,
+      bhk: form.bhk,
+      location: society?.location ?? '',
     });
   }
 
   function buildValuation(form: OwnerForm): ValuationResult {
-    const comparables = eligibleComparables(form);
+    const comparableMatch = eligibleComparables(form);
+    const comparables = comparableMatch.records;
     const area = Number(form.area);
     const impliedValues = comparables.map(
       (record) => (record.pricePerSqFt ?? 0) * area,
@@ -562,28 +649,29 @@ export function PropertyIntelligenceApp({
       returnAfterCosts: estimate ? estimate - acquisitionCost : null,
       annualizedReturn,
       loanInterest,
+      matchTier: comparableMatch.tier,
+      matchLabel: comparableMatch.label,
     };
   }
 
   function validateOwner() {
     const next: Record<string, string> = {};
-    const required: Array<keyof OwnerForm> = [
-      'society',
-      'tower',
-      'floor',
-      'bhk',
-      'area',
-      'purchaseDate',
-      'purchasePrice',
-      'stampDuty',
-      'registrationCost',
-      'interiors',
-    ];
-    required.forEach((key) => {
-      if (!ownerForm[key])
-        next[key] = 'Required for the V1 property match and return.';
+    const requiredMessages: Partial<Record<keyof OwnerForm, string>> = {
+      society: 'Select a society.',
+      tower: 'Select a tower or block.',
+      floor: 'Enter the floor number.',
+      bhk: 'Select the apartment configuration.',
+      area: 'Enter the area in square feet.',
+      purchaseDate: 'Enter the purchase date in YYYY-MM-DD format.',
+      purchasePrice: 'Enter the purchase price.',
+      stampDuty: 'Enter the stamp duty paid (use 0 if none).',
+      registrationCost: 'Enter the registration cost paid (use 0 if none).',
+      interiors: 'Enter the interior cost paid (use 0 if none).',
+    };
+    Object.entries(requiredMessages).forEach(([key, message]) => {
+      if (!ownerForm[key as keyof OwnerForm]) next[key] = message;
     });
-    if (Number(ownerForm.area) <= 0)
+    if (ownerForm.area && Number(ownerForm.area) <= 0)
       next.area = 'Area must be greater than zero.';
     const purchaseDate = ownerForm.purchaseDate
       ? parseIsoDate(ownerForm.purchaseDate)
@@ -618,7 +706,7 @@ export function PropertyIntelligenceApp({
   function beginOwnerReveal(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!validateOwner()) return;
-    const comps = eligibleComparables(ownerForm);
+    const comps = eligibleComparables(ownerForm).records;
     const compMedian = median(comps.map((record) => record.pricePerSqFt ?? 0));
     const submittedPpsf =
       parseIndianCurrency(ownerForm.purchasePrice) / Number(ownerForm.area);
@@ -636,7 +724,7 @@ export function PropertyIntelligenceApp({
     setShowGate(true);
   }
 
-  function completePrototypeGate() {
+  function completeAccessGate() {
     if (!covenantAccepted) return;
     setShowGate(false);
     if (gateContext === 'owner') {
@@ -755,7 +843,7 @@ export function PropertyIntelligenceApp({
               </div>
               <Alert className="mt-4 rounded-[22px] border-[#B8DCC5] bg-[#E6F3EB]">
                 <Info />
-                <AlertTitle>Prototype data boundary</AlertTitle>
+                <AlertTitle>Workbook data boundary</AlertTitle>
                 <AlertDescription>
                   {records.length} scoped sale records from the supplied
                   workbook. Mortgages, villas, plots, unsupported locations, and
@@ -774,18 +862,14 @@ export function PropertyIntelligenceApp({
                 <p className="font-mono text-[10px] tracking-[0.1em] text-muted-foreground">
                   {filteredSocieties.length} SOCIETIES FOUND
                 </p>
-                <Badge variant="secondary" className="rounded-full px-3">
-                  No paid ranking
-                </Badge>
+                <span className="font-mono text-[10px] tracking-[0.1em] text-muted-foreground">
+                  NO PAID RANKING
+                </span>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {filteredSocieties.slice(0, visibleSocieties).map((society) => {
-                  const matchingRecords = records.filter(
-                    (record) =>
-                      record.society === society.name &&
-                      (bhkFilter === 'All' || record.bhk === bhkFilter) &&
-                      isValidEvidence(record),
-                  );
+                  const buyerEvidence = getBuyerEvidence(society, bhkFilter);
+                  const matchingRecords = buyerEvidence.records;
                   const displayPrice = median(
                     matchingRecords
                       .map((record) => record.price)
@@ -845,15 +929,7 @@ export function PropertyIntelligenceApp({
                           />
                           <Metric
                             label="BHK evidence"
-                            value={
-                              bhkFilter === 'All'
-                                ? society.bhks.length
-                                  ? society.bhks
-                                      .map((bhk) => `${bhk} BHK`)
-                                      .join(', ')
-                                  : 'Sparse'
-                                : `${bhkFilter} BHK`
-                            }
+                            value={buyerEvidence.bhkBreakdown}
                           />
                           <Metric
                             label="Confidence"
@@ -861,8 +937,10 @@ export function PropertyIntelligenceApp({
                           />
                         </CardContent>
                         <CardFooter className="justify-between text-xs text-muted-foreground">
-                          <span>Latest: {formatDate(latestDate)}</span>
-                          <ChevronRight className="size-4" />
+                          <span>{buyerEvidence.label} · Latest: {formatDate(latestDate)}</span>
+                          <span className="flex shrink-0 items-center gap-1 font-medium text-foreground">
+                            View evidence <ChevronRight className="size-4" />
+                          </span>
                         </CardFooter>
                       </Card>
                     </button>
@@ -885,7 +963,7 @@ export function PropertyIntelligenceApp({
                     No supported society matches
                   </h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Create an on-screen prototype request. Email fulfilment is
+                    Create an on-screen request record. Email fulfilment is
                     planned for V2 and is not promised within 48 hours in V1.
                   </p>
                   <Button
@@ -1163,7 +1241,7 @@ export function PropertyIntelligenceApp({
                   Add optional loan interest
                 </summary>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  The prototype adds total scheduled interest over the full
+                  The calculation adds total scheduled interest over the full
                   tenure as a cost of ownership. It does not model equity
                   return.
                 </p>
@@ -1253,9 +1331,9 @@ export function PropertyIntelligenceApp({
             </p>
             <DialogTitle>Sign in only when you unlock intelligence</DialogTitle>
             <DialogDescription>
-              Production will use Google sign-in and request only your email.
-              This prototype demonstrates the gate without collecting an
-              account.
+              Accept the data covenant to reveal the requested evidence. Google
+              sign-in will request only your email when account access is
+              connected.
             </DialogDescription>
           </DialogHeader>
           <label className="flex cursor-pointer items-start gap-3 rounded-[20px] border border-border bg-[#EFEDE7] p-4 text-sm leading-relaxed">
@@ -1275,12 +1353,14 @@ export function PropertyIntelligenceApp({
             <Button
               className="h-13 w-full font-mono text-[11px] tracking-[0.1em]"
               disabled={!covenantAccepted}
-              onClick={completePrototypeGate}
+              onClick={completeAccessGate}
             >
               <span className="grid size-5 place-items-center rounded-full bg-white text-xs font-bold text-primary">
                 G
               </span>{' '}
-              CONTINUE IN PROTOTYPE
+              {gateContext === 'owner'
+                ? 'SEE MY VALUATION'
+                : 'SEE SUPPORTING TRANSACTIONS'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1296,6 +1376,7 @@ export function PropertyIntelligenceApp({
               society={selectedSociety}
               records={buyerSocietyRecords}
               bhkFilter={bhkFilter}
+              matchLabel={buyerSocietyEvidence?.label ?? 'No evidence'}
               unlocked={buyerUnlocked}
               onUnlock={() => {
                 setGateContext('buyer');
@@ -1312,7 +1393,7 @@ export function PropertyIntelligenceApp({
           <DialogHeader>
             <DialogTitle>
               {unknownSent
-                ? 'Prototype receipt created'
+                ? 'Request receipt created'
                 : 'Submit a missing society'}
             </DialogTitle>
             <DialogDescription>
@@ -1383,7 +1464,7 @@ export function PropertyIntelligenceApp({
                   setUnknownSent(true);
                 }}
               >
-                Show prototype confirmation
+                Show request confirmation
               </Button>
             )}
           </DialogFooter>
@@ -1451,7 +1532,7 @@ function BuyerEditorialSections() {
       <section className="py-6 text-center sm:py-10">
         <h2 className="text-balance font-heading text-4xl font-normal sm:text-5xl">Look at the evidence before you look at the flat.</h2>
         <a href="#buyer-catalogue" className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.1em] text-background">Browse societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur</a>
-        <p className="mt-4 text-xs text-muted-foreground">Can&apos;t find one? Create an on-screen prototype request. Email delivery is planned for V2.</p>
+        <p className="mt-4 text-xs text-muted-foreground">Can&apos;t find one? Create an on-screen request record. Email delivery is planned for V2.</p>
       </section>
     </div>
   );
@@ -1652,6 +1733,35 @@ function OwnerResult({
   result: ValuationResult;
   onBack: () => void;
 }) {
+  const thinEvidence = result.comparables.length > 0 && result.comparables.length < 3;
+  const purchasePrice = parseIndianCurrency(form.purchasePrice);
+  const lowValue = result.low ?? result.estimate;
+  const highValue = result.high ?? result.estimate;
+  const thinValueRange =
+    lowValue != null && highValue != null
+      ? formatRoundedInrRange(lowValue, highValue)
+      : '—';
+  const thinReturnRange =
+    lowValue != null && highValue != null && result.acquisitionCost > 0
+      ? formatRoundedPercentRange(
+          (lowValue - result.acquisitionCost) / result.acquisitionCost,
+          (highValue - result.acquisitionCost) / result.acquisitionCost,
+        )
+      : '—';
+  const thinReturnAfterCosts =
+    lowValue != null && highValue != null
+      ? formatRoundedInrRange(
+          lowValue - result.acquisitionCost,
+          highValue - result.acquisitionCost,
+        )
+      : '—';
+  const thinAppreciation =
+    lowValue != null && highValue != null
+      ? formatRoundedInrRange(
+          lowValue - purchasePrice,
+          highValue - purchasePrice,
+        )
+      : '—';
   return (
     <div className="mx-auto max-w-6xl px-5 py-7 sm:px-8 sm:py-12">
       <Button variant="ghost" className="mb-5 -ml-3" onClick={onBack}>
@@ -1668,6 +1778,9 @@ function OwnerResult({
           <p className="mt-3 text-sm text-muted-foreground">
             {form.bhk} BHK · {Number(form.area).toLocaleString('en-IN')} sq ft ·{' '}
             {form.areaType === 'carpet' ? 'Carpet' : 'Super built-up'} area
+          </p>
+          <p className="mt-2 text-xs font-medium text-accent-foreground">
+            Evidence tier: {result.matchLabel}
           </p>
         </div>
         <Badge
@@ -1689,11 +1802,12 @@ function OwnerResult({
                 ESTIMATED CURRENT VALUE
               </p>
               <CardTitle className="mt-2 font-heading text-[48px] tracking-[-0.035em] sm:text-6xl">
-                {formatInr(result.estimate, true)}
+                {thinEvidence ? thinValueRange : formatInr(result.estimate, true)}
               </CardTitle>
               <p className="text-sm text-primary-foreground/65">
-                Estimated range {formatInr(result.low, true)}–
-                {formatInr(result.high, true)}
+                {thinEvidence
+                  ? 'Rounded range because fewer than 3 transactions support this result.'
+                  : `Estimated range ${formatInr(result.low, true)}–${formatInr(result.high, true)}`}
               </p>
             </CardHeader>
             <CardContent>
@@ -1707,16 +1821,22 @@ function OwnerResult({
                   value={formatInr(result.acquisitionCost, true)}
                 />
                 <Metric
-                  label="Annualized return"
+                  label={thinEvidence ? 'Return range' : 'Annualized return'}
                   value={
-                    result.annualizedReturn == null
+                    thinEvidence
+                      ? thinReturnRange
+                      : result.annualizedReturn == null
                       ? '—'
                       : `${(result.annualizedReturn * 100).toFixed(1)}%`
                   }
                 />
                 <Metric
                   label="Return after costs"
-                  value={formatInr(result.returnAfterCosts, true)}
+                  value={
+                    thinEvidence
+                      ? thinReturnAfterCosts
+                      : formatInr(result.returnAfterCosts, true)
+                  }
                 />
               </div>
             </CardContent>
@@ -1751,7 +1871,11 @@ function OwnerResult({
               <Separator />
               <ResultRow
                 label="Absolute appreciation"
-                value={formatInr(result.absoluteAppreciation)}
+                value={
+                  thinEvidence
+                    ? thinAppreciation
+                    : formatInr(result.absoluteAppreciation)
+                }
                 strong
               />
             </CardContent>
@@ -1760,11 +1884,11 @@ function OwnerResult({
       ) : (
         <Alert variant="destructive" className="rounded-[24px]">
           <CircleAlert />
-          <AlertTitle>Insufficient like-for-like evidence</AlertTitle>
+          <AlertTitle>Insufficient evidence</AlertTitle>
           <AlertDescription>
-            No valid registered transaction in the last 36 months matches this
-            society, exact BHK, and area basis. We will not substitute a
-            locality average or present false precision.
+            No valid registered transaction was found for the exact society and
+            BHK, the same society at another BHK, or the same micro-market and
+            BHK.
           </AlertDescription>
         </Alert>
       )}
@@ -1774,7 +1898,7 @@ function OwnerResult({
             EVIDENCE USED
           </p>
           <h2 className="mt-2 font-heading text-3xl font-normal">
-            Like-for-like registered transactions
+            Registered transactions · {result.matchLabel}
           </h2>
         </div>
         {result.comparables.length ? (
@@ -1822,7 +1946,7 @@ function OwnerResult({
           <CardContent>
             <p className="text-sm leading-6 text-muted-foreground">
               No signal is shown because a source and publication date have not
-              yet been selected. The prototype does not invent or display
+              yet been selected. We do not invent or display
               unsourced rumours.
             </p>
           </CardContent>
@@ -1874,12 +1998,14 @@ function SocietyDetail({
   society,
   records,
   bhkFilter,
+  matchLabel,
   unlocked,
   onUnlock,
 }: {
   society: SocietySummary;
   records: TransactionRecord[];
   bhkFilter: string;
+  matchLabel: string;
   unlocked: boolean;
   onUnlock: () => void;
 }) {
@@ -1914,8 +2040,9 @@ function SocietyDetail({
         </DialogTitle>
         <DialogDescription>
           {bhkFilter === 'All'
-            ? 'Society-level evidence only.'
-            : `Filtered to like-for-like ${bhkFilter} BHK evidence.`}{' '}
+            ? 'Society evidence assembled by BHK.'
+            : `Filtered to ${bhkFilter} BHK evidence.`}{' '}
+          Evidence tier: {matchLabel}.{' '}
           This is not a live listing, ranking, or recommendation.
         </DialogDescription>
       </DialogHeader>
