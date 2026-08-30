@@ -1,0 +1,2481 @@
+{
+  "generatedFrom": "Property_Price_Database.xlsx",
+  "scope": [
+    "Bellandur",
+    "Haralur",
+    "Marathahalli",
+    "Sarjapur Road"
+  ],
+  "records": [
+    {
+      "id": "TXN-0042",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Mantri Espana",
+      "tower": "C",
+      "bhk": "4.5",
+      "registrationDate": null,
+      "rawDate": "1 Jan 0001",
+      "price": 59300000,
+      "effectiveArea": 5930.0,
+      "pricePerSqFt": 10000.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": "Registration date invalid or missing; Parking not stated",
+      "sourceFile": "Mantri Espana 2001.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9487758"
+    },
+    {
+      "id": "TXN-0043",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Mantri Espana",
+      "tower": "C",
+      "bhk": "4.5",
+      "registrationDate": "2025-03-28",
+      "rawDate": "28 Mar 2025",
+      "price": 59300000,
+      "effectiveArea": 5930.0,
+      "pricePerSqFt": 10000.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "Mantri Espana latest.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8721691"
+    },
+    {
+      "id": "TXN-0040",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Mantri Espana",
+      "tower": "15",
+      "bhk": "4",
+      "registrationDate": "2026-06-07",
+      "rawDate": "7 Jun 2026",
+      "price": 57500000,
+      "effectiveArea": 4710.0,
+      "pricePerSqFt": 12213.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Mantri Espana 4700 sq ft.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10873709"
+    },
+    {
+      "id": "TXN-0097",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Sobha Marvella",
+      "tower": "11 / A3",
+      "bhk": "3",
+      "registrationDate": "2026-03-18",
+      "rawDate": "18 Mar 2026",
+      "price": 52000000,
+      "effectiveArea": 3545.0,
+      "pricePerSqFt": 14668.55,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sobha Marvella.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10368943"
+    },
+    {
+      "id": "TXN-0073",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Shriram Chirping Woods Apartment",
+      "tower": "17",
+      "bhk": "3",
+      "registrationDate": "2021-09-16",
+      "rawDate": "16 Sep 2021",
+      "price": 20832900,
+      "effectiveArea": 2990.0,
+      "pricePerSqFt": 6968.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Shriram Chirping Woods Villament old price.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/2967133"
+    },
+    {
+      "id": "TXN-0030",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Embassy Pristine",
+      "tower": "4",
+      "bhk": "3",
+      "registrationDate": "2026-05-13",
+      "rawDate": "13 May 2026",
+      "price": 47000000,
+      "effectiveArea": 2666.01,
+      "pricePerSqFt": 17636.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Embassy Pristine.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10499567"
+    },
+    {
+      "id": "TXN-0072",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Shriram Chirping Woods Apartment",
+      "tower": "11",
+      "bhk": "3",
+      "registrationDate": "2025-04-25",
+      "rawDate": "25 Apr 2025",
+      "price": 40500000,
+      "effectiveArea": 2650.0,
+      "pricePerSqFt": 15283.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Shriram Chirping Woods Villament.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8813292"
+    },
+    {
+      "id": "TXN-0081",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "SJR Palazza City",
+      "tower": "A",
+      "bhk": "3",
+      "registrationDate": "2025-12-05",
+      "rawDate": "5 Dec 2025",
+      "price": 19900000,
+      "effectiveArea": 2531.99,
+      "pricePerSqFt": 7859.43,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "SJR Palazza City.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390853"
+    },
+    {
+      "id": "TXN-0002",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Kaikondrahalli",
+      "society": "Adarsh Lake Front",
+      "tower": "G",
+      "bhk": "3",
+      "registrationDate": "2023-01-05",
+      "rawDate": "5 Jan 2023",
+      "price": 20483230,
+      "effectiveArea": 2315.0,
+      "pricePerSqFt": 8848.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Adarsh Lake Front 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/6517338"
+    },
+    {
+      "id": "TXN-0051",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Prestige Ferns Residency",
+      "tower": "20",
+      "bhk": "3",
+      "registrationDate": "2026-04-24",
+      "rawDate": "24 Apr 2026",
+      "price": 39800000,
+      "effectiveArea": 2239.0,
+      "pricePerSqFt": 17775.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Prestige Ferns Residency2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10839911"
+    },
+    {
+      "id": "TXN-0013",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Astro Rosewood Regency",
+      "tower": "V2",
+      "bhk": "3",
+      "registrationDate": "2024-01-12",
+      "rawDate": "12 Jan 2024",
+      "price": 13200000,
+      "effectiveArea": 2044.0,
+      "pricePerSqFt": 6459.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Astro Rosewood Regency.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/7262345"
+    },
+    {
+      "id": "TXN-0062",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Purva Whitehall",
+      "tower": "D",
+      "bhk": "3",
+      "registrationDate": "2026-06-11",
+      "rawDate": "11 Jun 2026",
+      "price": 30500000,
+      "effectiveArea": 2017.0,
+      "pricePerSqFt": 15119.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Purva Whitehall.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10602116"
+    },
+    {
+      "id": "TXN-0009",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Akme Harmony",
+      "tower": null,
+      "bhk": "3",
+      "registrationDate": "2012-08-27",
+      "rawDate": "27 Aug 2012",
+      "price": 7500000,
+      "effectiveArea": 1945.0,
+      "pricePerSqFt": 3856.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "Akme Harmony 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/3758356"
+    },
+    {
+      "id": "TXN-0010",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Akme Harmony",
+      "tower": "2D",
+      "bhk": "3",
+      "registrationDate": "2025-07-02",
+      "rawDate": "2 Jul 2025",
+      "price": 12900000,
+      "effectiveArea": 1945.0,
+      "pricePerSqFt": 6632.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "Akme Harmony .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9487766"
+    },
+    {
+      "id": "TXN-0047",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Om Sakti Heritage",
+      "tower": "A",
+      "bhk": "3",
+      "registrationDate": "2026-04-17",
+      "rawDate": "17 Apr 2026",
+      "price": 17500000,
+      "effectiveArea": 1914.0,
+      "pricePerSqFt": 9142.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Om Sakti Heritage.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10499491"
+    },
+    {
+      "id": "TXN-0034",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Greenwood Regency",
+      "tower": "J4",
+      "bhk": "2",
+      "registrationDate": "2024-08-09",
+      "rawDate": "9 Aug 2024",
+      "price": 9850000,
+      "effectiveArea": 1895.26,
+      "pricePerSqFt": 5197.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Greenwood Regency J4.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/7928094"
+    },
+    {
+      "id": "TXN-0006",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Adarsh Palm Retreat Tower 1 - Gulmohar",
+      "tower": "D",
+      "bhk": "3",
+      "registrationDate": "2025-12-16",
+      "rawDate": "16 Dec 2025",
+      "price": 31500000,
+      "effectiveArea": 1846.01,
+      "pricePerSqFt": 17063.83,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Adarsh Palm Retreat Tower 1 - Gulmohar.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390891"
+    },
+    {
+      "id": "TXN-0029",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "DSR Wood Winds",
+      "tower": "3",
+      "bhk": "3",
+      "registrationDate": "2026-04-21",
+      "rawDate": "21 Apr 2026",
+      "price": 24200000,
+      "effectiveArea": 1834.0,
+      "pricePerSqFt": 13193.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "DSR Wood Winds.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390845"
+    },
+    {
+      "id": "TXN-0031",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Goyal Orchid Lakeview",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2016-12-09",
+      "rawDate": "9 Dec 2016",
+      "price": 5673000,
+      "effectiveArea": 1830.0,
+      "pricePerSqFt": 3100.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Goyal Orchid Lakeview 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/1932154"
+    },
+    {
+      "id": "TXN-0023",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Kaikondrahalli",
+      "society": "Divyasree Elan",
+      "tower": "Pratle",
+      "bhk": "3",
+      "registrationDate": "2025-11-25",
+      "rawDate": "25 Nov 2025",
+      "price": 24850000,
+      "effectiveArea": 1828.0,
+      "pricePerSqFt": 13594.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Divyasree Elan .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10602129"
+    },
+    {
+      "id": "TXN-0085",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "SNN Raj Etternia",
+      "tower": "C2",
+      "bhk": "3",
+      "registrationDate": "2025-06-18",
+      "rawDate": "18 Jun 2025",
+      "price": 27600000,
+      "effectiveArea": 1810.0,
+      "pricePerSqFt": 15249.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SNN Raj Etternia 3BHK.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9058176"
+    },
+    {
+      "id": "TXN-0015",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Bren Imperia",
+      "tower": "1 / 4",
+      "bhk": "3",
+      "registrationDate": "2025-07-24",
+      "rawDate": "24 Jul 2025",
+      "price": 23500000,
+      "effectiveArea": 1778.0,
+      "pricePerSqFt": 13217.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Bren Imperia 3.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9068751"
+    },
+    {
+      "id": "TXN-0016",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Bren Imperia",
+      "tower": "1 / 4",
+      "bhk": "3",
+      "registrationDate": "2025-10-03",
+      "rawDate": "3 Oct 2025",
+      "price": 25500000,
+      "effectiveArea": 1778.0,
+      "pricePerSqFt": 14342.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Bren Imperia 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9395617"
+    },
+    {
+      "id": "TXN-0028",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "DSR Ultima",
+      "tower": "B",
+      "bhk": "3",
+      "registrationDate": "2025-05-04",
+      "rawDate": "4 May 2025",
+      "price": 18000000,
+      "effectiveArea": 1775.0,
+      "pricePerSqFt": 10141.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "DSR Ultima .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9487451"
+    },
+    {
+      "id": "TXN-0093",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Sobha Daisy",
+      "tower": "F2",
+      "bhk": "3",
+      "registrationDate": "2026-03-07",
+      "rawDate": "7 Mar 2026",
+      "price": 21000000,
+      "effectiveArea": 1754.95,
+      "pricePerSqFt": 11966.15,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sobha Daisy .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10499511"
+    },
+    {
+      "id": "TXN-0020",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "CLPD Suncity Apartments",
+      "tower": "Harmony 0…",
+      "bhk": "3",
+      "registrationDate": "2026-07-23",
+      "rawDate": "23 Jul 2026",
+      "price": 18500000,
+      "effectiveArea": 1696.0,
+      "pricePerSqFt": 10905.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "CLPD Suncity Apartment.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10881272"
+    },
+    {
+      "id": "TXN-0005",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Adarsh Palm Retreat Daffodils",
+      "tower": "H",
+      "bhk": "3",
+      "registrationDate": "2026-01-27",
+      "rawDate": "27 Jan 2026",
+      "price": 33500000,
+      "effectiveArea": 1690.04,
+      "pricePerSqFt": 19822.02,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Adarsh Palm Retreat Daffodils .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10729629"
+    },
+    {
+      "id": "TXN-0039",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Mana Pristine",
+      "tower": "1",
+      "bhk": "2",
+      "registrationDate": "2026-03-24",
+      "rawDate": "24 Mar 2026",
+      "price": 8350000,
+      "effectiveArea": 1684.0,
+      "pricePerSqFt": 4960.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Mana Pristine.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10790200"
+    },
+    {
+      "id": "TXN-0037",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Mana Campbell",
+      "tower": "MANA CAM…",
+      "bhk": "2",
+      "registrationDate": "2026-03-30",
+      "rawDate": "30 Mar 2026",
+      "price": 15500000,
+      "effectiveArea": 1677.0,
+      "pricePerSqFt": 9241.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Mana Campbell .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10368931"
+    },
+    {
+      "id": "TXN-0110",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Vinayaka Residency",
+      "tower": "2",
+      "bhk": "2",
+      "registrationDate": "2026-06-15",
+      "rawDate": "15 Jun 2026",
+      "price": 7200000,
+      "effectiveArea": 1624.0,
+      "pricePerSqFt": 4432.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Vinayaka Residency.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10873663"
+    },
+    {
+      "id": "TXN-0074",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Shriram Chirping Woods Apartment",
+      "tower": "2",
+      "bhk": "3",
+      "registrationDate": "2025-05-12",
+      "rawDate": "12 May 2025",
+      "price": 17500000,
+      "effectiveArea": 1620.0,
+      "pricePerSqFt": 10802.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Shriram Chirping Woods Apartment -2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9068440"
+    },
+    {
+      "id": "TXN-0055",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Purva Riviera",
+      "tower": "RH",
+      "bhk": "3",
+      "registrationDate": "2026-01-03",
+      "rawDate": "3 Jan 2026",
+      "price": 16000000,
+      "effectiveArea": 1583.05,
+      "pricePerSqFt": 10107.07,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Purva Riviera RH.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10295656"
+    },
+    {
+      "id": "TXN-0022",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Kaikondrahalli",
+      "society": "Divyasree Elan",
+      "tower": "of",
+      "bhk": "2",
+      "registrationDate": "2013-08-22",
+      "rawDate": "22 Aug 2013",
+      "price": 11100000,
+      "effectiveArea": 1581.0,
+      "pricePerSqFt": 7021.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Divyasree Elan 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/5831598"
+    },
+    {
+      "id": "TXN-0078",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "SJR Blue Waters",
+      "tower": "CRESCENT",
+      "bhk": "2",
+      "registrationDate": "2026-02-11",
+      "rawDate": "11 Feb 2026",
+      "price": 16100085,
+      "effectiveArea": 1574.98,
+      "pricePerSqFt": 10222.41,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SJR Blue Waters Crescent.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10509906"
+    },
+    {
+      "id": "TXN-0080",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "SJR Blue Waters",
+      "tower": "KENSINGTO…",
+      "bhk": "2",
+      "registrationDate": "2026-02-07",
+      "rawDate": "7 Feb 2026",
+      "price": 15900832,
+      "effectiveArea": 1574.98,
+      "pricePerSqFt": 10095.89,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SJR Blue Waters  Kenningston.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10510034"
+    },
+    {
+      "id": "TXN-0003",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Kaikondrahalli",
+      "society": "Adarsh Lake Front",
+      "tower": "H",
+      "bhk": "2",
+      "registrationDate": "2018-09-20",
+      "rawDate": "20 Sep 2018",
+      "price": 15422147,
+      "effectiveArea": 1555.0,
+      "pricePerSqFt": 9918.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Adarsh Lake Front 2018.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/6509513"
+    },
+    {
+      "id": "TXN-0035",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Greenwood Regency",
+      "tower": "Y2",
+      "bhk": "2",
+      "registrationDate": "2024-09-27",
+      "rawDate": "27 Sep 2024",
+      "price": 10700000,
+      "effectiveArea": 1546.36,
+      "pricePerSqFt": 6919.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Greenwood Regency Y.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8111106"
+    },
+    {
+      "id": "TXN-0025",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "DSR Fairmont",
+      "tower": null,
+      "bhk": "2",
+      "registrationDate": "2026-03-21",
+      "rawDate": "21 Mar 2026",
+      "price": 10800000,
+      "effectiveArea": 1464.0,
+      "pricePerSqFt": 7377.05,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "DSR Fairmont.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10369007"
+    },
+    {
+      "id": "TXN-0065",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "RI Elegance",
+      "tower": "SRI",
+      "bhk": "2",
+      "registrationDate": "2025-12-22",
+      "rawDate": "22 Dec 2025",
+      "price": 5870000,
+      "effectiveArea": 1454.1,
+      "pricePerSqFt": 4036.86,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "RI Elegance.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10275833"
+    },
+    {
+      "id": "TXN-0024",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "DSR Daffodil",
+      "tower": null,
+      "bhk": "2",
+      "registrationDate": "2026-02-24",
+      "rawDate": "24 Feb 2026",
+      "price": 8650000,
+      "effectiveArea": 1419.98,
+      "pricePerSqFt": 6091.64,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "DSR Daffodil.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10602120"
+    },
+    {
+      "id": "TXN-0036",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Kethana Accolade",
+      "tower": null,
+      "bhk": "3",
+      "registrationDate": "2025-11-06",
+      "rawDate": "6 Nov 2025",
+      "price": 8100000,
+      "effectiveArea": 1368.0,
+      "pricePerSqFt": 5921.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Kethana Accolade.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9488348"
+    },
+    {
+      "id": "TXN-0108",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Vars Parkwood",
+      "tower": "B",
+      "bhk": "2",
+      "registrationDate": "2015-04-24",
+      "rawDate": "24 Apr 2015",
+      "price": 2263450,
+      "effectiveArea": 1365.0,
+      "pricePerSqFt": 1658.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Vars Parkwood 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/3596282"
+    },
+    {
+      "id": "TXN-0109",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Vars Parkwood",
+      "tower": "B",
+      "bhk": "2",
+      "registrationDate": "2025-09-01",
+      "rawDate": "1 Sep 2025",
+      "price": 11200000,
+      "effectiveArea": 1365.0,
+      "pricePerSqFt": 8205.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Vars Parkwood.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9487578"
+    },
+    {
+      "id": "TXN-0038",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Mana Jardin",
+      "tower": "0",
+      "bhk": "2",
+      "registrationDate": "2026-03-25",
+      "rawDate": "25 Mar 2026",
+      "price": 11700000,
+      "effectiveArea": 1364.0,
+      "pricePerSqFt": 8581.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Mana Jardin.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390933"
+    },
+    {
+      "id": "TXN-0111",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "VRR Fortuna",
+      "tower": "having",
+      "bhk": "2",
+      "registrationDate": "2025-05-28",
+      "rawDate": "28 May 2025",
+      "price": 12000000,
+      "effectiveArea": 1360.0,
+      "pricePerSqFt": 12575.0,
+      "areaBasis": "Carpet",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "VRR Fortuna.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9068563"
+    },
+    {
+      "id": "TXN-0082",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "SJR Redwoods",
+      "tower": "CYPRUS",
+      "bhk": "2",
+      "registrationDate": "2025-08-28",
+      "rawDate": "28 Aug 2025",
+      "price": 9200000,
+      "effectiveArea": 1351.0,
+      "pricePerSqFt": 6810.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SJR Redwoods.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9239891"
+    },
+    {
+      "id": "TXN-0083",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "SJR Redwoods",
+      "tower": "OLIVE",
+      "bhk": "2",
+      "registrationDate": "2025-06-19",
+      "rawDate": "19 Jun 2025",
+      "price": 9821773,
+      "effectiveArea": 1351.0,
+      "pricePerSqFt": 7270.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SJR Redwoods 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8925085"
+    },
+    {
+      "id": "TXN-0011",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Assetz East Point",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2026-04-01",
+      "rawDate": "1 Apr 2026",
+      "price": 19800000,
+      "effectiveArea": 1350.0,
+      "pricePerSqFt": 14672.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Assetz East Point .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10369817"
+    },
+    {
+      "id": "TXN-0012",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Assetz East Point",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2016-03-17",
+      "rawDate": "17 Mar 2016",
+      "price": 7121750,
+      "effectiveArea": 1350.0,
+      "pricePerSqFt": 5275.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Assetz East Point 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/3398948"
+    },
+    {
+      "id": "TXN-0001",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Kaikondrahalli",
+      "society": "Adarsh Lake Front",
+      "tower": "A",
+      "bhk": "2",
+      "registrationDate": "2023-03-18",
+      "rawDate": "18 Mar 2023",
+      "price": 12165617,
+      "effectiveArea": 1341.0,
+      "pricePerSqFt": 9072.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Adarsh Lake Front 2023.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/6517267"
+    },
+    {
+      "id": "TXN-0069",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Saket Callipolis",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2026-03-18",
+      "rawDate": "18 Mar 2026",
+      "price": 13000000,
+      "effectiveArea": 1320.95,
+      "pricePerSqFt": 9841.4,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Saket Callipolis.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390917"
+    },
+    {
+      "id": "TXN-0027",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "DSR Ultima",
+      "tower": "A",
+      "bhk": "2",
+      "registrationDate": "2024-02-06",
+      "rawDate": "6 Feb 2024",
+      "price": 11000000,
+      "effectiveArea": 1320.0,
+      "pricePerSqFt": 8333.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "DSR Ultima 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/7020290"
+    },
+    {
+      "id": "TXN-0018",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Bren Paddington",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2016-03-05",
+      "rawDate": "5 Mar 2016",
+      "price": 2485011,
+      "effectiveArea": 1298.0,
+      "pricePerSqFt": 1914.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Developer S…",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "Bren Paddington 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8907723"
+    },
+    {
+      "id": "TXN-0032",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Goyal Orchid Lakeview",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2025-07-15",
+      "rawDate": "15 Jul 2025",
+      "price": 15400000,
+      "effectiveArea": 1281.0,
+      "pricePerSqFt": 12022.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Goyal Orchid Lakeview .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9058250"
+    },
+    {
+      "id": "TXN-0019",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Cansa Pride",
+      "tower": "CANSA",
+      "bhk": "2",
+      "registrationDate": "2026-01-27",
+      "rawDate": "27 Jan 2026",
+      "price": 6025000,
+      "effectiveArea": 1266.05,
+      "pricePerSqFt": 4758.9,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Cansa Pride.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10382354"
+    },
+    {
+      "id": "TXN-0054",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Purva Riviera",
+      "tower": "‘RF’",
+      "bhk": "2",
+      "registrationDate": "2024-09-19",
+      "rawDate": "19 Sep 2024",
+      "price": 13500000,
+      "effectiveArea": 1260.0,
+      "pricePerSqFt": 10714.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Purva Riviera 3.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8199280"
+    },
+    {
+      "id": "TXN-0107",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Uber Verdant",
+      "tower": "5",
+      "bhk": "2",
+      "registrationDate": "2026-03-05",
+      "rawDate": "5 Mar 2026",
+      "price": 13600000,
+      "effectiveArea": 1244.95,
+      "pricePerSqFt": 10924.13,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Uber Verdant2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390877"
+    },
+    {
+      "id": "TXN-0026",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Chikkakannalli",
+      "society": "DSR Highland Greenz",
+      "tower": "C / 1",
+      "bhk": "2",
+      "registrationDate": "2023-07-24",
+      "rawDate": "24 Jul 2023",
+      "price": 10177903,
+      "effectiveArea": 1239.0,
+      "pricePerSqFt": 8215.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "DSR Highland Greenz.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/6669906"
+    },
+    {
+      "id": "TXN-0075",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Shriram Chirping Woods Apartment",
+      "tower": "2",
+      "bhk": "2",
+      "registrationDate": "2025-07-08",
+      "rawDate": "8 Jul 2025",
+      "price": 15500000,
+      "effectiveArea": 1235.0,
+      "pricePerSqFt": 12551.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Shriram Chirping Woods Apartment .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9068525"
+    },
+    {
+      "id": "TXN-0061",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Purva Sunshine",
+      "tower": "3",
+      "bhk": "2",
+      "registrationDate": "2026-05-07",
+      "rawDate": "7 May 2026",
+      "price": 11300000,
+      "effectiveArea": 1229.0,
+      "pricePerSqFt": 9198.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Purva Sunshine.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10796370"
+    },
+    {
+      "id": "TXN-0105",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Suncity Gloria",
+      "tower": "2 / B",
+      "bhk": "2",
+      "registrationDate": "2026-03-25",
+      "rawDate": "25 Mar 2026",
+      "price": 13500000,
+      "effectiveArea": 1220.0,
+      "pricePerSqFt": 11070.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Suncity Gloria2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390926"
+    },
+    {
+      "id": "TXN-0046",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Oceanus Vista",
+      "tower": "4",
+      "bhk": "2",
+      "registrationDate": "2026-05-27",
+      "rawDate": "27 May 2026",
+      "price": 8000000,
+      "effectiveArea": 1183.0,
+      "pricePerSqFt": 6765.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Oceanus Vista.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10873683"
+    },
+    {
+      "id": "TXN-0101",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "SSVR Sreenivasam",
+      "tower": "SSVR",
+      "bhk": "2",
+      "registrationDate": "2026-01-23",
+      "rawDate": "23 Jan 2026",
+      "price": 6200000,
+      "effectiveArea": 1164.98,
+      "pricePerSqFt": 5321.98,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SSVR Sreenivasam.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10382352"
+    },
+    {
+      "id": "TXN-0112",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Zonasha Elegance",
+      "tower": "B",
+      "bhk": "2",
+      "registrationDate": "2025-03-05",
+      "rawDate": "5 Mar 2025",
+      "price": 10000000,
+      "effectiveArea": 1164.0,
+      "pricePerSqFt": 8591.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Zonasha Elegance 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8663244"
+    },
+    {
+      "id": "TXN-0068",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Sahith Delight",
+      "tower": null,
+      "bhk": "2",
+      "registrationDate": "2026-03-31",
+      "rawDate": "31 Mar 2026",
+      "price": 7200000,
+      "effectiveArea": 1125.0,
+      "pricePerSqFt": 6402.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sahith Delight.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10368989"
+    },
+    {
+      "id": "TXN-0045",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Oceanus Ebony",
+      "tower": "A1",
+      "bhk": "2",
+      "registrationDate": "2026-04-10",
+      "rawDate": "10 Apr 2026",
+      "price": 7100000,
+      "effectiveArea": 1067.0,
+      "pricePerSqFt": 6656.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Oceanus Ebony.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10602122"
+    },
+    {
+      "id": "TXN-0033",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Greenwood Regency",
+      "tower": "J3",
+      "bhk": "2",
+      "registrationDate": "2025-01-10",
+      "rawDate": "10 Jan 2025",
+      "price": 9300000,
+      "effectiveArea": 1058.0,
+      "pricePerSqFt": 8793.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Greenwood Regency.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8707150"
+    },
+    {
+      "id": "TXN-0104",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Suncity Gloria",
+      "tower": "2 / A",
+      "bhk": "2",
+      "registrationDate": "2026-04-01",
+      "rawDate": "1 Apr 2026",
+      "price": 10800000,
+      "effectiveArea": 1052.0,
+      "pricePerSqFt": 10270.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Suncity Gloria.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10390873"
+    },
+    {
+      "id": "TXN-0100",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Srinivasa Classic",
+      "tower": "A",
+      "bhk": "2",
+      "registrationDate": "2023-03-06",
+      "rawDate": "6 Mar 2023",
+      "price": 7600000,
+      "effectiveArea": 1051.0,
+      "pricePerSqFt": 7231.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Srinivasa Classic.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/5926812"
+    },
+    {
+      "id": "TXN-0050",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Prestige City",
+      "tower": "7",
+      "bhk": "2",
+      "registrationDate": "2025-12-03",
+      "rawDate": "3 Dec 2025",
+      "price": 9449000,
+      "effectiveArea": 1029.0,
+      "pricePerSqFt": 9183.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Prestige City.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10447475"
+    },
+    {
+      "id": "TXN-0067",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Rohan Vasantha",
+      "tower": "D",
+      "bhk": "2",
+      "registrationDate": "2026-02-24",
+      "rawDate": "24 Feb 2026",
+      "price": 14200000,
+      "effectiveArea": 1022.99,
+      "pricePerSqFt": 13880.88,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Rohan Vasantha .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10295664"
+    },
+    {
+      "id": "TXN-0048",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "Ozone Evergreens",
+      "tower": "C",
+      "bhk": "2",
+      "registrationDate": "2025-09-22",
+      "rawDate": "22 Sep 2025",
+      "price": 11500000,
+      "effectiveArea": 977.0,
+      "pricePerSqFt": 11771.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Ozone Evergreens.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9395606"
+    },
+    {
+      "id": "TXN-0049",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "Ozone Evergreens",
+      "tower": "D",
+      "bhk": "1",
+      "registrationDate": "2025-09-06",
+      "rawDate": "6 Sep 2025",
+      "price": 7500000,
+      "effectiveArea": 953.0,
+      "pricePerSqFt": 7870.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "Ozone Evergreens 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9259547"
+    },
+    {
+      "id": "TXN-0071",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Shriram Chirping Woods Apartment",
+      "tower": "1",
+      "bhk": "1",
+      "registrationDate": "2025-03-02",
+      "rawDate": "2 Mar 2025",
+      "price": 9500000,
+      "effectiveArea": 695.0,
+      "pricePerSqFt": 13669.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Shriram Chirping Woods Apartment 3.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9488328"
+    },
+    {
+      "id": "TXN-0079",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "SJR Blue Waters",
+      "tower": "HAMPSTEA…",
+      "bhk": "1",
+      "registrationDate": "2026-04-02",
+      "rawDate": "2 Apr 2026",
+      "price": 5484798,
+      "effectiveArea": 655.0,
+      "pricePerSqFt": 8377.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SJR Blue Waters 600 sq ft.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10510031"
+    },
+    {
+      "id": "TXN-0084",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "SNN Raj Etternia",
+      "tower": "A1",
+      "bhk": "1",
+      "registrationDate": "2025-11-06",
+      "rawDate": "6 Nov 2025",
+      "price": 4540000,
+      "effectiveArea": 575.0,
+      "pricePerSqFt": 7896.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "SNN Raj Etternia.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9485413"
+    },
+    {
+      "id": "TXN-0056",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Purva Riviera",
+      "tower": "RK",
+      "bhk": "1",
+      "registrationDate": "2026-04-07",
+      "rawDate": "7 Apr 2026",
+      "price": 6465148,
+      "effectiveArea": 467.0,
+      "pricePerSqFt": 13848.0,
+      "areaBasis": "Super built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Purva Riviera .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10295625"
+    },
+    {
+      "id": "TXN-0017",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Bren Paddington",
+      "tower": "C",
+      "bhk": "1",
+      "registrationDate": "2025-04-09",
+      "rawDate": "9 Apr 2025",
+      "price": 12915000,
+      "effectiveArea": 1091.0,
+      "pricePerSqFt": 11838.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "Bren Paddington .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8907690"
+    },
+    {
+      "id": "TXN-0041",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Mantri Espana",
+      "tower": "C",
+      "bhk": "1",
+      "registrationDate": "2011-12-07",
+      "rawDate": "7 Dec 2011",
+      "price": 10832400,
+      "effectiveArea": 0.0,
+      "pricePerSqFt": null,
+      "areaBasis": null,
+      "saleType": "Developer S…",
+      "qaNotes": "Area missing; Parking not stated",
+      "sourceFile": "Mantri Espana.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/1962018"
+    },
+    {
+      "id": "TXN-0059",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Purva Skywood",
+      "tower": "A / A",
+      "bhk": "3",
+      "registrationDate": "2025-11-02",
+      "rawDate": "2 Nov 2025",
+      "price": 19500000,
+      "effectiveArea": 1497.0,
+      "pricePerSqFt": 13026.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Purva Skywood .pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9485989"
+    },
+    {
+      "id": "TXN-0064",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "RBD Stillwaters",
+      "tower": "F / A",
+      "bhk": "3",
+      "registrationDate": "2025-08-21",
+      "rawDate": "21 Aug 2025",
+      "price": 20000000,
+      "effectiveArea": 1850.0,
+      "pricePerSqFt": 10811.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": "Parking not stated",
+      "sourceFile": "RBD Stillwaters 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9259416"
+    },
+    {
+      "id": "TXN-0066",
+      "location": "Marathahalli",
+      "sourceLocation": "Marathahalli",
+      "society": "Rohan Vasantha",
+      "tower": "2",
+      "bhk": "3",
+      "registrationDate": "2025-12-02",
+      "rawDate": "2 Dec 2025",
+      "price": 25668000,
+      "effectiveArea": 1445.0,
+      "pricePerSqFt": 17757.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Rohan Vasantha 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10295570"
+    },
+    {
+      "id": "TXN-0070",
+      "location": "Sarjapur Road",
+      "sourceLocation": "Sarjapur Road",
+      "society": "Salarpuria Sattva Senorita",
+      "tower": "Erica",
+      "bhk": "3",
+      "registrationDate": "2025-10-03",
+      "rawDate": "3 Oct 2025",
+      "price": 27000000,
+      "effectiveArea": 0.0,
+      "pricePerSqFt": null,
+      "areaBasis": null,
+      "saleType": "Resale",
+      "qaNotes": "Area missing",
+      "sourceFile": "Salarpuria Sattva Senorita.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9395604"
+    },
+    {
+      "id": "TXN-0088",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "Sobha Cinnamon",
+      "tower": null,
+      "bhk": "3",
+      "registrationDate": "2025-04-02",
+      "rawDate": "2 Apr 2025",
+      "price": 17000000,
+      "effectiveArea": 1240.0,
+      "pricePerSqFt": 13707.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sobha Cinnamon 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/10239341"
+    },
+    {
+      "id": "TXN-0089",
+      "location": "Haralur",
+      "sourceLocation": "Haralur",
+      "society": "Sobha Cinnamon",
+      "tower": "C",
+      "bhk": "3",
+      "registrationDate": "2025-12-02",
+      "rawDate": "2 Dec 2025",
+      "price": 17300000,
+      "effectiveArea": 1460.0,
+      "pricePerSqFt": 11851.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sobha Cinnamon.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9485634"
+    },
+    {
+      "id": "TXN-0092",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Sobha Daisy",
+      "tower": null,
+      "bhk": "3",
+      "registrationDate": "2011-01-25",
+      "rawDate": "25 Jan 2011",
+      "price": 3700000,
+      "effectiveArea": 1490.0,
+      "pricePerSqFt": 2484.0,
+      "areaBasis": "Headline area (unclassified)",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sobha Daisy 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/3753218"
+    },
+    {
+      "id": "TXN-0096",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Sobha Marvella",
+      "tower": null,
+      "bhk": "2",
+      "registrationDate": "2018-01-09",
+      "rawDate": "9 Jan 2018",
+      "price": 4191487,
+      "effectiveArea": 1562.0,
+      "pricePerSqFt": 2683.0,
+      "areaBasis": "Built-up",
+      "saleType": "Developer S…",
+      "qaNotes": null,
+      "sourceFile": "Sobha Marvella 3.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/2272295"
+    },
+    {
+      "id": "TXN-0098",
+      "location": "Bellandur",
+      "sourceLocation": "Bellandur",
+      "society": "Sobha Marvella",
+      "tower": "C1",
+      "bhk": "3",
+      "registrationDate": "2025-07-21",
+      "rawDate": "21 Jul 2025",
+      "price": 24700000,
+      "effectiveArea": 1572.0,
+      "pricePerSqFt": 15714.0,
+      "areaBasis": "Built-up",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Sobha Marvella 2.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/9074847"
+    },
+    {
+      "id": "TXN-0113",
+      "location": "Haralur",
+      "sourceLocation": "Haralur Road",
+      "society": "Zonasha Elegance",
+      "tower": "J",
+      "bhk": "3",
+      "registrationDate": "2025-04-17",
+      "rawDate": "17 Apr 2025",
+      "price": 15200000,
+      "effectiveArea": 1235.0,
+      "pricePerSqFt": 12308.0,
+      "areaBasis": "Carpet",
+      "saleType": "Resale",
+      "qaNotes": null,
+      "sourceFile": "Zonasha Elegance.pdf",
+      "sourceUrl": "https://www.zapkey.com/details/8768453"
+    }
+  ],
+  "societies": [
+    {
+      "slug": "adarsh-lake-front",
+      "name": "Adarsh Lake Front",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2",
+        "3"
+      ],
+      "towers": [
+        "A",
+        "G",
+        "H"
+      ],
+      "transactionCount": 3,
+      "medianPrice": 15422147,
+      "medianPricePerSqFt": 9072.0,
+      "latestTransactionDate": "2023-03-18"
+    },
+    {
+      "slug": "adarsh-palm-retreat-daffodils",
+      "name": "Adarsh Palm Retreat Daffodils",
+      "location": "Bellandur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "H"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 33500000,
+      "medianPricePerSqFt": 19822.02,
+      "latestTransactionDate": "2026-01-27"
+    },
+    {
+      "slug": "adarsh-palm-retreat-tower-1---gulmohar",
+      "name": "Adarsh Palm Retreat Tower 1 - Gulmohar",
+      "location": "Bellandur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "D"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 31500000,
+      "medianPricePerSqFt": 17063.83,
+      "latestTransactionDate": "2025-12-16"
+    },
+    {
+      "slug": "akme-harmony",
+      "name": "Akme Harmony",
+      "location": "Bellandur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "2D"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 10200000.0,
+      "medianPricePerSqFt": 5244.0,
+      "latestTransactionDate": "2025-07-02"
+    },
+    {
+      "slug": "assetz-east-point",
+      "name": "Assetz East Point",
+      "location": "Marathahalli",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "C"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 13460875.0,
+      "medianPricePerSqFt": 9973.5,
+      "latestTransactionDate": "2026-04-01"
+    },
+    {
+      "slug": "astro-rosewood-regency",
+      "name": "Astro Rosewood Regency",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "V2"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 13200000,
+      "medianPricePerSqFt": 6459.0,
+      "latestTransactionDate": "2024-01-12"
+    },
+    {
+      "slug": "bren-imperia",
+      "name": "Bren Imperia",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "1 / 4"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 24500000.0,
+      "medianPricePerSqFt": 13779.5,
+      "latestTransactionDate": "2025-10-03"
+    },
+    {
+      "slug": "bren-paddington",
+      "name": "Bren Paddington",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "1",
+        "2"
+      ],
+      "towers": [
+        "C"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 7700005.5,
+      "medianPricePerSqFt": 6876.0,
+      "latestTransactionDate": "2025-04-09"
+    },
+    {
+      "slug": "clpd-suncity-apartments",
+      "name": "CLPD Suncity Apartments",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "Harmony 0…"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 18500000,
+      "medianPricePerSqFt": 10905.0,
+      "latestTransactionDate": "2026-07-23"
+    },
+    {
+      "slug": "cansa-pride",
+      "name": "Cansa Pride",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "CANSA"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 6025000,
+      "medianPricePerSqFt": 4758.9,
+      "latestTransactionDate": "2026-01-27"
+    },
+    {
+      "slug": "dsr-daffodil",
+      "name": "DSR Daffodil",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [],
+      "transactionCount": 1,
+      "medianPrice": 8650000,
+      "medianPricePerSqFt": 6091.64,
+      "latestTransactionDate": "2026-02-24"
+    },
+    {
+      "slug": "dsr-fairmont",
+      "name": "DSR Fairmont",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [],
+      "transactionCount": 1,
+      "medianPrice": 10800000,
+      "medianPricePerSqFt": 7377.05,
+      "latestTransactionDate": "2026-03-21"
+    },
+    {
+      "slug": "dsr-highland-greenz",
+      "name": "DSR Highland Greenz",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "C / 1"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 10177903,
+      "medianPricePerSqFt": 8215.0,
+      "latestTransactionDate": "2023-07-24"
+    },
+    {
+      "slug": "dsr-ultima",
+      "name": "DSR Ultima",
+      "location": "Haralur",
+      "bhks": [
+        "2",
+        "3"
+      ],
+      "towers": [
+        "A",
+        "B"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 14500000.0,
+      "medianPricePerSqFt": 9237.0,
+      "latestTransactionDate": "2025-05-04"
+    },
+    {
+      "slug": "dsr-wood-winds",
+      "name": "DSR Wood Winds",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "3"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 24200000,
+      "medianPricePerSqFt": 13193.0,
+      "latestTransactionDate": "2026-04-21"
+    },
+    {
+      "slug": "divyasree-elan",
+      "name": "Divyasree Elan",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2",
+        "3"
+      ],
+      "towers": [
+        "Pratle",
+        "of"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 17975000.0,
+      "medianPricePerSqFt": 10307.5,
+      "latestTransactionDate": "2025-11-25"
+    },
+    {
+      "slug": "embassy-pristine",
+      "name": "Embassy Pristine",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "4"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 47000000,
+      "medianPricePerSqFt": 17636.0,
+      "latestTransactionDate": "2026-05-13"
+    },
+    {
+      "slug": "goyal-orchid-lakeview",
+      "name": "Goyal Orchid Lakeview",
+      "location": "Bellandur",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "C"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 10536500.0,
+      "medianPricePerSqFt": 7561.0,
+      "latestTransactionDate": "2025-07-15"
+    },
+    {
+      "slug": "greenwood-regency",
+      "name": "Greenwood Regency",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "J3",
+        "J4",
+        "Y2"
+      ],
+      "transactionCount": 3,
+      "medianPrice": 9850000,
+      "medianPricePerSqFt": 6919.0,
+      "latestTransactionDate": "2025-01-10"
+    },
+    {
+      "slug": "kethana-accolade",
+      "name": "Kethana Accolade",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [],
+      "transactionCount": 1,
+      "medianPrice": 8100000,
+      "medianPricePerSqFt": 5921.0,
+      "latestTransactionDate": "2025-11-06"
+    },
+    {
+      "slug": "mana-campbell",
+      "name": "Mana Campbell",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "MANA CAM…"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 15500000,
+      "medianPricePerSqFt": 9241.0,
+      "latestTransactionDate": "2026-03-30"
+    },
+    {
+      "slug": "mana-jardin",
+      "name": "Mana Jardin",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "0"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 11700000,
+      "medianPricePerSqFt": 8581.0,
+      "latestTransactionDate": "2026-03-25"
+    },
+    {
+      "slug": "mana-pristine",
+      "name": "Mana Pristine",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "1"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 8350000,
+      "medianPricePerSqFt": 4960.0,
+      "latestTransactionDate": "2026-03-24"
+    },
+    {
+      "slug": "mantri-espana",
+      "name": "Mantri Espana",
+      "location": "Bellandur",
+      "bhks": [
+        "4",
+        "4.5"
+      ],
+      "towers": [
+        "15",
+        "C"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 58400000.0,
+      "medianPricePerSqFt": 11106.5,
+      "latestTransactionDate": "2026-06-07"
+    },
+    {
+      "slug": "oceanus-ebony",
+      "name": "Oceanus Ebony",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "A1"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 7100000,
+      "medianPricePerSqFt": 6656.0,
+      "latestTransactionDate": "2026-04-10"
+    },
+    {
+      "slug": "oceanus-vista",
+      "name": "Oceanus Vista",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "4"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 8000000,
+      "medianPricePerSqFt": 6765.0,
+      "latestTransactionDate": "2026-05-27"
+    },
+    {
+      "slug": "om-sakti-heritage",
+      "name": "Om Sakti Heritage",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "A"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 17500000,
+      "medianPricePerSqFt": 9142.0,
+      "latestTransactionDate": "2026-04-17"
+    },
+    {
+      "slug": "ozone-evergreens",
+      "name": "Ozone Evergreens",
+      "location": "Haralur",
+      "bhks": [
+        "1",
+        "2"
+      ],
+      "towers": [
+        "C",
+        "D"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 9500000.0,
+      "medianPricePerSqFt": 9820.5,
+      "latestTransactionDate": "2025-09-22"
+    },
+    {
+      "slug": "prestige-city",
+      "name": "Prestige City",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "7"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 9449000,
+      "medianPricePerSqFt": 9183.0,
+      "latestTransactionDate": "2025-12-03"
+    },
+    {
+      "slug": "prestige-ferns-residency",
+      "name": "Prestige Ferns Residency",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "20"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 39800000,
+      "medianPricePerSqFt": 17775.0,
+      "latestTransactionDate": "2026-04-24"
+    },
+    {
+      "slug": "purva-riviera",
+      "name": "Purva Riviera",
+      "location": "Marathahalli",
+      "bhks": [
+        "1",
+        "2",
+        "3"
+      ],
+      "towers": [
+        "RH",
+        "RK",
+        "‘RF’"
+      ],
+      "transactionCount": 3,
+      "medianPrice": 13500000,
+      "medianPricePerSqFt": 10714.0,
+      "latestTransactionDate": "2026-04-07"
+    },
+    {
+      "slug": "purva-skywood",
+      "name": "Purva Skywood",
+      "location": "Haralur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "A / A"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 19500000,
+      "medianPricePerSqFt": 13026.0,
+      "latestTransactionDate": "2025-11-02"
+    },
+    {
+      "slug": "purva-sunshine",
+      "name": "Purva Sunshine",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "3"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 11300000,
+      "medianPricePerSqFt": 9198.0,
+      "latestTransactionDate": "2026-05-07"
+    },
+    {
+      "slug": "purva-whitehall",
+      "name": "Purva Whitehall",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "D"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 30500000,
+      "medianPricePerSqFt": 15119.0,
+      "latestTransactionDate": "2026-06-11"
+    },
+    {
+      "slug": "rbd-stillwaters",
+      "name": "RBD Stillwaters",
+      "location": "Haralur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "F / A"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 20000000,
+      "medianPricePerSqFt": 10811.0,
+      "latestTransactionDate": "2025-08-21"
+    },
+    {
+      "slug": "ri-elegance",
+      "name": "RI Elegance",
+      "location": "Haralur",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "SRI"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 5870000,
+      "medianPricePerSqFt": 4036.86,
+      "latestTransactionDate": "2025-12-22"
+    },
+    {
+      "slug": "rohan-vasantha",
+      "name": "Rohan Vasantha",
+      "location": "Marathahalli",
+      "bhks": [
+        "2",
+        "3"
+      ],
+      "towers": [
+        "2",
+        "D"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 19934000.0,
+      "medianPricePerSqFt": 15818.94,
+      "latestTransactionDate": "2026-02-24"
+    },
+    {
+      "slug": "sjr-blue-waters",
+      "name": "SJR Blue Waters",
+      "location": "Haralur",
+      "bhks": [
+        "1",
+        "2"
+      ],
+      "towers": [
+        "CRESCENT",
+        "HAMPSTEA…",
+        "KENSINGTO…"
+      ],
+      "transactionCount": 3,
+      "medianPrice": 15900832,
+      "medianPricePerSqFt": 10095.89,
+      "latestTransactionDate": "2026-04-02"
+    },
+    {
+      "slug": "sjr-palazza-city",
+      "name": "SJR Palazza City",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "A"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 19900000,
+      "medianPricePerSqFt": 7859.43,
+      "latestTransactionDate": "2025-12-05"
+    },
+    {
+      "slug": "sjr-redwoods",
+      "name": "SJR Redwoods",
+      "location": "Haralur",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "CYPRUS",
+        "OLIVE"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 9510886.5,
+      "medianPricePerSqFt": 7040.0,
+      "latestTransactionDate": "2025-08-28"
+    },
+    {
+      "slug": "snn-raj-etternia",
+      "name": "SNN Raj Etternia",
+      "location": "Haralur",
+      "bhks": [
+        "1",
+        "3"
+      ],
+      "towers": [
+        "A1",
+        "C2"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 16070000.0,
+      "medianPricePerSqFt": 11572.5,
+      "latestTransactionDate": "2025-11-06"
+    },
+    {
+      "slug": "ssvr-sreenivasam",
+      "name": "SSVR Sreenivasam",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "SSVR"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 6200000,
+      "medianPricePerSqFt": 5321.98,
+      "latestTransactionDate": "2026-01-23"
+    },
+    {
+      "slug": "sahith-delight",
+      "name": "Sahith Delight",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [],
+      "transactionCount": 1,
+      "medianPrice": 7200000,
+      "medianPricePerSqFt": 6402.0,
+      "latestTransactionDate": "2026-03-31"
+    },
+    {
+      "slug": "saket-callipolis",
+      "name": "Saket Callipolis",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "C"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 13000000,
+      "medianPricePerSqFt": 9841.4,
+      "latestTransactionDate": "2026-03-18"
+    },
+    {
+      "slug": "salarpuria-sattva-senorita",
+      "name": "Salarpuria Sattva Senorita",
+      "location": "Sarjapur Road",
+      "bhks": [],
+      "towers": [
+        "Erica"
+      ],
+      "transactionCount": 0,
+      "medianPrice": null,
+      "medianPricePerSqFt": null,
+      "latestTransactionDate": null
+    },
+    {
+      "slug": "shriram-chirping-woods-apartment",
+      "name": "Shriram Chirping Woods Apartment",
+      "location": "Haralur",
+      "bhks": [
+        "1",
+        "2",
+        "3"
+      ],
+      "towers": [
+        "1",
+        "11",
+        "17",
+        "2"
+      ],
+      "transactionCount": 5,
+      "medianPrice": 17500000,
+      "medianPricePerSqFt": 12551.0,
+      "latestTransactionDate": "2025-07-08"
+    },
+    {
+      "slug": "sobha-cinnamon",
+      "name": "Sobha Cinnamon",
+      "location": "Haralur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "C"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 17150000.0,
+      "medianPricePerSqFt": 12779.0,
+      "latestTransactionDate": "2025-12-02"
+    },
+    {
+      "slug": "sobha-daisy",
+      "name": "Sobha Daisy",
+      "location": "Bellandur",
+      "bhks": [
+        "3"
+      ],
+      "towers": [
+        "F2"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 12350000.0,
+      "medianPricePerSqFt": 7225.07,
+      "latestTransactionDate": "2026-03-07"
+    },
+    {
+      "slug": "sobha-marvella",
+      "name": "Sobha Marvella",
+      "location": "Bellandur",
+      "bhks": [
+        "2",
+        "3"
+      ],
+      "towers": [
+        "11 / A3",
+        "C1"
+      ],
+      "transactionCount": 3,
+      "medianPrice": 24700000,
+      "medianPricePerSqFt": 14668.55,
+      "latestTransactionDate": "2026-03-18"
+    },
+    {
+      "slug": "srinivasa-classic",
+      "name": "Srinivasa Classic",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "A"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 7600000,
+      "medianPricePerSqFt": 7231.0,
+      "latestTransactionDate": "2023-03-06"
+    },
+    {
+      "slug": "suncity-gloria",
+      "name": "Suncity Gloria",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "2 / A",
+        "2 / B"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 12150000.0,
+      "medianPricePerSqFt": 10670.0,
+      "latestTransactionDate": "2026-04-01"
+    },
+    {
+      "slug": "uber-verdant",
+      "name": "Uber Verdant",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "5"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 13600000,
+      "medianPricePerSqFt": 10924.13,
+      "latestTransactionDate": "2026-03-05"
+    },
+    {
+      "slug": "vrr-fortuna",
+      "name": "VRR Fortuna",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "having"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 12000000,
+      "medianPricePerSqFt": 12575.0,
+      "latestTransactionDate": "2025-05-28"
+    },
+    {
+      "slug": "vars-parkwood",
+      "name": "Vars Parkwood",
+      "location": "Bellandur",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "B"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 6731725.0,
+      "medianPricePerSqFt": 4931.5,
+      "latestTransactionDate": "2025-09-01"
+    },
+    {
+      "slug": "vinayaka-residency",
+      "name": "Vinayaka Residency",
+      "location": "Sarjapur Road",
+      "bhks": [
+        "2"
+      ],
+      "towers": [
+        "2"
+      ],
+      "transactionCount": 1,
+      "medianPrice": 7200000,
+      "medianPricePerSqFt": 4432.0,
+      "latestTransactionDate": "2026-06-15"
+    },
+    {
+      "slug": "zonasha-elegance",
+      "name": "Zonasha Elegance",
+      "location": "Haralur",
+      "bhks": [
+        "2",
+        "3"
+      ],
+      "towers": [
+        "B",
+        "J"
+      ],
+      "transactionCount": 2,
+      "medianPrice": 12600000.0,
+      "medianPricePerSqFt": 10449.5,
+      "latestTransactionDate": "2025-04-17"
+    }
+  ]
+}

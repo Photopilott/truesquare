@@ -1,0 +1,460 @@
+'use client';
+
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  ChevronRight,
+  CircleAlert,
+  FileSearch,
+  Home,
+  Info,
+  LockKeyhole,
+  Search,
+  ShieldCheck,
+} from 'lucide-react';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+
+type SocietySummary = {
+  slug: string;
+  name: string;
+  location: string;
+  bhks: string[];
+  towers: string[];
+  transactionCount: number;
+  medianPrice: number | null;
+  medianPricePerSqFt: number | null;
+  latestTransactionDate: string | null;
+};
+
+type TransactionRecord = {
+  id: string;
+  location: string;
+  society: string;
+  tower: string | null;
+  bhk: string | null;
+  registrationDate: string | null;
+  rawDate: string;
+  price: number | null;
+  effectiveArea: number | null;
+  pricePerSqFt: number | null;
+  areaBasis: string | null;
+  saleType: string | null;
+  qaNotes: string | null;
+  sourceFile: string;
+  sourceUrl: string;
+};
+
+type OwnerForm = {
+  society: string;
+  tower: string;
+  floor: string;
+  bhk: string;
+  area: string;
+  areaType: 'superBuiltUp' | 'carpet';
+  carParks: string;
+  purchaseDate: string;
+  purchasePrice: string;
+  stampDuty: string;
+  registrationCost: string;
+  interiors: string;
+  facing: string;
+  brokerage: string;
+  loanAmount: string;
+  loanTenure: string;
+  loanRate: string;
+};
+
+type ValuationResult = {
+  estimate: number | null;
+  low: number | null;
+  high: number | null;
+  confidence: 'Insufficient evidence' | 'Low' | 'Medium' | 'High';
+  comparables: TransactionRecord[];
+  acquisitionCost: number;
+  absoluteAppreciation: number | null;
+  annualizedReturn: number | null;
+  returnAfterCosts: number | null;
+  loanInterest: number;
+};
+
+const EMPTY_FORM: OwnerForm = {
+  society: '', tower: '', floor: '', bhk: '', area: '', areaType: 'superBuiltUp', carParks: '1',
+  purchaseDate: '', purchasePrice: '', stampDuty: '', registrationCost: '', interiors: '', facing: '',
+  brokerage: '', loanAmount: '', loanTenure: '', loanRate: '',
+};
+
+const LOCATIONS = ['Sarjapur Road', 'Bellandur', 'Marathahalli', 'Haralur'];
+const VALUATION_CUTOFF = new Date('2023-08-30T00:00:00');
+
+function parseIndianCurrency(raw: string) {
+  const value = raw.toLowerCase().replace(/[₹,\s]/g, '').trim();
+  if (!value) return 0;
+  const match = value.match(/^([0-9]*\.?[0-9]+)(crore|cr|lakh|lac|lakhs|lacs|k|thousand)?$/);
+  if (!match) return Number.NaN;
+  const base = Number(match[1]);
+  const unit = match[2];
+  if (unit === 'crore' || unit === 'cr') return base * 10_000_000;
+  if (unit === 'lakh' || unit === 'lac' || unit === 'lakhs' || unit === 'lacs') return base * 100_000;
+  if (unit === 'k' || unit === 'thousand') return base * 1_000;
+  return base;
+}
+
+function median(values: number[]) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function formatInr(value: number | null, compact = false) {
+  if (value == null || Number.isNaN(value)) return '—';
+  if (compact) {
+    if (value >= 10_000_000) return `₹${(value / 10_000_000).toFixed(2)} Cr`;
+    if (value >= 100_000) return `₹${(value / 100_000).toFixed(1)} L`;
+  }
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
+}
+
+function formatDate(value: string | null) {
+  if (!value) return 'Date unavailable';
+  return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+}
+
+function confidenceForCount(count: number): ValuationResult['confidence'] {
+  if (count === 0) return 'Insufficient evidence';
+  if (count <= 2) return 'Low';
+  if (count <= 4) return 'Medium';
+  return 'High';
+}
+
+function totalLoanInterest(principal: number, years: number, annualRate: number) {
+  if (!principal || !years || !annualRate) return 0;
+  const months = years * 12;
+  const rate = annualRate / 1200;
+  const emi = principal * rate * Math.pow(1 + rate, months) / (Math.pow(1 + rate, months) - 1);
+  return Math.max(0, emi * months - principal);
+}
+
+function fieldError(errors: Record<string, string>, name: string) {
+  return errors[name] ? <p className="mt-1 text-xs text-destructive">{errors[name]}</p> : null;
+}
+
+function FormField({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) {
+  return <div><div className="mb-1.5 flex items-center justify-between gap-2"><Label>{label}</Label>{optional && <span className="text-[11px] text-muted-foreground">Optional</span>}</div>{children}</div>;
+}
+
+function AppHeader({ onHome, onOwner, onBuyer }: { onHome: () => void; onOwner: () => void; onBuyer: () => void }) {
+  return (
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/92 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
+        <button className="flex items-center gap-3 text-left" onClick={onHome}>
+          <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Building2 className="size-4" /></span>
+          <span><span className="block font-heading text-sm font-semibold tracking-tight">TrueSquare</span><span className="block text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Bengaluru property intelligence</span></span>
+        </button>
+        <nav className="hidden items-center gap-1 sm:flex" aria-label="Primary navigation">
+          <Button variant="ghost" onClick={onOwner}>For owners</Button>
+          <Button variant="ghost" onClick={onBuyer}>For buyers</Button>
+        </nav>
+        <div className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex"><ShieldCheck className="size-4 text-accent-foreground" />Independent. Private. Evidence-first.</div>
+      </div>
+    </header>
+  );
+}
+
+export function PropertyIntelligenceApp({ societies, records }: { societies: SocietySummary[]; records: TransactionRecord[] }) {
+  const [view, setView] = useState<'home' | 'owner' | 'buyer'>('home');
+  const [ownerForm, setOwnerForm] = useState<OwnerForm>(EMPTY_FORM);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [valuation, setValuation] = useState<ValuationResult | null>(null);
+  const [showGate, setShowGate] = useState(false);
+  const [gateContext, setGateContext] = useState<'owner' | 'buyer'>('owner');
+  const [covenantAccepted, setCovenantAccepted] = useState(false);
+  const [plausibilityReviewed, setPlausibilityReviewed] = useState(false);
+  const [plausibilityMessage, setPlausibilityMessage] = useState('');
+  const [buyerUnlocked, setBuyerUnlocked] = useState(false);
+  const [selectedSociety, setSelectedSociety] = useState<SocietySummary | null>(null);
+  const [locationFilter, setLocationFilter] = useState('All');
+  const [bhkFilter, setBhkFilter] = useState('All');
+  const [budgetFilter, setBudgetFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [unknownOpen, setUnknownOpen] = useState(false);
+  const [unknownSent, setUnknownSent] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem('truesquare-owner-draft');
+    if (stored) {
+      try { setOwnerForm({ ...EMPTY_FORM, ...JSON.parse(stored) }); } catch { /* ignore corrupt local draft */ }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (view === 'owner' && !valuation) window.localStorage.setItem('truesquare-owner-draft', JSON.stringify(ownerForm));
+  }, [ownerForm, valuation, view]);
+
+  const selectedSocietySummary = societies.find((society) => society.name === ownerForm.society);
+  const buyerSocietyRecords = selectedSociety ? records.filter((record) => record.society === selectedSociety.name && record.registrationDate) : [];
+
+  const filteredSocieties = useMemo(() => {
+    const budget = budgetFilter === 'All' ? Infinity : Number(budgetFilter);
+    return societies.filter((society) => {
+      const matchesLocation = locationFilter === 'All' || society.location === locationFilter;
+      const matchesBhk = bhkFilter === 'All' || society.bhks.includes(bhkFilter);
+      const matchesBudget = !society.medianPrice || society.medianPrice <= budget;
+      const matchesSearch = society.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesLocation && matchesBhk && matchesBudget && matchesSearch;
+    });
+  }, [bhkFilter, budgetFilter, locationFilter, searchQuery, societies]);
+
+  function updateOwner<K extends keyof OwnerForm>(key: K, value: OwnerForm[K]) {
+    setOwnerForm((current) => ({ ...current, [key]: value }));
+    setErrors((current) => ({ ...current, [key]: '' }));
+    if (key === 'society') setOwnerForm((current) => ({ ...current, society: value as string, tower: '' }));
+  }
+
+  function eligibleComparables(form: OwnerForm) {
+    const targetBasis = form.areaType === 'carpet' ? 'carpet' : 'super built';
+    return records.filter((record) => {
+      if (record.society !== form.society || record.bhk !== form.bhk) return false;
+      if (!record.registrationDate || new Date(record.registrationDate) < VALUATION_CUTOFF) return false;
+      if (!record.price || !record.effectiveArea || !record.pricePerSqFt || !record.areaBasis) return false;
+      return record.areaBasis.toLowerCase().includes(targetBasis);
+    });
+  }
+
+  function buildValuation(form: OwnerForm): ValuationResult {
+    const comparables = eligibleComparables(form);
+    const area = Number(form.area);
+    const impliedValues = comparables.map((record) => (record.pricePerSqFt ?? 0) * area);
+    const estimate = median(impliedValues);
+    const loanInterest = totalLoanInterest(parseIndianCurrency(form.loanAmount), Number(form.loanTenure), Number(form.loanRate));
+    const acquisitionCost = ['purchasePrice', 'stampDuty', 'registrationCost', 'interiors', 'brokerage']
+      .reduce((sum, key) => sum + (parseIndianCurrency(form[key as keyof OwnerForm] as string) || 0), 0) + loanInterest;
+    let low: number | null = null;
+    let high: number | null = null;
+    if (impliedValues.length === 1 && estimate) { low = estimate * 0.85; high = estimate * 1.15; }
+    if (impliedValues.length > 1) { low = Math.min(...impliedValues); high = Math.max(...impliedValues); }
+    const purchaseDate = new Date(form.purchaseDate);
+    const yearsOwned = Math.max((Date.now() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000), 0.01);
+    const annualizedReturn = estimate && acquisitionCost > 0 ? Math.pow(estimate / acquisitionCost, 1 / yearsOwned) - 1 : null;
+    return {
+      estimate, low, high, confidence: confidenceForCount(comparables.length), comparables, acquisitionCost,
+      absoluteAppreciation: estimate ? estimate - parseIndianCurrency(form.purchasePrice) : null,
+      returnAfterCosts: estimate ? estimate - acquisitionCost : null,
+      annualizedReturn, loanInterest,
+    };
+  }
+
+  function validateOwner() {
+    const next: Record<string, string> = {};
+    const required: Array<keyof OwnerForm> = ['society', 'tower', 'floor', 'bhk', 'area', 'purchaseDate', 'purchasePrice', 'stampDuty', 'registrationCost', 'interiors'];
+    required.forEach((key) => { if (!ownerForm[key]) next[key] = 'Required for the V1 property match and return.'; });
+    if (Number(ownerForm.area) <= 0) next.area = 'Area must be greater than zero.';
+    if (ownerForm.purchaseDate && new Date(ownerForm.purchaseDate) > new Date()) next.purchaseDate = 'Purchase date cannot be in the future.';
+    ['purchasePrice', 'stampDuty', 'registrationCost', 'interiors', 'brokerage', 'loanAmount'].forEach((key) => {
+      const value = ownerForm[key as keyof OwnerForm] as string;
+      if (value && Number.isNaN(parseIndianCurrency(value))) next[key] = 'Use a value such as 1.25 crore, 85 lakh, or 12500000.';
+    });
+    if ((ownerForm.loanAmount || ownerForm.loanTenure || ownerForm.loanRate) && !(ownerForm.loanAmount && ownerForm.loanTenure && ownerForm.loanRate)) {
+      next.loanAmount = 'Enter loan amount, tenure, and interest rate together—or leave all three blank.';
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function beginOwnerReveal(event: FormEvent) {
+    event.preventDefault();
+    if (!validateOwner()) return;
+    const comps = eligibleComparables(ownerForm);
+    const compMedian = median(comps.map((record) => record.pricePerSqFt ?? 0));
+    const submittedPpsf = parseIndianCurrency(ownerForm.purchasePrice) / Number(ownerForm.area);
+    if (!plausibilityReviewed && compMedian && (submittedPpsf < compMedian * 0.5 || submittedPpsf > compMedian * 2)) {
+      setPlausibilityMessage(`Your submitted price works out to ${formatInr(submittedPpsf)} per sq ft, while the like-for-like registered median is ${formatInr(compMedian)}. Both figures are estimates—please review before continuing.`);
+      return;
+    }
+    setGateContext('owner');
+    setShowGate(true);
+  }
+
+  function completePrototypeGate() {
+    if (!covenantAccepted) return;
+    setShowGate(false);
+    if (gateContext === 'owner') {
+      setValuation(buildValuation(ownerForm));
+      window.localStorage.removeItem('truesquare-owner-draft');
+    } else setBuyerUnlocked(true);
+  }
+
+  function resetHome() { setView('home'); setSelectedSociety(null); }
+
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <AppHeader onHome={resetHome} onOwner={() => { setView('owner'); setValuation(null); }} onBuyer={() => setView('buyer')} />
+      {view === 'home' && <HomeView societies={societies.slice(0, 4)} onOwner={() => setView('owner')} onBuyer={() => setView('buyer')} />}
+      {view === 'buyer' && (
+        <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-12">
+          <Button variant="ghost" className="mb-5 -ml-2" onClick={resetHome}><ArrowLeft /> Home</Button>
+          <div className="grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
+            <section>
+              <Badge variant="outline">Buyer catalog</Badge>
+              <h1 className="mt-4 font-heading text-4xl font-semibold tracking-[-0.035em]">Compare societies using registered evidence.</h1>
+              <p className="mt-4 max-w-xl leading-7 text-muted-foreground">Filter only by location, budget, and BHK. Prices are evidence summaries—not listings or investment recommendations.</p>
+              <div className="mt-7 grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <FormField label="Search society"><Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="e.g. Sobha, Purva…" /></FormField>
+                <FormField label="Location"><NativeSelect className="w-full" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)}><NativeSelectOption value="All">All four markets</NativeSelectOption>{LOCATIONS.map((location) => <NativeSelectOption key={location} value={location}>{location}</NativeSelectOption>)}</NativeSelect></FormField>
+                <FormField label="BHK"><NativeSelect className="w-full" value={bhkFilter} onChange={(event) => setBhkFilter(event.target.value)}><NativeSelectOption value="All">All BHKs</NativeSelectOption>{['1', '2', '2.5', '3', '3.5', '4', '4.5'].map((bhk) => <NativeSelectOption key={bhk} value={bhk}>{bhk} BHK</NativeSelectOption>)}</NativeSelect></FormField>
+                <FormField label="Maximum budget"><NativeSelect className="w-full" value={budgetFilter} onChange={(event) => setBudgetFilter(event.target.value)}><NativeSelectOption value="All">Any budget</NativeSelectOption><NativeSelectOption value="10000000">Up to ₹1 Cr</NativeSelectOption><NativeSelectOption value="20000000">Up to ₹2 Cr</NativeSelectOption><NativeSelectOption value="30000000">Up to ₹3 Cr</NativeSelectOption><NativeSelectOption value="50000000">Up to ₹5 Cr</NativeSelectOption></NativeSelect></FormField>
+              </div>
+              <Alert className="mt-4 border-accent bg-accent/25"><Info /><AlertTitle>Prototype data boundary</AlertTitle><AlertDescription>{records.length} scoped sale records from the supplied workbook. Mortgages, villas, plots, unsupported locations, and invalid evidence are excluded.</AlertDescription></Alert>
+            </section>
+            <section>
+              <div className="mb-4 flex items-center justify-between"><p className="text-sm text-muted-foreground">{filteredSocieties.length} societies found</p><Badge variant="secondary">No paid ranking</Badge></div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {filteredSocieties.slice(0, 18).map((society) => (
+                  <Card key={society.slug} className="cursor-pointer transition hover:-translate-y-0.5 hover:shadow-lg" onClick={() => { setSelectedSociety(society); setBuyerUnlocked(false); }}>
+                    <CardHeader><div className="flex items-center justify-between gap-3"><Badge variant="secondary">{society.location}</Badge><span className="text-xs text-muted-foreground">{society.transactionCount} supporting</span></div><CardTitle className="mt-2 text-lg">{society.name}</CardTitle></CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-4"><Metric label="Median price" value={formatInr(society.medianPrice, true)} /><Metric label="Median / sq ft" value={society.medianPricePerSqFt ? `${formatInr(society.medianPricePerSqFt)}` : '—'} /><Metric label="BHK evidence" value={society.bhks.length ? society.bhks.map((bhk) => `${bhk} BHK`).join(', ') : 'Sparse'} /><Metric label="Confidence" value={confidenceForCount(society.transactionCount)} /></CardContent>
+                    <CardFooter className="justify-between text-xs text-muted-foreground"><span>Latest: {formatDate(society.latestTransactionDate)}</span><ChevronRight className="size-4" /></CardFooter>
+                  </Card>
+                ))}
+              </div>
+              {!filteredSocieties.length && <div className="rounded-2xl border border-dashed border-border p-10 text-center"><FileSearch className="mx-auto size-8 text-muted-foreground" /><h2 className="mt-4 font-heading text-xl font-semibold">No supported society matches</h2><p className="mt-2 text-sm text-muted-foreground">Submit it for administrator review. V1 shows an on-screen receipt only.</p><Button className="mt-5" variant="outline" onClick={() => { setUnknownOpen(true); setUnknownSent(false); }}>Submit missing society</Button></div>}
+            </section>
+          </div>
+        </div>
+      )}
+
+      {view === 'owner' && !valuation && (
+        <div className="mx-auto max-w-6xl px-5 py-8 lg:px-8 lg:py-12">
+          <Button variant="ghost" className="mb-5 -ml-2" onClick={resetHome}><ArrowLeft /> Home</Button>
+          <div className="grid gap-8 lg:grid-cols-[.76fr_1.24fr]">
+            <aside>
+              <Badge variant="outline">Owner valuation</Badge>
+              <h1 className="mt-4 font-heading text-4xl font-semibold tracking-[-0.035em]">Private data in. Evidence out.</h1>
+              <p className="mt-4 leading-7 text-muted-foreground">Your purchase price is mandatory because pooled, anonymized contributions can reduce dependence on broker-controlled information.</p>
+              <div className="mt-7 space-y-3">
+                {['Your exact price is never shown publicly', 'No unit number is collected', 'No advertising trackers or targeting', 'Registered evidence takes precedence'].map((item) => <div key={item} className="flex gap-3 text-sm"><CheckCircle2 className="size-5 shrink-0 text-accent-foreground" /><span>{item}</span></div>)}
+              </div>
+              <Alert className="mt-7 border-accent bg-accent/25"><LockKeyhole /><AlertTitle>Data covenant</AlertTitle><AlertDescription>We never sell your contribution, use it for advertising, or give it to brokers or developers. Owner-derived intelligence stays suppressed until at least five contributions form an anonymous cohort.</AlertDescription></Alert>
+            </aside>
+
+            <form onSubmit={beginOwnerReveal} className="rounded-2xl border border-border bg-card p-5 shadow-[0_22px_70px_-45px_rgba(15,38,51,.5)] sm:p-7">
+              <div className="mb-6"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">Property match</p><h2 className="mt-1 font-heading text-2xl font-semibold">Tell us about your apartment</h2><p className="mt-2 text-sm text-muted-foreground">An unfinished form is saved only in this browser.</p></div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <FormField label="Society"><NativeSelect className="w-full" value={ownerForm.society} onChange={(event) => updateOwner('society', event.target.value)}><NativeSelectOption value="">Select society</NativeSelectOption>{societies.map((society) => <NativeSelectOption key={society.slug} value={society.name}>{society.name} — {society.location}</NativeSelectOption>)}</NativeSelect>{fieldError(errors, 'society')}</FormField>
+                <FormField label="Tower / block"><NativeSelect className="w-full" value={ownerForm.tower} onChange={(event) => updateOwner('tower', event.target.value)} disabled={!ownerForm.society}><NativeSelectOption value="">Select tower</NativeSelectOption>{selectedSocietySummary?.towers.map((tower) => <NativeSelectOption key={tower} value={tower}>{tower}</NativeSelectOption>)}</NativeSelect>{fieldError(errors, 'tower')}</FormField>
+                <FormField label="Floor"><Input value={ownerForm.floor} onChange={(event) => updateOwner('floor', event.target.value)} placeholder="e.g. 8" />{fieldError(errors, 'floor')}</FormField>
+                <FormField label="BHK"><NativeSelect className="w-full" value={ownerForm.bhk} onChange={(event) => updateOwner('bhk', event.target.value)}><NativeSelectOption value="">Select BHK</NativeSelectOption>{['1', '2', '2.5', '3', '3.5', '4', '4.5'].map((bhk) => <NativeSelectOption key={bhk} value={bhk}>{bhk} BHK</NativeSelectOption>)}</NativeSelect>{fieldError(errors, 'bhk')}</FormField>
+                <FormField label="Area"><Input type="number" min="1" value={ownerForm.area} onChange={(event) => updateOwner('area', event.target.value)} placeholder="e.g. 1450" />{fieldError(errors, 'area')}</FormField>
+                <FormField label="Area type"><NativeSelect className="w-full" value={ownerForm.areaType} onChange={(event) => updateOwner('areaType', event.target.value as OwnerForm['areaType'])}><NativeSelectOption value="superBuiltUp">Super built-up</NativeSelectOption><NativeSelectOption value="carpet">Carpet</NativeSelectOption></NativeSelect></FormField>
+                <FormField label="Car parks"><NativeSelect className="w-full" value={ownerForm.carParks} onChange={(event) => updateOwner('carParks', event.target.value)}><NativeSelectOption value="1">1 car park</NativeSelectOption><NativeSelectOption value="2">2 car parks</NativeSelectOption></NativeSelect></FormField>
+                <FormField label="Purchase date"><Input type="date" value={ownerForm.purchaseDate} onChange={(event) => updateOwner('purchaseDate', event.target.value)} />{fieldError(errors, 'purchaseDate')}</FormField>
+              </div>
+              <Separator className="my-7" />
+              <div className="mb-5"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">Acquisition costs</p><p className="mt-1 text-sm text-muted-foreground">Indian formats such as “1.25 crore” and “85 lakh” are accepted.</p></div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <CurrencyField label="Purchase price" name="purchasePrice" value={ownerForm.purchasePrice} onChange={(value) => updateOwner('purchasePrice', value)} errors={errors} />
+                <CurrencyField label="Stamp duty" name="stampDuty" value={ownerForm.stampDuty} onChange={(value) => updateOwner('stampDuty', value)} errors={errors} />
+                <CurrencyField label="Registration cost" name="registrationCost" value={ownerForm.registrationCost} onChange={(value) => updateOwner('registrationCost', value)} errors={errors} />
+                <CurrencyField label="Interior cost" name="interiors" value={ownerForm.interiors} onChange={(value) => updateOwner('interiors', value)} errors={errors} />
+                <FormField label="Facing / view" optional><Input value={ownerForm.facing} onChange={(event) => updateOwner('facing', event.target.value)} placeholder="e.g. East, lake view" /></FormField>
+                <CurrencyField label="Brokerage" name="brokerage" value={ownerForm.brokerage} onChange={(value) => updateOwner('brokerage', value)} errors={errors} optional />
+              </div>
+              <details className="mt-7 rounded-xl border border-border bg-muted/35 p-4">
+                <summary className="cursor-pointer font-medium">Add optional loan interest</summary>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">The prototype adds total scheduled interest over the full tenure as a cost of ownership. It does not model equity return.</p>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3"><CurrencyField label="Original loan" name="loanAmount" value={ownerForm.loanAmount} onChange={(value) => updateOwner('loanAmount', value)} errors={errors} optional /><FormField label="Tenure (years)" optional><Input type="number" min="1" value={ownerForm.loanTenure} onChange={(event) => updateOwner('loanTenure', event.target.value)} /></FormField><FormField label="Interest rate %" optional><Input type="number" min="0" step="0.01" value={ownerForm.loanRate} onChange={(event) => updateOwner('loanRate', event.target.value)} /></FormField></div>
+              </details>
+              {plausibilityMessage && <Alert variant="destructive" className="mt-6"><CircleAlert /><AlertTitle>Please review this estimate comparison</AlertTitle><AlertDescription>{plausibilityMessage}</AlertDescription><div className="col-start-2 mt-3"><Button type="button" variant="outline" onClick={() => { setPlausibilityReviewed(true); setPlausibilityMessage(''); setGateContext('owner'); setShowGate(true); }}>I reviewed it, continue</Button></div></Alert>}
+              <Button type="submit" size="lg" className="mt-7 h-12 w-full">Continue to private result <ArrowRight /></Button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {view === 'owner' && valuation && <OwnerResult form={ownerForm} result={valuation} onBack={() => setValuation(null)} />}
+
+      <Dialog open={showGate} onOpenChange={setShowGate}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><div className="mb-2 grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground"><LockKeyhole className="size-5" /></div><DialogTitle>Sign in only when you unlock intelligence</DialogTitle><DialogDescription>Production will use Google sign-in and request only your email. This prototype demonstrates the gate without collecting an account.</DialogDescription></DialogHeader>
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-muted/35 p-3 text-sm"><Checkbox checked={covenantAccepted} onCheckedChange={(value) => setCovenantAccepted(Boolean(value))} /><span>I accept the data covenant. My exact purchase price will not be shown publicly or used for advertising, targeting, broker access, or developer access.</span></label>
+          <DialogFooter><Button className="w-full sm:w-auto" disabled={!covenantAccepted} onClick={completePrototypeGate}><span className="grid size-5 place-items-center rounded-full bg-white text-xs font-bold text-primary">G</span> Continue in prototype</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(selectedSociety)} onOpenChange={(open) => !open && setSelectedSociety(null)}>
+        <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-2xl">
+          {selectedSociety && <SocietyDetail society={selectedSociety} records={buyerSocietyRecords} unlocked={buyerUnlocked} onUnlock={() => { setGateContext('buyer'); setCovenantAccepted(false); setShowGate(true); }} />}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={unknownOpen} onOpenChange={setUnknownOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>{unknownSent ? 'Request received' : 'Submit a missing society'}</DialogTitle><DialogDescription>{unknownSent ? 'It is queued for administrator data review. V1 does not promise an email or bespoke appraisal.' : 'This creates a data-review request, not a formal appraisal.'}</DialogDescription></DialogHeader>
+          {unknownSent ? <div className="rounded-xl bg-accent/35 p-5 text-center"><CheckCircle2 className="mx-auto size-8 text-accent-foreground" /><p className="mt-3 font-medium">On-screen confirmation complete</p></div> : <div className="grid gap-4"><FormField label="Society name"><Input placeholder="Enter society name" /></FormField><FormField label="Location"><NativeSelect className="w-full"><NativeSelectOption>Sarjapur Road</NativeSelectOption><NativeSelectOption>Bellandur</NativeSelectOption><NativeSelectOption>Marathahalli</NativeSelectOption><NativeSelectOption>Haralur</NativeSelectOption></NativeSelect></FormField><FormField label="Available details" optional><Textarea placeholder="Tower, BHK, area, or anything else you know" /></FormField></div>}
+          <DialogFooter>{unknownSent ? <Button onClick={() => setUnknownOpen(false)}>Done</Button> : <Button onClick={() => setUnknownSent(true)}>Submit for review</Button>}</DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </main>
+  );
+}
+
+function HomeView({ societies, onOwner, onBuyer }: { societies: SocietySummary[]; onOwner: () => void; onBuyer: () => void }) {
+  return (
+    <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-16">
+      <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
+        <div className="pt-4"><Badge variant="outline" className="mb-5 border-primary/20 bg-primary/5 text-primary">Built for owners and first-time buyers</Badge><h1 className="max-w-3xl font-heading text-4xl font-semibold leading-[1.03] tracking-[-0.04em] sm:text-5xl lg:text-6xl">Know what a Bengaluru apartment is really worth.</h1><p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">Private purchase data in. Registered transaction evidence, returns, and a clear confidence level out—without brokers, ads, paid rankings, or public unit prices.</p><div className="mt-7 flex flex-wrap gap-3 text-sm text-muted-foreground">{LOCATIONS.map((location) => <span key={location} className="rounded-full border border-border bg-card px-3 py-1.5">{location}</span>)}</div></div>
+        <div className="grid gap-4"><Card className="border-0 bg-primary text-primary-foreground ring-0 shadow-[0_24px_70px_-30px_rgba(15,38,51,.75)]"><CardHeader><div className="mb-5 grid size-11 place-items-center rounded-2xl bg-white/12"><Home className="size-5" /></div><CardTitle className="text-2xl">I own a property</CardTitle><p className="max-w-md text-sm leading-6 text-primary-foreground/72">Privately contribute what you paid to unlock an evidence-based estimate and acquisition return.</p></CardHeader><CardContent><Button size="lg" className="h-11 w-full bg-white text-primary hover:bg-white/90" onClick={onOwner}>Track my apartment <ArrowRight /></Button></CardContent></Card><Card className="border-0 bg-card ring-1 ring-border shadow-[0_18px_60px_-36px_rgba(15,38,51,.45)]"><CardHeader><div className="mb-5 grid size-11 place-items-center rounded-2xl bg-accent text-accent-foreground"><Search className="size-5" /></div><CardTitle className="text-2xl">I’m buying a property</CardTitle><p className="max-w-md text-sm leading-6 text-muted-foreground">Browse society-level prices and supporting transactions before speaking to a broker.</p></CardHeader><CardContent><Button size="lg" variant="outline" className="h-11 w-full" onClick={onBuyer}>Explore societies <ArrowRight /></Button></CardContent></Card></div>
+      </section>
+      <section className="mt-16 border-t border-border pt-8"><div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">Live workbook sample</p><h2 className="mt-2 font-heading text-2xl font-semibold tracking-tight">Real registered evidence, not listing prices</h2></div><p className="text-sm text-muted-foreground">Unit numbers are never shown.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{societies.map((society) => <Card key={society.slug} size="sm" className="bg-card/80"><CardHeader><div className="flex items-center justify-between gap-3"><Badge variant="secondary">{society.location}</Badge><span className="text-xs text-muted-foreground">{society.transactionCount} txn{society.transactionCount === 1 ? '' : 's'}</span></div><CardTitle className="mt-2 min-h-10">{society.name}</CardTitle></CardHeader><CardContent className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">Median registered price</p><p className="mt-1 font-heading text-lg font-semibold">{formatInr(society.medianPrice, true)}</p></div><CheckCircle2 className="size-5 text-accent-foreground" /></CardContent></Card>)}</div></section>
+      <section className="mt-10 rounded-2xl border border-accent/40 bg-accent/35 p-5"><div className="flex gap-3"><LockKeyhole className="mt-0.5 size-5 shrink-0 text-accent-foreground" /><div><p className="font-medium">Your exact purchase price stays private.</p><p className="mt-1 text-sm leading-6 text-muted-foreground">It is stored separately from identity and can appear to others only inside a sufficiently large anonymized cohort.</p></div></div></section>
+    </div>
+  );
+}
+
+function CurrencyField({ label, name, value, onChange, errors, optional }: { label: string; name: string; value: string; onChange: (value: string) => void; errors: Record<string, string>; optional?: boolean }) {
+  const parsed = parseIndianCurrency(value);
+  return <FormField label={label} optional={optional}><Input value={value} onChange={(event) => onChange(event.target.value)} placeholder="e.g. 1.25 crore" />{value && !Number.isNaN(parsed) && <p className="mt-1 text-xs text-muted-foreground">Interpreted as {formatInr(parsed)}</p>}{fieldError(errors, name)}</FormField>;
+}
+
+function Metric({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 font-medium">{value}</p></div>; }
+
+function OwnerResult({ form, result, onBack }: { form: OwnerForm; result: ValuationResult; onBack: () => void }) {
+  return (
+    <div className="mx-auto max-w-6xl px-5 py-8 lg:px-8 lg:py-12">
+      <Button variant="ghost" className="mb-5 -ml-2" onClick={onBack}><ArrowLeft /> Review inputs</Button>
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><Badge variant="outline">Estimate—not a formal appraisal</Badge><h1 className="mt-4 font-heading text-4xl font-semibold tracking-tight">{form.society}</h1><p className="mt-2 text-muted-foreground">{form.bhk} BHK · {Number(form.area).toLocaleString('en-IN')} sq ft · {form.areaType === 'carpet' ? 'Carpet' : 'Super built-up'} area</p></div><Badge className="h-7 px-3" variant={result.confidence === 'Insufficient evidence' ? 'destructive' : 'secondary'}>{result.confidence} confidence</Badge></div>
+      {result.estimate ? <div className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]"><Card className="border-0 bg-primary text-primary-foreground ring-0"><CardHeader><p className="text-sm text-primary-foreground/65">Estimated current value</p><CardTitle className="font-heading text-5xl tracking-[-0.04em]">{formatInr(result.estimate, true)}</CardTitle><p className="text-sm text-primary-foreground/65">Estimated range {formatInr(result.low, true)}–{formatInr(result.high, true)}</p></CardHeader><CardContent><div className="grid grid-cols-2 gap-5 border-t border-white/12 pt-5 sm:grid-cols-4"><Metric label="Supporting transactions" value={String(result.comparables.length)} /><Metric label="Acquisition cost" value={formatInr(result.acquisitionCost, true)} /><Metric label="Annualized return" value={result.annualizedReturn == null ? '—' : `${(result.annualizedReturn * 100).toFixed(1)}%`} /><Metric label="Return after costs" value={formatInr(result.returnAfterCosts, true)} /></div></CardContent></Card><Card><CardHeader><CardTitle>Cost and appreciation</CardTitle></CardHeader><CardContent className="space-y-4"><ResultRow label="Purchase price" value={formatInr(parseIndianCurrency(form.purchasePrice))} /><ResultRow label="Included acquisition costs" value={formatInr(result.acquisitionCost - parseIndianCurrency(form.purchasePrice))} /><ResultRow label="Full-tenure loan interest" value={result.loanInterest ? formatInr(result.loanInterest) : 'Not included'} /><Separator /><ResultRow label="Absolute appreciation" value={formatInr(result.absoluteAppreciation)} strong /></CardContent></Card></div> : <Alert variant="destructive"><CircleAlert /><AlertTitle>Insufficient like-for-like evidence</AlertTitle><AlertDescription>No valid registered transaction in the last 36 months matches this society, exact BHK, and area basis. We will not substitute a locality average or present false precision.</AlertDescription></Alert>}
+      <section className="mt-8"><div className="mb-4"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-foreground">Evidence used</p><h2 className="mt-1 font-heading text-2xl font-semibold">Like-for-like registered transactions</h2></div>{result.comparables.length ? <div className="grid gap-4 md:grid-cols-2">{result.comparables.map((record) => <Card key={record.id} size="sm"><CardHeader><div className="flex items-center justify-between"><Badge variant="secondary">{record.bhk} BHK</Badge><span className="text-xs text-muted-foreground">{formatDate(record.registrationDate)}</span></div><CardTitle className="mt-2">{formatInr(record.price, true)}</CardTitle></CardHeader><CardContent className="grid grid-cols-2 gap-4"><Metric label="Area" value={`${record.effectiveArea?.toLocaleString('en-IN')} sq ft`} /><Metric label="Registered / sq ft" value={formatInr(record.pricePerSqFt)} /><Metric label="Area basis" value={record.areaBasis ?? '—'} /><Metric label="Sale type" value={record.saleType ?? 'Sale'} /></CardContent><CardFooter className="text-xs text-muted-foreground">Source preserved · Unit number hidden</CardFooter></Card>)}</div> : null}</section>
+      <div className="mt-8 grid gap-4 md:grid-cols-2"><Card><CardHeader><CardTitle>Development signals</CardTitle></CardHeader><CardContent><p className="text-sm leading-6 text-muted-foreground">No signal is shown because a source and publication date have not yet been selected. The prototype does not invent or display unsourced rumours.</p></CardContent></Card><Card><CardHeader><CardTitle>Estimate looks wrong?</CardTitle></CardHeader><CardContent><p className="text-sm leading-6 text-muted-foreground">Inspect the supporting transactions above. A production review request would let the administrator evaluate alternative comparables without changing registered evidence.</p><Button className="mt-4" variant="outline">Request review</Button></CardContent></Card></div>
+    </div>
+  );
+}
+
+function ResultRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) { return <div className="flex items-center justify-between gap-4"><span className="text-sm text-muted-foreground">{label}</span><span className={strong ? 'font-heading text-lg font-semibold' : 'font-medium'}>{value}</span></div>; }
+
+function SocietyDetail({ society, records, unlocked, onUnlock }: { society: SocietySummary; records: TransactionRecord[]; unlocked: boolean; onUnlock: () => void }) {
+  return <><DialogHeader><div className="flex items-center gap-2"><Badge variant="secondary">{society.location}</Badge><Badge variant="outline">{confidenceForCount(society.transactionCount)} confidence</Badge></div><DialogTitle className="mt-2 font-heading text-2xl">{society.name}</DialogTitle><DialogDescription>Society-level evidence only. This is not a live listing, ranking, or recommendation.</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-4 rounded-xl bg-muted/45 p-4 sm:grid-cols-4"><Metric label="Median price" value={formatInr(society.medianPrice, true)} /><Metric label="Median / sq ft" value={formatInr(society.medianPricePerSqFt)} /><Metric label="Registered sales" value={String(society.transactionCount)} /><Metric label="BHK evidence" value={society.bhks.join(', ') || 'Sparse'} /></div>{unlocked ? <div><h3 className="mb-3 font-medium">Recent registered transactions</h3><div className="space-y-2">{records.sort((a, b) => (b.registrationDate ?? '').localeCompare(a.registrationDate ?? '')).slice(0, 6).map((record) => <div key={record.id} className="grid grid-cols-[1fr_auto] gap-3 rounded-lg border border-border p-3"><div><p className="font-medium">{record.bhk ?? 'BHK unavailable'} BHK · {record.effectiveArea?.toLocaleString('en-IN') ?? 'Area unavailable'} sq ft</p><p className="mt-1 text-xs text-muted-foreground">{formatDate(record.registrationDate)} · Unit number hidden</p></div><div className="text-right"><p className="font-medium">{formatInr(record.price, true)}</p><p className="mt-1 text-xs text-muted-foreground">{formatInr(record.pricePerSqFt)} / sq ft</p></div></div>)}</div><div className="mt-5 grid gap-3 sm:grid-cols-2"><EmptyEvidence title="Rental yield" text="Rent source not selected yet." /><EmptyEvidence title="Five-year scenario" text="Scenario assumptions not selected yet." /><EmptyEvidence title="Amenities & schools" text="External data provider pending." /><EmptyEvidence title="Nearby comparison" text="Will use only comparable supported societies." /></div></div> : <div className="rounded-xl border border-border bg-primary p-5 text-primary-foreground"><LockKeyhole className="size-5" /><h3 className="mt-3 font-heading text-xl font-semibold">Detailed evidence is sign-in gated</h3><p className="mt-2 text-sm leading-6 text-primary-foreground/70">Explore freely, then sign in only when revealing transaction-level intelligence. Production will use Google and request email only.</p><Button className="mt-4 bg-white text-primary hover:bg-white/90" onClick={onUnlock}>Unlock detailed evidence</Button></div>}</>;
+}
+
+function EmptyEvidence({ title, text }: { title: string; text: string }) { return <div className="rounded-lg border border-dashed border-border p-3"><p className="font-medium">{title}</p><p className="mt-1 text-xs text-muted-foreground">{text}</p></div>; }
