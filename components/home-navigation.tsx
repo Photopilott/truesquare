@@ -221,7 +221,7 @@ export function HomeNavigation() {
           <h2>Evidence when it exists. Honesty when it doesn’t.</h2>
           <div className="mx-auto max-w-2xl space-y-4 text-center text-[#DCE3FF]">
             <p>Owners privately share what they paid. TrueSquare is designed to pool those contributions anonymously with registered transactions. Everyone gets a price they can check.</p>
-            <p>The current release uses the supplied registered-transaction workbook. Owner pooling begins only when secure production storage is connected.</p>
+            <p>Registered transactions and private owner contributions now use secure production storage. Owner prices appear publicly only as anonymous ranges after admin approval and the privacy threshold is met.</p>
           </div>
         </div>
       </section>

@@ -2,12 +2,20 @@ import type { Metadata } from 'next';
 
 import propertyData from '@/data/property-data.json';
 import { PropertyIntelligenceApp } from '@/components/property-intelligence-app';
+import { getPublicOwnerAggregates } from '@/lib/owner-aggregates';
+import { getRegisteredTransactions } from '@/lib/registered-transactions';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Track your apartment — TrueSquare',
   description: 'Track an apartment’s estimated value and returns using like-for-like registered transactions and a visible confidence level.',
 };
 
-export default function OwnerPage() {
-  return <PropertyIntelligenceApp societies={propertyData.societies} records={propertyData.records} initialView="owner" />;
+export default async function OwnerPage() {
+  const [ownerAggregates, records] = await Promise.all([
+    getPublicOwnerAggregates(),
+    getRegisteredTransactions(),
+  ]);
+  return <PropertyIntelligenceApp societies={propertyData.societies} records={records} ownerAggregates={ownerAggregates} initialView="owner" />;
 }

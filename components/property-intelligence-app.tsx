@@ -50,6 +50,7 @@ import {
 } from '@/components/ui/native-select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import type { OwnerPriceAggregate } from '@/lib/owner-aggregates';
 
 type SocietySummary = {
   slug: string;
@@ -114,6 +115,7 @@ type ValuationResult = {
   loanInterest: number;
   matchTier: ComparableTier;
   matchLabel: string;
+  ownerAggregate: OwnerPriceAggregate | null;
 };
 
 type ComparableTier =
@@ -393,10 +395,12 @@ export function AppHeader({ active }: { active: 'owner' | 'buyer' | 'explore' })
 export function PropertyIntelligenceApp({
   societies,
   records,
+  ownerAggregates,
   initialView,
 }: {
   societies: SocietySummary[];
   records: TransactionRecord[];
+  ownerAggregates: OwnerPriceAggregate[];
   initialView: 'owner' | 'buyer';
 }) {
   const [view, setView] = useState<'home' | 'owner' | 'buyer'>(initialView);
@@ -406,6 +410,9 @@ export function PropertyIntelligenceApp({
   const [showGate, setShowGate] = useState(false);
   const [gateContext, setGateContext] = useState<'owner' | 'buyer'>('owner');
   const [covenantAccepted, setCovenantAccepted] = useState(false);
+  const [accessEmail, setAccessEmail] = useState('');
+  const [gateError, setGateError] = useState('');
+  const [isSubmittingContribution, setIsSubmittingContribution] = useState(false);
   const [plausibilityReviewed, setPlausibilityReviewed] = useState(false);
   const [plausibilityMessage, setPlausibilityMessage] = useState('');
   const [buyerUnlocked, setBuyerUnlocked] = useState(false);
@@ -426,17 +433,20 @@ export function PropertyIntelligenceApp({
 
   useEffect(() => {
     const stored = window.localStorage.getItem('truesquare-owner-draft');
+    const storedEmail = window.localStorage.getItem('truesquare-access-email');
+    let savedDraft: OwnerForm | null = null;
     if (stored) {
       try {
-        const savedDraft = { ...EMPTY_FORM, ...JSON.parse(stored) };
-        const frame = window.requestAnimationFrame(() =>
-          setOwnerForm(savedDraft),
-        );
-        return () => window.cancelAnimationFrame(frame);
+        savedDraft = { ...EMPTY_FORM, ...JSON.parse(stored) };
       } catch {
         /* ignore corrupt local draft */
       }
     }
+    const frame = window.requestAnimationFrame(() => {
+      if (storedEmail) setAccessEmail(storedEmail);
+      if (savedDraft) setOwnerForm(savedDraft);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -602,6 +612,11 @@ export function PropertyIntelligenceApp({
       loanInterest,
       matchTier: comparableMatch.tier,
       matchLabel: comparableMatch.label,
+      ownerAggregate:
+        ownerAggregates.find(
+          (aggregate) =>
+            aggregate.society === form.society && aggregate.bhk === form.bhk,
+        ) ?? null,
     };
   }
 
@@ -675,13 +690,88 @@ export function PropertyIntelligenceApp({
     setShowGate(true);
   }
 
-  function completeAccessGate() {
+  async function completeAccessGate() {
     if (!covenantAccepted) return;
-    setShowGate(false);
-    if (gateContext === 'owner') {
+    if (gateContext === 'buyer') {
+      setShowGate(false);
+      setBuyerUnlocked(true);
+      return;
+    }
+
+    const email = accessEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setGateError('Enter a valid email address.');
+      return;
+    }
+
+    const selected = societies.find((society) => society.name === ownerForm.society);
+    if (!selected) {
+      setGateError('Select a supported society before continuing.');
+      return;
+    }
+
+    setGateError('');
+    setIsSubmittingContribution(true);
+    let requestId = window.localStorage.getItem('truesquare-owner-request-id');
+    if (!requestId) {
+      requestId = window.crypto.randomUUID();
+      window.localStorage.setItem('truesquare-owner-request-id', requestId);
+    }
+
+    try {
+      const response = await fetch('/api/contributions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requestId,
+          email,
+          property: {
+            society: ownerForm.society,
+            location: selected.location,
+            tower: ownerForm.tower,
+            floor: ownerForm.floor,
+            bhk: ownerForm.bhk,
+            areaSqFt: Number(ownerForm.area),
+            areaType: ownerForm.areaType,
+            carParks: Number(ownerForm.carParks),
+            purchaseDate: ownerForm.purchaseDate,
+            facing: ownerForm.facing,
+          },
+          costs: {
+            purchasePrice: parseIndianCurrency(ownerForm.purchasePrice),
+            stampDuty: parseIndianCurrency(ownerForm.stampDuty),
+            registrationCost: parseIndianCurrency(ownerForm.registrationCost),
+            interiors: parseIndianCurrency(ownerForm.interiors),
+            brokerage: parseIndianCurrency(ownerForm.brokerage),
+            loanAmount: ownerForm.loanAmount
+              ? parseIndianCurrency(ownerForm.loanAmount)
+              : null,
+            loanTenureYears: ownerForm.loanTenure
+              ? Number(ownerForm.loanTenure)
+              : null,
+            loanRate: ownerForm.loanRate ? Number(ownerForm.loanRate) : null,
+          },
+        }),
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(result.error || 'We could not save your contribution.');
+      }
+
       setValuation(buildValuation(ownerForm));
+      setShowGate(false);
       window.localStorage.removeItem('truesquare-owner-draft');
-    } else setBuyerUnlocked(true);
+      window.localStorage.removeItem('truesquare-owner-request-id');
+      window.localStorage.setItem('truesquare-access-email', email);
+    } catch (error) {
+      setGateError(
+        error instanceof Error
+          ? error.message
+          : 'We could not save your contribution. Nothing was submitted.',
+      );
+    } finally {
+      setIsSubmittingContribution(false);
+    }
   }
 
   function resetHome() {
@@ -832,6 +922,15 @@ export function PropertyIntelligenceApp({
                       .filter((price): price is number => Boolean(price)),
                   );
                   const evidenceCount = matchingRecords.length;
+                  const societyOwnerAggregates = ownerAggregates.filter(
+                    (aggregate) =>
+                      aggregate.society === society.name &&
+                      (bhkFilter === 'All' || aggregate.bhk === bhkFilter),
+                  );
+                  const ownerContributionCount = societyOwnerAggregates.reduce(
+                    (sum, aggregate) => sum + aggregate.approvedCount,
+                    0,
+                  );
                   const latestDate =
                     [...matchingRecords].sort((a, b) =>
                       (b.registrationDate ?? '').localeCompare(
@@ -885,6 +984,14 @@ export function PropertyIntelligenceApp({
                           <Metric
                             label="Confidence"
                             value={confidenceForCount(evidenceCount)}
+                          />
+                          <Metric
+                            label="Anonymous owner pool"
+                            value={
+                              ownerContributionCount
+                                ? `${ownerContributionCount} approved`
+                                : 'Not public yet'
+                            }
                           />
                         </CardContent>
                         <CardFooter className="justify-between text-xs text-muted-foreground">
@@ -982,7 +1089,7 @@ export function PropertyIntelligenceApp({
                   planned for a later release and are not active in V1.
                 </AlertDescription>
               </Alert>
-              <p className="mt-5 text-sm leading-6 text-muted-foreground">Priced from registered transactions, with pooled owner contributions planned once secure production storage is connected — and a confidence level on every estimate.</p>
+              <p className="mt-5 text-sm leading-6 text-muted-foreground">Priced from registered transactions and approved anonymous owner contributions — with a confidence level on every estimate.</p>
               <p className="mt-6 font-heading text-2xl leading-snug">You&apos;d never hold a mutual fund without a NAV. Why hold ₹1.5 crore without one?</p>
             </aside>
 
@@ -1282,11 +1389,25 @@ export function PropertyIntelligenceApp({
             </p>
             <DialogTitle>Sign in only when you unlock intelligence</DialogTitle>
             <DialogDescription>
-              Accept the data covenant to reveal the requested evidence. Google
-              sign-in will request only your email when account access is
-              connected.
+              {gateContext === 'owner'
+                ? 'Your contribution is saved privately and queued for admin review before any anonymous aggregate is updated.'
+                : 'Accept the data covenant to reveal the supporting evidence.'}
             </DialogDescription>
           </DialogHeader>
+          {gateContext === 'owner' && (
+            <FormField label="Email">
+              <Input
+                type="email"
+                autoComplete="email"
+                value={accessEmail}
+                onChange={(event) => {
+                  setAccessEmail(event.target.value);
+                  setGateError('');
+                }}
+                placeholder="you@example.com"
+              />
+            </FormField>
+          )}
           <label className="flex cursor-pointer items-start gap-3 rounded-[10px] border border-border bg-secondary p-4 text-sm leading-relaxed">
             <input
               type="checkbox"
@@ -1300,18 +1421,31 @@ export function PropertyIntelligenceApp({
               or developer access.
             </span>
           </label>
+          {gateError && (
+            <Alert variant="destructive">
+              <CircleAlert />
+              <AlertTitle>Submission not saved</AlertTitle>
+              <AlertDescription>{gateError}</AlertDescription>
+            </Alert>
+          )}
           <DialogFooter className="sm:mx-0 sm:mb-0 sm:border-0 sm:bg-transparent sm:p-0">
             <Button
               className="h-13 w-full font-mono text-[11px] tracking-[0.1em]"
-              disabled={!covenantAccepted}
+              disabled={
+                !covenantAccepted ||
+                isSubmittingContribution ||
+                (gateContext === 'owner' && !accessEmail.trim())
+              }
               onClick={completeAccessGate}
             >
               <span className="grid size-5 place-items-center rounded-full bg-white text-xs font-bold text-primary">
                 G
               </span>{' '}
-              {gateContext === 'owner'
-                ? 'SEE MY VALUATION'
-                : 'SEE SUPPORTING TRANSACTIONS'}
+              {isSubmittingContribution
+                ? 'SAVING SECURELY…'
+                : gateContext === 'owner'
+                  ? 'SAVE & SEE MY VALUATION'
+                  : 'SEE SUPPORTING TRANSACTIONS'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1326,6 +1460,9 @@ export function PropertyIntelligenceApp({
             <SocietyDetail
               society={selectedSociety}
               records={buyerSocietyRecords}
+              ownerAggregates={ownerAggregates.filter(
+                (aggregate) => aggregate.society === selectedSociety.name,
+              )}
               bhkFilter={bhkFilter}
               matchLabel={buyerSocietyEvidence?.label ?? 'No evidence'}
               unlocked={buyerUnlocked}
@@ -1843,6 +1980,23 @@ function OwnerResult({
           </AlertDescription>
         </Alert>
       )}
+      {result.ownerAggregate && (
+        <Alert className="mt-6 rounded-[12px] border-[#A9DCB8] bg-accent">
+          <CheckCircle2 />
+          <AlertTitle>
+            Anonymous owner pool · {result.ownerAggregate.approvedCount} approved contributions
+          </AlertTitle>
+          <AlertDescription>
+            Owners of {form.bhk} BHK homes in this society contributed an
+            approved purchase-price range of{' '}
+            {formatRoundedInrRange(
+              result.ownerAggregate.minPricePerSqFt * Number(form.area),
+              result.ownerAggregate.maxPricePerSqFt * Number(form.area),
+            )}{' '}
+            for an apartment of this size. Individual prices are never shown.
+          </AlertDescription>
+        </Alert>
+      )}
       <section className="mt-10">
         <div className="mb-5">
           <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
@@ -1948,6 +2102,7 @@ function ResultRow({
 function SocietyDetail({
   society,
   records,
+  ownerAggregates,
   bhkFilter,
   matchLabel,
   unlocked,
@@ -1955,6 +2110,7 @@ function SocietyDetail({
 }: {
   society: SocietySummary;
   records: TransactionRecord[];
+  ownerAggregates: OwnerPriceAggregate[];
   bhkFilter: string;
   matchLabel: string;
   unlocked: boolean;
@@ -1977,6 +2133,13 @@ function SocietyDetail({
         .filter((bhk): bhk is string => Boolean(bhk)),
     ),
   ];
+  const visibleOwnerAggregates = ownerAggregates.filter(
+    (aggregate) => bhkFilter === 'All' || aggregate.bhk === bhkFilter,
+  );
+  const ownerContributionCount = visibleOwnerAggregates.reduce(
+    (sum, aggregate) => sum + aggregate.approvedCount,
+    0,
+  );
   return (
     <>
       <DialogHeader>
@@ -2009,6 +2172,10 @@ function SocietyDetail({
         <Metric
           label="BHK evidence"
           value={detailBhks.join(', ') || 'Sparse'}
+        />
+        <Metric
+          label="Anonymous owner pool"
+          value={ownerContributionCount ? `${ownerContributionCount} approved` : 'Not public yet'}
         />
       </div>
       {unlocked ? (

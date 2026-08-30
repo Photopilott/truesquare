@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 type ExplorerPageProps = {
   societyCount: number;
   transactionCount: number;
+  ownerContributionCount: number;
   medianPricePerSqFt: number | null;
 };
 
@@ -21,7 +22,7 @@ function formatInr(value: number | null) {
   }).format(value);
 }
 
-export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqFt }: ExplorerPageProps) {
+export function ExplorerPage({ societyCount, transactionCount, ownerContributionCount, medianPricePerSqFt }: ExplorerPageProps) {
   const rules = [
     'No brokers on this platform.',
     'No developer advertising.',
@@ -39,7 +40,7 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
         <div>
           <p className="ts-orb-eyebrow">OPEN MARKET EXPLORER</p>
           <h1 className="ts-orb-hero-title">What apartments in your corridor are actually worth.</h1>
-          <p className="ts-orb-hero-copy">An open, evidence-based view of gated societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur—priced from registered transactions today, with anonymous owner contributions planned once secure storage is connected. Look around. No account needed.</p>
+          <p className="ts-orb-hero-copy">An open, evidence-based view of gated societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur—priced from registered transactions and approved anonymous owner contributions. Look around. No account needed.</p>
           <div className="ts-orb-hero-actions"><Link href="/buyer" className="ts-orb-button ts-orb-button-dark">EXPLORE THE MARKET <ArrowRight className="size-4" /></Link></div>
           <p className="ts-orb-note">No sign-up, no questionnaire, nothing to fill in.</p>
         </div>
@@ -50,8 +51,8 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
             <h2 className="mt-2 font-heading text-[35px] font-medium leading-none">Market evidence</h2>
           </div>
           <div className="ts-orb-trust-body">
-            <p className="text-sm text-muted-foreground">Owner prices pooled: <strong className="text-foreground">0</strong></p>
-            <p className="text-xs text-muted-foreground">Secure production pooling is not connected yet. Updated as approved transactions and contributions come in.</p>
+            <p className="text-sm text-muted-foreground">Owner prices pooled: <strong className="text-foreground">{ownerContributionCount}</strong></p>
+            <p className="text-xs text-muted-foreground">Only admin-approved contributions that meet the privacy threshold are counted. Updated as approved evidence comes in.</p>
           </div>
           <div className="ts-orb-evidence-strip">
             <div><strong>{societyCount}</strong><span>Societies</span></div>
@@ -68,7 +69,7 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
           <p>Real-estate information in Bengaluru is fragmented, delayed, anecdotal, and usually held by someone who earns from the transaction.</p>
           <p>Owners know a ballpark. Buyers know an asking price. Neither can easily check either.</p>
           <p>So we are building the missing record: registered transactions plus purchase prices contributed privately by owners, pooled anonymously and published only as safe ranges.</p>
-          <p className="font-medium text-foreground">The more owners contribute, the sharper it gets—for everyone. Until secure owner pooling is connected, this release relies on the supplied transaction workbook.</p>
+          <p className="font-medium text-foreground">The more owners contribute, the sharper it gets—for everyone. Raw submissions stay private; only qualifying anonymous ranges are published.</p>
         </div>
         </div>
       </section>
