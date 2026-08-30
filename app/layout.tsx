@@ -14,7 +14,7 @@ export const metadata: Metadata = {
       : 'http://localhost:3000'),
   ),
   title: 'TrueSquare — Bengaluru Property Intelligence',
-  description: 'Independent, evidence-based apartment valuation and registered transaction intelligence for Bengaluru owners and buyers.',
+  description: 'Independent pricing intelligence for gated Bengaluru societies, built from registered transaction evidence without brokers, developer ads, or paid rankings.',
   openGraph: {
     title: 'TrueSquare',
     description: 'Bengaluru property intelligence',

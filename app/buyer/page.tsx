@@ -4,8 +4,8 @@ import propertyData from '@/data/property-data.json';
 import { PropertyIntelligenceApp } from '@/components/property-intelligence-app';
 
 export const metadata: Metadata = {
-  title: 'Buyer catalogue — TrueSquare',
-  description: 'Compare supported Bengaluru societies using registered transaction evidence.',
+  title: 'Research a society — TrueSquare',
+  description: 'See what supported Bengaluru societies have actually sold for using registered transaction evidence.',
 };
 
 export default function BuyerPage() {

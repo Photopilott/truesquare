@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowRight, Check, Menu, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,23 +19,24 @@ const navigation = [
   { label: 'Choose a path', href: '#paths' },
   { label: 'Coverage', href: '#coverage' },
   { label: 'How it works', href: '#evidence' },
+  { label: 'Explorer', href: '/explore' },
 ];
 
 const paths = [
   {
     id: 'owner',
-    title: 'I own an apartment',
-    description: "Track today's value, your real return, and society transactions.",
+    title: 'I own a property',
+    description: "Find what it's worth today.",
   },
   {
     id: 'buyer',
-    title: "I'm buying an apartment",
-    description: 'Compare gated societies on price and registered evidence.',
+    title: "I'm buying",
+    description: 'See what societies actually sell for.',
   },
   {
     id: 'browse',
-    title: 'Just looking around',
-    description: 'See what the data covers across the four launch markets.',
+    title: 'Just exploring',
+    description: 'Explore the market freely without an account.',
   },
 ] as const;
 
@@ -49,7 +51,7 @@ function Mark({ compact = false }: { compact?: boolean }) {
 export function HomeNavigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPath, setSelectedPath] = useState<(typeof paths)[number]['id']>('owner');
-  const selectedHref = selectedPath === 'owner' ? '/owner' : '/buyer';
+  const selectedHref = selectedPath === 'owner' ? '/owner' : selectedPath === 'buyer' ? '/buyer' : '/explore';
 
   return (
     <main id="home" className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -113,19 +115,20 @@ export function HomeNavigation() {
             BENGALURU · REGISTERED TRANSACTIONS
           </div>
           <h1 className="text-balance font-heading text-[47px] leading-[0.98] tracking-[-0.035em] sm:text-6xl lg:text-[76px]">
-            Know what your flat is really worth
+            Before you believe a flat price, check it.
           </h1>
           <p className="mx-auto mt-6 max-w-[540px] text-[16px] leading-[1.6] text-muted-foreground sm:text-lg lg:mx-0">
-            Evidence from registered transactions in your society. No brokers, no ads, no paid rankings.
+            Independent pricing intelligence for gated societies in Bengaluru. Built from registered transactions today, with private owner-paid contributions designed to sharpen the ranges as they come in. No brokers, no developer ads, no paid rankings.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
-            <a href="#paths" className="flex h-[60px] items-center justify-center gap-4 rounded-full bg-foreground px-7 font-mono text-[11px] font-medium tracking-[0.13em] text-background shadow-[0_12px_30px_rgba(11,12,42,.14)] transition-transform hover:-translate-y-0.5">
-              FIND MY STARTING POINT <ArrowRight className="size-4" />
-            </a>
-            <a href="#evidence" className="flex h-[60px] items-center justify-center rounded-full border border-border bg-card px-7 font-mono text-[11px] font-medium tracking-[0.13em]">
-              SEE HOW IT WORKS
-            </a>
+            <Link href="/owner" className="flex min-h-[60px] items-center justify-center gap-3 rounded-full bg-foreground px-7 text-center font-mono text-[10px] font-medium tracking-[0.1em] text-background shadow-[0_12px_30px_rgba(11,12,42,.14)] transition-transform hover:-translate-y-0.5">
+              I OWN A PROPERTY · FIND WHAT IT&apos;S WORTH TODAY <ArrowRight className="size-4 shrink-0" />
+            </Link>
+            <Link href="/buyer" className="flex min-h-[60px] items-center justify-center rounded-full border border-border bg-card px-7 text-center font-mono text-[10px] font-medium tracking-[0.1em]">
+              I&apos;M BUYING · SEE WHAT SOCIETIES ACTUALLY SELL FOR
+            </Link>
           </div>
+          <p className="mt-5 font-mono text-[10px] tracking-[0.08em] text-muted-foreground">NO LISTINGS SOLD · NO LEADS SOLD · NO DATA SOLD</p>
         </div>
 
         <div className="mx-auto w-full max-w-[480px] rounded-[34px] border border-border bg-card p-5 shadow-[0_22px_70px_rgba(11,12,42,.08)] sm:p-7">
@@ -160,7 +163,7 @@ export function HomeNavigation() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">CHOOSE YOUR PATH</p>
             <h2 className="mt-4 text-balance font-heading text-[40px] leading-[1.02] tracking-[-0.025em] sm:text-6xl">Where would you like to start?</h2>
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">Browse freely. An account is only needed later when a valuation is unlocked.</p>
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">Look around freely. You&apos;ll only need to sign in when you want your numbers.</p>
           </div>
 
           <div className="mx-auto mt-10 grid max-w-4xl gap-3 md:grid-cols-3">
@@ -188,9 +191,9 @@ export function HomeNavigation() {
           </div>
 
           <div className="mx-auto mt-6 flex max-w-4xl justify-center">
-            <a href={selectedHref} className="flex min-h-14 w-full max-w-md items-center justify-center gap-3 rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.13em] text-background shadow-[0_12px_30px_rgba(11,12,42,.14)] transition-transform hover:-translate-y-0.5">
-              {selectedPath === 'owner' ? 'START OWNER VALUATION' : selectedPath === 'buyer' ? 'EXPLORE AS A BUYER' : 'BROWSE THE COVERAGE'} <ArrowRight className="size-4" />
-            </a>
+            <Link href={selectedHref} className="flex min-h-14 w-full max-w-md items-center justify-center gap-3 rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.13em] text-background shadow-[0_12px_30px_rgba(11,12,42,.14)] transition-transform hover:-translate-y-0.5">
+              {selectedPath === 'owner' ? 'TRACK MY PROPERTY' : selectedPath === 'buyer' ? 'RESEARCH A SOCIETY' : 'EXPLORE THE MARKET'} <ArrowRight className="size-4" />
+            </Link>
           </div>
         </div>
       </section>
@@ -220,8 +223,8 @@ export function HomeNavigation() {
             <h2 className="mt-4 max-w-2xl text-balance font-heading text-[42px] leading-[1.02] tracking-[-0.025em] sm:text-6xl">Evidence when it exists. Honesty when it doesn’t.</h2>
           </div>
           <div className="space-y-5 border-l border-background/15 pl-6 text-[14px] leading-relaxed text-background/70 sm:pl-8">
-            <p>We compare like with like, show how many transactions support an estimate, and widen the range when evidence is thin.</p>
-            <p>No outside source is filled with placeholder claims. Missing information stays visibly unavailable until an approved source is connected.</p>
+            <p>Owners privately share what they paid. TrueSquare is designed to pool those contributions anonymously with registered transactions. Everyone gets a price they can check.</p>
+            <p>The current prototype uses the supplied registered-transaction workbook. Owner pooling begins only when secure production storage is connected.</p>
           </div>
         </div>
       </section>
@@ -232,7 +235,7 @@ export function HomeNavigation() {
           <nav className="flex flex-wrap gap-x-6 gap-y-3" aria-label="Footer navigation">
             {navigation.map((item) => <a key={item.href} href={item.href} className="text-[12px] text-muted-foreground hover:text-foreground">{item.label}</a>)}
           </nav>
-          <p className="text-[11px] text-muted-foreground">Property intelligence, not financial advice.</p>
+          <div className="max-w-md text-[11px] leading-relaxed text-muted-foreground"><p>We don&apos;t take money from brokers or developers. There is nobody for us to please except you.</p><p className="mt-1">Property intelligence, not financial advice.</p></div>
         </div>
       </footer>
     </main>

@@ -293,7 +293,7 @@ function BrandMark() {
   );
 }
 
-function AppHeader({ active }: { active: 'owner' | 'buyer' }) {
+export function AppHeader({ active }: { active: 'owner' | 'buyer' | 'explore' }) {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
@@ -324,6 +324,12 @@ function AppHeader({ active }: { active: 'owner' | 'buyer' }) {
             >
               For buyers
             </Link>
+            <Link
+              href="/explore"
+              className={`rounded-full px-5 py-3 text-[13px] font-medium ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+            >
+              Explore
+            </Link>
           </nav>
           <div className="hidden items-center gap-2 text-[11px] text-muted-foreground lg:flex">
             <ShieldCheck className="size-4 text-[#157F4F]" />
@@ -337,21 +343,27 @@ function AppHeader({ active }: { active: 'owner' | 'buyer' }) {
       >
         <Link
           href="/"
-          className="grid min-h-11 min-w-20 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] text-muted-foreground"
+          className="grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] text-muted-foreground"
         >
           HOME
         </Link>
         <Link
           href="/owner"
-          className={`grid min-h-11 min-w-24 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
+          className={`grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
         >
           OWNER
         </Link>
         <Link
           href="/buyer"
-          className={`grid min-h-11 min-w-24 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
+          className={`grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
         >
           BUYER
+        </Link>
+        <Link
+          href="/explore"
+          className={`grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
+        >
+          EXPLORE
         </Link>
       </nav>
     </>
@@ -648,7 +660,7 @@ export function PropertyIntelligenceApp({
         />
       )}
       {view === 'buyer' && (
-        <div className="mx-auto max-w-6xl px-5 py-7 sm:px-8 sm:py-12">
+        <div id="buyer-catalogue" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-7 sm:px-8 sm:py-12">
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
           </Button>
@@ -658,11 +670,12 @@ export function PropertyIntelligenceApp({
                 BUYER CATALOGUE
               </p>
               <h1 className="mt-4 text-balance font-heading text-[43px] font-normal leading-[1.01] tracking-[-0.03em] sm:text-6xl">
-                Compare societies using registered evidence.
+                Your first home shouldn&apos;t require this much price guessing.
               </h1>
               <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
-                Filter only by location, budget, and BHK. Prices are evidence
-                summaries—not listings or investment recommendations.
+                Browse the catalog freely. Sign in with Google only when you
+                want to open a society&apos;s full evidence. Email is all the
+                production gate will ask for.
               </p>
               <div className="mt-8 grid gap-4 rounded-[28px] border border-border bg-[#EFEDE7] p-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <FormField label="Search society">
@@ -749,6 +762,12 @@ export function PropertyIntelligenceApp({
                   invalid evidence are excluded.
                 </AlertDescription>
               </Alert>
+              <div className="mt-5 rounded-[24px] border border-border bg-card p-5 text-sm leading-6 text-muted-foreground">
+                <p>Listing portals show what sellers hope for.</p>
+                <p>Brokers show what closes the deal in front of them.</p>
+                <p>Developers show what they&apos;ve priced this quarter.</p>
+                <p className="mt-3 font-medium text-foreground">Nobody publishes what apartments in these societies have actually sold for. So we did.</p>
+              </div>
             </section>
             <section>
               <div className="mb-5 flex items-center justify-between">
@@ -866,8 +885,8 @@ export function PropertyIntelligenceApp({
                     No supported society matches
                   </h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Submit it for administrator review. V1 shows an on-screen
-                    receipt only.
+                    Create an on-screen prototype request. Email fulfilment is
+                    planned for V2 and is not promised within 48 hours in V1.
                   </p>
                   <Button
                     className="mt-5"
@@ -887,6 +906,7 @@ export function PropertyIntelligenceApp({
               )}
             </section>
           </div>
+          <BuyerEditorialSections />
         </div>
       )}
 
@@ -901,19 +921,22 @@ export function PropertyIntelligenceApp({
                 OWNER VALUATION
               </p>
               <h1 className="mt-4 text-balance font-heading text-[45px] font-normal leading-[1.01] tracking-[-0.03em] sm:text-6xl">
-                Private data in. Evidence out.
+                Your flat is an asset. Track it like one.
               </h1>
               <p className="mt-5 text-[15px] leading-7 text-muted-foreground">
-                Your purchase price is mandatory because pooled, anonymized
-                contributions can reduce dependence on broker-controlled
-                information.
+                Track your apartment&apos;s value and returns the way you track
+                everything else you own. Currently live for gated societies in
+                Sarjapur Road, Bellandur, Marathahalli, and Haralur.
               </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
+                <a href="#property-form" className="flex min-h-12 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background">Track my property</a>
+                <Link href="/buyer" className="flex min-h-12 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-medium">Research a society</Link>
+              </div>
               <div className="mt-7 space-y-3">
                 {[
-                  'Your exact price is never shown publicly',
-                  'No unit number is collected',
-                  'No advertising trackers or targeting',
-                  'Registered evidence takes precedence',
+                  'Evidence-based',
+                  'Anonymous',
+                  'Never sold to brokers or developers',
                 ].map((item) => (
                   <div key={item} className="flex gap-3 text-sm">
                     <CheckCircle2 className="size-5 shrink-0 text-accent-foreground" />
@@ -923,17 +946,19 @@ export function PropertyIntelligenceApp({
               </div>
               <Alert className="mt-7 rounded-[22px] border-[#B8DCC5] bg-[#E6F3EB]">
                 <LockKeyhole />
-                <AlertTitle>Data covenant</AlertTitle>
+                <AlertTitle>How it works</AlertTitle>
                 <AlertDescription>
-                  We never sell your contribution, use it for advertising, or
-                  give it to brokers or developers. Owner-derived intelligence
-                  stays suppressed until at least five contributions form an
-                  anonymous cohort.
+                  Add what you paid → unlock your valuation and returns → see
+                  registered trades in your society. Trade notifications are
+                  planned for a later release and are not active in V1.
                 </AlertDescription>
               </Alert>
+              <p className="mt-5 text-sm leading-6 text-muted-foreground">Priced from registered transactions, with pooled owner contributions planned once secure production storage is connected — and a confidence level on every estimate.</p>
+              <p className="mt-6 font-heading text-2xl leading-snug">You&apos;d never hold a mutual fund without a NAV. Why hold ₹1.5 crore without one?</p>
             </aside>
 
             <form
+              id="property-form"
               onSubmit={beginOwnerReveal}
               className="min-w-0 rounded-[30px] border border-border bg-card p-5 shadow-[0_22px_70px_rgba(11,12,42,.07)] sm:p-8"
             >
@@ -1202,7 +1227,7 @@ export function PropertyIntelligenceApp({
                 size="lg"
                 className="mt-7 h-[58px] w-full font-mono text-[11px] tracking-[0.12em]"
               >
-                CONTINUE TO PRIVATE RESULT <ArrowRight />
+                TRACK MY PROPERTY <ArrowRight />
               </Button>
             </form>
           </div>
@@ -1365,6 +1390,70 @@ export function PropertyIntelligenceApp({
         </DialogContent>
       </Dialog>
     </main>
+  );
+}
+
+function BuyerEditorialSections() {
+  const liveNow = [
+    'Registered median price and price per square foot',
+    'A confidence level based on supporting transaction count',
+    'Recent registered transactions with dates, configurations, and hidden unit numbers',
+  ];
+  const pendingSources = [
+    'Price movement and historical appreciation',
+    'Anonymous ranges of what owners paid',
+    'Rental yield and a five-year scenario range',
+    'Amenities and nearby schools',
+    'Comparisons with nearby supported societies',
+    'Sourced developments in the micro-market',
+  ];
+
+  return (
+    <div className="mt-16 space-y-8 border-t border-border pt-12 sm:mt-24 sm:pt-16">
+      <section className="grid gap-6 lg:grid-cols-[.72fr_1.28fr]">
+        <div>
+          <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">PER SOCIETY</p>
+          <h2 className="mt-3 font-heading text-4xl font-normal">What you can see</h2>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">Filter by where, how much, and BHK. That is the complete V1 filter set.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader><Badge className="w-fit rounded-full">Live in V1</Badge><CardTitle className="mt-3">Available now</CardTitle></CardHeader>
+            <CardContent className="space-y-3">{liveNow.map((item) => <p key={item} className="flex gap-3 text-sm leading-6"><CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" /><span>{item}</span></p>)}</CardContent>
+          </Card>
+          <Card className="bg-[#EFEDE7]">
+            <CardHeader><Badge variant="outline" className="w-fit rounded-full">Source pending</Badge><CardTitle className="mt-3">Not published yet</CardTitle></CardHeader>
+            <CardContent className="space-y-3">{pendingSources.map((item) => <p key={item} className="text-sm leading-6 text-muted-foreground">{item}</p>)}</CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section className="rounded-[30px] bg-foreground p-6 text-background sm:p-10">
+        <h2 className="font-heading text-4xl font-normal">How to read our numbers</h2>
+        <div className="mt-7 grid gap-5 text-sm leading-7 text-background/72 md:grid-cols-2">
+          <p>Every estimate carries a confidence level. High means several recent comparable transactions. Low means evidence is thin, so we show that clearly and avoid false precision.</p>
+          <p>Five-year scenarios are not live in V1. When added, they will be ranges built from a society&apos;s own history—not predictions.</p>
+          <p>Development signals require a source and publication date. If we cannot source something, we do not publish it.</p>
+          <p>We never label a society a buy, steal, deal, or investment. No society can pay to appear, rank higher, or be recommended.</p>
+        </div>
+      </section>
+
+      <section className="grid gap-6 rounded-[30px] border border-border bg-card p-6 sm:p-10 lg:grid-cols-[.65fr_1.35fr]">
+        <h2 className="font-heading text-4xl font-normal">What this is not</h2>
+        <div className="space-y-3 text-sm leading-6 text-muted-foreground">
+          <p>Not a listing marketplace—we describe societies, not individual units for sale.</p>
+          <p>Not a lead-generation product. Your details are never passed to a broker, developer, or agent.</p>
+          <p>Not a formal valuation, legal check, negotiation service, or financial recommendation.</p>
+          <p className="pt-2 font-medium text-foreground">We do one thing: show the evidence behind what apartments have actually sold for here.</p>
+        </div>
+      </section>
+
+      <section className="py-6 text-center sm:py-10">
+        <h2 className="text-balance font-heading text-4xl font-normal sm:text-5xl">Look at the evidence before you look at the flat.</h2>
+        <a href="#buyer-catalogue" className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.1em] text-background">Browse societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur</a>
+        <p className="mt-4 text-xs text-muted-foreground">Can&apos;t find one? Create an on-screen prototype request. Email delivery is planned for V2.</p>
+      </section>
+    </div>
   );
 }
 

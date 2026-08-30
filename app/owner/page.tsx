@@ -4,8 +4,8 @@ import propertyData from '@/data/property-data.json';
 import { PropertyIntelligenceApp } from '@/components/property-intelligence-app';
 
 export const metadata: Metadata = {
-  title: 'Owner valuation — TrueSquare',
-  description: 'Estimate your apartment value using like-for-like registered transactions and a visible confidence level.',
+  title: 'Track your apartment — TrueSquare',
+  description: 'Track an apartment’s estimated value and returns using like-for-like registered transactions and a visible confidence level.',
 };
 
 export default function OwnerPage() {
