@@ -33,21 +33,21 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
   ];
 
   return (
-    <main className="min-h-screen bg-background pb-24 text-foreground sm:pb-0">
+    <main className="min-h-screen bg-background pb-24 text-foreground lg:pb-0">
       <AppHeader active="explore" />
 
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-20">
+      <section className="ts-shell py-20 sm:py-28">
         <div className="max-w-4xl">
-          <Badge variant="outline" className="rounded-full px-4 py-2 font-mono text-[10px] tracking-[0.1em]">OPEN MARKET EXPLORER</Badge>
-          <h1 className="mt-6 text-balance font-heading text-[48px] font-normal leading-[.98] tracking-[-0.035em] sm:text-7xl">What apartments in your corridor are actually worth.</h1>
+          <Badge variant="outline" className="rounded-[2px] px-4 py-2 font-mono text-[9px]">OPEN MARKET EXPLORER</Badge>
+          <h1 className="mt-6 text-balance font-heading text-[55px] font-normal leading-[.94] tracking-[-0.035em] sm:text-[86px]">What apartments in your corridor are actually worth.</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">An open, evidence-based view of gated societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur—priced from registered transactions today, with anonymous owner contributions planned once secure storage is connected. Look around. No account needed.</p>
-          <Link href="/buyer" className="mt-8 inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-foreground px-7 font-mono text-[11px] tracking-[0.12em] text-background">EXPLORE THE MARKET <ArrowRight className="size-4" /></Link>
+          <Link href="/buyer" className="mt-8 inline-flex min-h-14 items-center justify-center gap-3 rounded-[9px] border border-foreground bg-foreground px-7 text-sm font-semibold text-background transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_18px_rgba(21,17,13,.12)]">EXPLORE THE MARKET <ArrowRight className="size-4" /></Link>
           <p className="mt-3 text-xs text-muted-foreground">No sign-up, no questionnaire, nothing to fill in.</p>
         </div>
       </section>
 
-      <section className="border-y border-border bg-[#EFEDE7]">
-        <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+      <section className="border-y border-border bg-secondary">
+        <div className="ts-shell py-10">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Card><CardHeader><p className="font-mono text-[10px] tracking-[0.1em] text-muted-foreground">SOCIETIES COVERED</p><CardTitle className="mt-3 text-4xl">{societyCount}</CardTitle></CardHeader></Card>
             <Card><CardHeader><p className="font-mono text-[10px] tracking-[0.1em] text-muted-foreground">RECORDS ANALYSED</p><CardTitle className="mt-3 text-4xl">{transactionCount}</CardTitle></CardHeader></Card>
@@ -58,7 +58,7 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[.75fr_1.25fr]">
+      <section className="ts-shell grid gap-10 py-16 sm:py-24 lg:grid-cols-[.75fr_1.25fr]">
         <div><p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">WHY THIS EXISTS</p><h2 className="mt-4 font-heading text-4xl font-normal sm:text-5xl">The missing record for Bengaluru apartments.</h2></div>
         <div className="space-y-5 text-[15px] leading-7 text-muted-foreground">
           <p>Real-estate information in Bengaluru is fragmented, delayed, anecdotal, and usually held by someone who earns from the transaction.</p>
@@ -69,7 +69,7 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
       </section>
 
       <section className="bg-foreground text-background">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
+        <div className="ts-shell py-16 sm:py-24">
           <p className="font-mono text-[10px] tracking-[0.14em] text-background/55">BROWSE</p>
           <h2 className="mt-4 font-heading text-4xl font-normal sm:text-6xl">Start anywhere</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -78,14 +78,14 @@ export function ExplorerPage({ societyCount, transactionCount, medianPricePerSqF
             <Card className="bg-background text-foreground"><CardHeader><CardTitle>By budget band</CardTitle></CardHeader><CardContent className="text-sm leading-7 text-muted-foreground">Use the V1 budget and BHK filters.</CardContent></Card>
           </div>
           <p className="mt-7 max-w-3xl text-sm leading-7 text-background/65">Society-level registered pricing and confidence are visible as you browse. You will only be asked to sign in when opening the full evidence for a specific society.</p>
-          <Link href="/buyer" className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-background px-7 font-mono text-[11px] tracking-[0.1em] text-foreground">BROWSE SOCIETIES</Link>
+          <Link href="/buyer" className="mt-7 inline-flex min-h-14 items-center justify-center rounded-[9px] bg-background px-7 text-sm font-semibold text-foreground">BROWSE SOCIETIES</Link>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
+      <section className="ts-shell py-16 sm:py-24">
         <div className="grid gap-10 lg:grid-cols-[.7fr_1.3fr]">
           <div><ShieldCheck className="size-8 text-accent-foreground" /><h2 className="mt-5 font-heading text-4xl font-normal sm:text-5xl">Our rules, published</h2></div>
-          <div className="grid gap-3 sm:grid-cols-2">{rules.map((rule) => <div key={rule} className="flex gap-3 rounded-[20px] border border-border bg-card p-4 text-sm leading-6"><CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" /><span>{rule}</span></div>)}</div>
+          <div className="grid gap-3 sm:grid-cols-2">{rules.map((rule) => <div key={rule} className="flex gap-3 rounded-[12px] border border-border bg-card p-4 text-sm leading-6"><CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" /><span>{rule}</span></div>)}</div>
         </div>
         <p className="mt-8 border-l-2 border-foreground pl-5 font-heading text-2xl">We&apos;d rather show a wide range than a confident wrong number.</p>
       </section>

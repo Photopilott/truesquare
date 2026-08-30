@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { DM_Mono, DM_Sans, Instrument_Serif } from 'next/font/google';
+import { DM_Sans, Newsreader, Silkscreen } from 'next/font/google';
 import './globals.css';
 
 const dmSans = DM_Sans({ variable: '--font-dm-sans', subsets: ['latin'] });
-const dmMono = DM_Mono({ variable: '--font-dm-mono', subsets: ['latin'], weight: ['400', '500'] });
-const instrumentSerif = Instrument_Serif({ variable: '--font-instrument-serif', subsets: ['latin'], weight: '400' });
+const newsreader = Newsreader({ variable: '--font-newsreader', subsets: ['latin'], weight: 'variable', axes: ['opsz'] });
+const silkscreen = Silkscreen({ variable: '--font-silkscreen', subsets: ['latin'], weight: ['400', '700'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -29,5 +29,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${dmSans.variable} ${dmMono.variable} ${instrumentSerif.variable} antialiased`}>{children}</body></html>;
+  return <html lang="en"><body className={`${dmSans.variable} ${newsreader.variable} ${silkscreen.variable} antialiased`}>{children}</body></html>;
 }

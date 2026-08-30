@@ -24,7 +24,7 @@ function NativeSelect({
       <select
         data-slot="native-select"
         data-size={size}
-        className="border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/20 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-12 w-full min-w-0 appearance-none rounded-2xl border bg-card py-2 pr-10 pl-4 text-sm transition-colors select-none focus-visible:ring-3 aria-invalid:ring-3 data-[size=sm]:h-9 data-[size=sm]:rounded-xl data-[size=sm]:py-1 outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
+        className="border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/20 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-12 w-full min-w-0 appearance-none rounded-[8px] border bg-card py-2 pr-10 pl-4 text-sm text-foreground transition-colors select-none focus-visible:ring-3 aria-invalid:ring-3 data-[size=sm]:h-9 data-[size=sm]:rounded-[7px] data-[size=sm]:py-1 outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
         {...props}
       />
       <ChevronDownIcon

@@ -8,8 +8,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-dm-sans);
-  --font-mono: var(--font-dm-mono);
-  --font-heading: var(--font-instrument-serif);
+  --font-mono: var(--font-silkscreen);
+  --font-heading: var(--font-newsreader);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -52,30 +52,30 @@ html { scroll-behavior: smooth; }
 body { font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif; }
 
 :root {
-  --background: #f7f6f3;
-  --foreground: #0b0c2a;
-  --card: #ffffff;
-  --card-foreground: #0b0c2a;
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #0b0c2a;
-  --primary-foreground: #f7f6f3;
-  --secondary: #efede7;
-  --secondary-foreground: #0b0c2a;
-  --muted: #efede7;
-  --muted-foreground: #5a5b73;
-  --accent: #e6f3eb;
-  --accent-foreground: #157f4f;
+  --background: #f7f4ed;
+  --foreground: #15110d;
+  --card: #fffdfa;
+  --card-foreground: #15110d;
+  --popover: #fffdfa;
+  --popover-foreground: #15110d;
+  --primary: #15110d;
+  --primary-foreground: #fffdfa;
+  --secondary: #efebe2;
+  --secondary-foreground: #15110d;
+  --muted: #efebe2;
+  --muted-foreground: #6d675f;
+  --accent: #ddf8e5;
+  --accent-foreground: #126d38;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #d6d3ca;
-  --input: #c9c6bd;
-  --ring: #0b0c2a;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 1.15rem;
+  --border: #d9d3ca;
+  --input: #d1cbc2;
+  --ring: #2f50d2;
+  --chart-1: #2f50d2;
+  --chart-2: #8be6a9;
+  --chart-3: #f59b62;
+  --chart-4: #6d675f;
+  --chart-5: #15110d;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -129,5 +129,27 @@ body { font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif; }
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  .ts-shell {
+    width: min(1160px, calc(100% - 32px));
+    margin-inline: auto;
+  }
+
+  .ts-panel {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: 0 18px 50px rgba(34, 27, 19, 0.08);
+  }
+
+  .ts-kicker {
+    font-family: var(--font-silkscreen), monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 }

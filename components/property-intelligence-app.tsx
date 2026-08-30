@@ -365,74 +365,86 @@ function BrandMark() {
 export function AppHeader({ active }: { active: 'owner' | 'buyer' | 'explore' }) {
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-8">
+      <header className="sticky top-3 z-40 px-4">
+        <div className="ts-shell flex min-h-[74px] items-center justify-between gap-6 rounded-[14px] border border-foreground/10 bg-card/95 px-4 shadow-[0_10px_26px_rgba(38,29,18,.10)] backdrop-blur-xl sm:px-6">
           <Link
             className="flex items-center gap-3"
             href="/"
             aria-label="TrueSquare home"
           >
             <BrandMark />
-            <span className="font-heading text-[25px] leading-none tracking-[-0.02em]">
+            <span className="font-heading text-[31px] font-medium leading-none tracking-[-0.03em]">
               TrueSquare
             </span>
           </Link>
           <nav
-            className="hidden items-center gap-2 sm:flex"
+            className="hidden items-center gap-1 lg:flex"
             aria-label="Product navigation"
           >
             <Link
               href="/owner"
-              className={`rounded-full px-5 py-3 text-[13px] font-medium ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+              className={`rounded-[8px] px-4 py-2.5 text-[13px] font-medium ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
             >
               For owners
             </Link>
             <Link
               href="/buyer"
-              className={`rounded-full px-5 py-3 text-[13px] font-medium ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+              className={`rounded-[8px] px-4 py-2.5 text-[13px] font-medium ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
             >
               For buyers
             </Link>
             <Link
               href="/explore"
-              className={`rounded-full px-5 py-3 text-[13px] font-medium ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
+              className={`rounded-[8px] px-4 py-2.5 text-[13px] font-medium ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
             >
               Explore
             </Link>
+            <Link
+              href="/developer-ratings.html"
+              className="rounded-[8px] px-4 py-2.5 text-[13px] font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              Developer ratings
+            </Link>
           </nav>
-          <div className="hidden items-center gap-2 text-[11px] text-muted-foreground lg:flex">
-            <ShieldCheck className="size-4 text-[#157F4F]" />
+          <div className="hidden items-center gap-2 text-[11px] text-muted-foreground xl:flex">
+            <ShieldCheck className="size-4 text-[#126D38]" />
             Evidence-first
           </div>
         </div>
       </header>
       <nav
-        className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-sm items-center justify-around rounded-full border border-border bg-background/95 p-1.5 shadow-[0_16px_50px_rgba(11,12,42,.16)] backdrop-blur-xl sm:hidden"
+        className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-md items-center justify-around rounded-[14px] border border-border bg-card/95 p-1.5 shadow-[0_16px_50px_rgba(34,27,19,.16)] backdrop-blur-xl lg:hidden"
         aria-label="Mobile product navigation"
       >
         <Link
           href="/"
-          className="grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] text-muted-foreground"
+          className="grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] text-muted-foreground"
         >
           HOME
         </Link>
         <Link
           href="/owner"
-          className={`grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
+          className={`grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] ${active === 'owner' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
         >
           OWNER
         </Link>
         <Link
           href="/buyer"
-          className={`grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
+          className={`grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] ${active === 'buyer' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
         >
           BUYER
         </Link>
         <Link
           href="/explore"
-          className={`grid min-h-11 min-w-16 place-items-center rounded-full font-mono text-[10px] tracking-[0.08em] ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
+          className={`grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] ${active === 'explore' ? 'bg-foreground text-background' : 'text-muted-foreground'}`}
         >
           EXPLORE
+        </Link>
+        <Link
+          href="/developer-ratings.html"
+          className="grid min-h-11 min-w-14 place-items-center rounded-[8px] font-mono text-[8px] text-muted-foreground"
+        >
+          RATINGS
         </Link>
       </nav>
     </>
@@ -738,7 +750,7 @@ export function PropertyIntelligenceApp({
   }
 
   return (
-    <main className="min-h-screen bg-background pb-24 text-foreground sm:pb-0">
+    <main className="min-h-screen bg-background pb-24 text-foreground lg:pb-0">
       <AppHeader active={view === 'buyer' ? 'buyer' : 'owner'} />
       {view === 'home' && (
         <HomeView
@@ -748,16 +760,16 @@ export function PropertyIntelligenceApp({
         />
       )}
       {view === 'buyer' && (
-        <div id="buyer-catalogue" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-7 sm:px-8 sm:py-12">
+        <div id="buyer-catalogue" className="ts-shell scroll-mt-24 py-12 sm:py-20">
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
           </Button>
-          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-12">
+          <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr] lg:gap-16">
             <section>
               <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
                 BUYER CATALOGUE
               </p>
-              <h1 className="mt-4 text-balance font-heading text-[43px] font-normal leading-[1.01] tracking-[-0.03em] sm:text-6xl">
+              <h1 className="mt-4 text-balance font-heading text-[50px] font-normal leading-[.96] tracking-[-0.03em] sm:text-[68px]">
                 Your first home shouldn&apos;t require this much price guessing.
               </h1>
               <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
@@ -765,7 +777,7 @@ export function PropertyIntelligenceApp({
                 want to open a society&apos;s full evidence. Email is all the
                 production gate will ask for.
               </p>
-              <div className="mt-8 grid gap-4 rounded-[28px] border border-border bg-[#EFEDE7] p-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="mt-8 grid gap-4 rounded-[15px] bg-foreground p-5 text-background shadow-[0_18px_50px_rgba(34,27,19,.10)] sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <FormField label="Search society">
                   <Input
                     value={searchQuery}
@@ -841,7 +853,7 @@ export function PropertyIntelligenceApp({
                   </NativeSelect>
                 </FormField>
               </div>
-              <Alert className="mt-4 rounded-[22px] border-[#B8DCC5] bg-[#E6F3EB]">
+              <Alert className="mt-4 rounded-[12px] border-[#A9DCB8] bg-accent">
                 <Info />
                 <AlertTitle>Workbook data boundary</AlertTitle>
                 <AlertDescription>
@@ -850,7 +862,7 @@ export function PropertyIntelligenceApp({
                   invalid evidence are excluded.
                 </AlertDescription>
               </Alert>
-              <div className="mt-5 rounded-[24px] border border-border bg-card p-5 text-sm leading-6 text-muted-foreground">
+              <div className="mt-5 rounded-[12px] border border-border bg-card p-5 text-sm leading-6 text-muted-foreground">
                 <p>Listing portals show what sellers hope for.</p>
                 <p>Brokers show what closes the deal in front of them.</p>
                 <p>Developers show what they&apos;ve priced this quarter.</p>
@@ -898,10 +910,10 @@ export function PropertyIntelligenceApp({
                         setBuyerUnlocked(false);
                       }}
                     >
-                      <Card className="cursor-pointer transition hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(11,12,42,.08)]">
+                      <Card className="cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(34,27,19,.10)]">
                         <CardHeader>
                           <div className="flex items-center justify-between gap-3">
-                            <Badge variant="secondary" className="rounded-full">
+                            <Badge variant="secondary" className="rounded-[2px]">
                               {society.location}
                             </Badge>
                             <span className="font-mono text-[10px] text-muted-foreground">
@@ -957,7 +969,7 @@ export function PropertyIntelligenceApp({
                 </Button>
               )}
               {!filteredSocieties.length && (
-                <div className="rounded-[28px] border border-dashed border-border bg-card p-10 text-center">
+                <div className="rounded-[12px] border border-dashed border-border bg-card p-10 text-center">
                   <FileSearch className="mx-auto size-8 text-muted-foreground" />
                   <h2 className="mt-4 font-heading text-3xl font-normal">
                     No supported society matches
@@ -989,16 +1001,16 @@ export function PropertyIntelligenceApp({
       )}
 
       {view === 'owner' && !valuation && (
-        <div className="mx-auto max-w-6xl px-5 py-7 sm:px-8 sm:py-12">
+        <div className="ts-shell py-12 sm:py-20">
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
           </Button>
-          <div className="grid min-w-0 gap-10 lg:grid-cols-[.76fr_1.24fr] lg:gap-14">
+          <div className="grid min-w-0 gap-12 lg:grid-cols-[.76fr_1.24fr] lg:gap-16">
             <aside className="min-w-0">
               <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
                 OWNER VALUATION
               </p>
-              <h1 className="mt-4 text-balance font-heading text-[45px] font-normal leading-[1.01] tracking-[-0.03em] sm:text-6xl">
+              <h1 className="mt-4 text-balance font-heading text-[52px] font-normal leading-[.96] tracking-[-0.03em] sm:text-[70px]">
                 Your flat is an asset. Track it like one.
               </h1>
               <p className="mt-5 text-[15px] leading-7 text-muted-foreground">
@@ -1007,8 +1019,8 @@ export function PropertyIntelligenceApp({
                 Sarjapur Road, Bellandur, Marathahalli, and Haralur.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-                <a href="#property-form" className="flex min-h-12 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background">Track my property</a>
-                <Link href="/buyer" className="flex min-h-12 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-medium">Research a society</Link>
+                <a href="#property-form" className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground bg-foreground px-5 text-sm font-semibold text-background">Track my property</a>
+                <Link href="/buyer" className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground px-5 text-sm font-semibold">Research a society</Link>
               </div>
               <div className="mt-7 space-y-3">
                 {[
@@ -1022,7 +1034,7 @@ export function PropertyIntelligenceApp({
                   </div>
                 ))}
               </div>
-              <Alert className="mt-7 rounded-[22px] border-[#B8DCC5] bg-[#E6F3EB]">
+              <Alert className="mt-7 rounded-[12px] border-[#A9DCB8] bg-accent">
                 <LockKeyhole />
                 <AlertTitle>How it works</AlertTitle>
                 <AlertDescription>
@@ -1038,7 +1050,7 @@ export function PropertyIntelligenceApp({
             <form
               id="property-form"
               onSubmit={beginOwnerReveal}
-              className="min-w-0 rounded-[30px] border border-border bg-card p-5 shadow-[0_22px_70px_rgba(11,12,42,.07)] sm:p-8"
+              className="min-w-0 rounded-[14px] border border-border bg-card p-5 shadow-[0_18px_50px_rgba(34,27,19,.10)] sm:p-8"
             >
               <div className="mb-7">
                 <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
@@ -1236,7 +1248,7 @@ export function PropertyIntelligenceApp({
                   optional
                 />
               </div>
-              <details className="mt-7 rounded-[22px] border border-border bg-[#EFEDE7] p-5">
+              <details className="mt-7 rounded-[10px] border border-border bg-secondary p-5">
                 <summary className="cursor-pointer font-medium">
                   Add optional loan interest
                 </summary>
@@ -1336,7 +1348,7 @@ export function PropertyIntelligenceApp({
               connected.
             </DialogDescription>
           </DialogHeader>
-          <label className="flex cursor-pointer items-start gap-3 rounded-[20px] border border-border bg-[#EFEDE7] p-4 text-sm leading-relaxed">
+          <label className="flex cursor-pointer items-start gap-3 rounded-[10px] border border-border bg-secondary p-4 text-sm leading-relaxed">
             <input
               type="checkbox"
               className="mt-0.5 size-4 shrink-0 accent-primary"
@@ -1499,17 +1511,17 @@ function BuyerEditorialSections() {
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
-            <CardHeader><Badge className="w-fit rounded-full">Live in V1</Badge><CardTitle className="mt-3">Available now</CardTitle></CardHeader>
+            <CardHeader><Badge className="w-fit rounded-[2px]">Live in V1</Badge><CardTitle className="mt-3">Available now</CardTitle></CardHeader>
             <CardContent className="space-y-3">{liveNow.map((item) => <p key={item} className="flex gap-3 text-sm leading-6"><CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" /><span>{item}</span></p>)}</CardContent>
           </Card>
-          <Card className="bg-[#EFEDE7]">
-            <CardHeader><Badge variant="outline" className="w-fit rounded-full">Source pending</Badge><CardTitle className="mt-3">Not published yet</CardTitle></CardHeader>
+          <Card className="bg-secondary">
+            <CardHeader><Badge variant="outline" className="w-fit rounded-[2px]">Source pending</Badge><CardTitle className="mt-3">Not published yet</CardTitle></CardHeader>
             <CardContent className="space-y-3">{pendingSources.map((item) => <p key={item} className="text-sm leading-6 text-muted-foreground">{item}</p>)}</CardContent>
           </Card>
         </div>
       </section>
 
-      <section className="rounded-[30px] bg-foreground p-6 text-background sm:p-10">
+      <section className="rounded-[15px] bg-foreground p-6 text-background sm:p-10">
         <h2 className="font-heading text-4xl font-normal">How to read our numbers</h2>
         <div className="mt-7 grid gap-5 text-sm leading-7 text-background/72 md:grid-cols-2">
           <p>Every estimate carries a confidence level. High means several recent comparable transactions. Low means evidence is thin, so we show that clearly and avoid false precision.</p>
@@ -1519,7 +1531,7 @@ function BuyerEditorialSections() {
         </div>
       </section>
 
-      <section className="grid gap-6 rounded-[30px] border border-border bg-card p-6 sm:p-10 lg:grid-cols-[.65fr_1.35fr]">
+      <section className="grid gap-6 rounded-[14px] border border-border bg-card p-6 sm:p-10 lg:grid-cols-[.65fr_1.35fr]">
         <h2 className="font-heading text-4xl font-normal">What this is not</h2>
         <div className="space-y-3 text-sm leading-6 text-muted-foreground">
           <p>Not a listing marketplace—we describe societies, not individual units for sale.</p>
@@ -1531,7 +1543,7 @@ function BuyerEditorialSections() {
 
       <section className="py-6 text-center sm:py-10">
         <h2 className="text-balance font-heading text-4xl font-normal sm:text-5xl">Look at the evidence before you look at the flat.</h2>
-        <a href="#buyer-catalogue" className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-full bg-foreground px-6 text-center font-mono text-[11px] tracking-[0.1em] text-background">Browse societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur</a>
+        <a href="#buyer-catalogue" className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-[9px] bg-foreground px-6 text-center text-sm font-semibold text-background">Browse societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur</a>
         <p className="mt-4 text-xs text-muted-foreground">Can&apos;t find one? Create an on-screen request record. Email delivery is planned for V2.</p>
       </section>
     </div>
@@ -1569,7 +1581,7 @@ function HomeView({
             {LOCATIONS.map((location) => (
               <span
                 key={location}
-                className="rounded-full border border-border bg-card px-3 py-1.5"
+                className="rounded-[2px] border border-border bg-card px-3 py-1.5 font-mono text-[8px]"
               >
                 {location}
               </span>
@@ -1577,7 +1589,7 @@ function HomeView({
           </div>
         </div>
         <div className="grid gap-4">
-          <Card className="border-0 bg-primary text-primary-foreground ring-0 shadow-[0_24px_70px_-30px_rgba(15,38,51,.75)]">
+          <Card className="border-0 bg-primary text-primary-foreground ring-0 shadow-[0_24px_70px_-30px_rgba(34,27,19,.75)]">
             <CardHeader>
               <div className="mb-5 grid size-11 place-items-center rounded-2xl bg-white/12">
                 <Home className="size-5" />
@@ -1598,7 +1610,7 @@ function HomeView({
               </Button>
             </CardContent>
           </Card>
-          <Card className="border-0 bg-card ring-1 ring-border shadow-[0_18px_60px_-36px_rgba(15,38,51,.45)]">
+          <Card className="border-0 bg-card ring-1 ring-border shadow-[0_18px_60px_-36px_rgba(34,27,19,.45)]">
             <CardHeader>
               <div className="mb-5 grid size-11 place-items-center rounded-2xl bg-accent text-accent-foreground">
                 <Search className="size-5" />
@@ -1763,7 +1775,7 @@ function OwnerResult({
         )
       : '—';
   return (
-    <div className="mx-auto max-w-6xl px-5 py-7 sm:px-8 sm:py-12">
+    <div className="ts-shell py-12 sm:py-20">
       <Button variant="ghost" className="mb-5 -ml-3" onClick={onBack}>
         <ArrowLeft /> Review inputs
       </Button>
@@ -1784,7 +1796,7 @@ function OwnerResult({
           </p>
         </div>
         <Badge
-          className="h-8 rounded-full px-4"
+          className="h-8 rounded-[2px] px-4"
           variant={
             result.confidence === 'Insufficient evidence'
               ? 'destructive'
@@ -1882,7 +1894,7 @@ function OwnerResult({
           </Card>
         </div>
       ) : (
-        <Alert variant="destructive" className="rounded-[24px]">
+        <Alert variant="destructive" className="rounded-[12px]">
           <CircleAlert />
           <AlertTitle>Insufficient evidence</AlertTitle>
           <AlertDescription>
@@ -1907,7 +1919,7 @@ function OwnerResult({
               <Card key={record.id} size="sm">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <Badge variant="secondary" className="rounded-full">
+                    <Badge variant="secondary" className="rounded-[2px]">
                       {record.bhk} BHK
                     </Badge>
                     <span className="font-mono text-[10px] text-muted-foreground">
