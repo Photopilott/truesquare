@@ -2,18 +2,23 @@ import { NextResponse } from 'next/server';
 
 import { getSql, hasDatabase } from '@/db';
 import propertyData from '@/data/property-data.json';
+import {
+  consentForUser,
+  getUserSessionFromRequest,
+  isSameOriginUserRequest,
+  requestFingerprint,
+} from '@/lib/user-auth';
 
 export const runtime = 'nodejs';
 
 type ContributionBody = {
   requestId?: unknown;
-  email?: unknown;
   property?: Record<string, unknown>;
   costs?: Record<string, unknown>;
 };
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function requiredText(value: unknown) {
@@ -35,10 +40,33 @@ function optionalNumber(value: unknown, minimum = 0) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOriginUserRequest(request)) {
+    return NextResponse.json(
+      { error: 'Invalid request origin.' },
+      { status: 403 },
+    );
+  }
   if (!hasDatabase()) {
     return NextResponse.json(
-      { error: 'Secure storage is temporarily unavailable. Please try again shortly.' },
+      {
+        error:
+          'Secure storage is temporarily unavailable. Please try again shortly.',
+      },
       { status: 503 },
+    );
+  }
+
+  const session = await getUserSessionFromRequest(request);
+  if (!session) {
+    return NextResponse.json(
+      { error: 'Verify your account before submitting.' },
+      { status: 401 },
+    );
+  }
+  if (!(await consentForUser(session.userId, 'owner'))) {
+    return NextResponse.json(
+      { error: 'Accept the current data covenant before submitting.' },
+      { status: 403 },
     );
   }
 
@@ -46,11 +74,13 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as ContributionBody;
   } catch {
-    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid request body.' },
+      { status: 400 },
+    );
   }
 
   const requestId = requiredText(body.requestId);
-  const email = requiredText(body.email)?.toLowerCase() ?? null;
   const property = body.property ?? {};
   const costs = body.costs ?? {};
   const society = requiredText(property.society);
@@ -82,8 +112,6 @@ export async function POST(request: Request) {
   if (
     !requestId ||
     !UUID_PATTERN.test(requestId) ||
-    !email ||
-    !EMAIL_PATTERN.test(email) ||
     !knownSociety ||
     !tower ||
     !floor ||
@@ -101,23 +129,60 @@ export async function POST(request: Request) {
     (!loanIsComplete && !loanIsEmpty)
   ) {
     return NextResponse.json(
-      { error: 'Please check the property, cost, loan, and email fields.' },
+      { error: 'Please check the property, cost, and loan fields.' },
       { status: 400 },
     );
   }
 
   try {
     const sql = getSql();
-    const rows = await sql`
+    const fingerprint = requestFingerprint(request);
+    const rateRows = (await sql`
+      SELECT
+        COUNT(*) FILTER (
+          WHERE c.user_id = ${session.userId}
+            AND pc.submitted_at > NOW() - INTERVAL '1 hour'
+        )::integer AS user_hour_count,
+        COUNT(*) FILTER (
+          WHERE pc.request_fingerprint = ${fingerprint}
+            AND pc.submitted_at > NOW() - INTERVAL '1 hour'
+        )::integer AS fingerprint_hour_count,
+        COUNT(*) FILTER (
+          WHERE c.user_id = ${session.userId}
+            AND pc.submitted_at > NOW() - INTERVAL '1 day'
+        )::integer AS user_day_count
+      FROM purchase_contributions pc
+      JOIN owner_properties op ON op.id = pc.property_id
+      JOIN contributors c ON c.id = op.contributor_id
+    `) as Array<{
+      user_hour_count: number;
+      fingerprint_hour_count: number;
+      user_day_count: number;
+    }>;
+    const rate = rateRows[0];
+    if (
+      Number(rate?.user_hour_count ?? 0) >= 10 ||
+      Number(rate?.fingerprint_hour_count ?? 0) >= 20 ||
+      Number(rate?.user_day_count ?? 0) >= 30
+    ) {
+      return NextResponse.json(
+        { error: 'Submission limit reached. Try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600' } },
+      );
+    }
+
+    const rows = (await sql`
       WITH existing AS (
         SELECT id, status, submitted_at
         FROM purchase_contributions
         WHERE request_id = ${requestId}
       ), contributor AS (
-        INSERT INTO contributors (email)
-        SELECT ${email}
+        INSERT INTO contributors (user_id, email)
+        SELECT ${session.userId}, ${session.email}
         WHERE NOT EXISTS (SELECT 1 FROM existing)
-        ON CONFLICT (email) DO UPDATE SET updated_at = NOW()
+        ON CONFLICT (email) DO UPDATE SET
+          user_id = ${session.userId},
+          updated_at = NOW()
         RETURNING id
       ), property_row AS (
         INSERT INTO owner_properties (
@@ -133,12 +198,12 @@ export async function POST(request: Request) {
         INSERT INTO purchase_contributions (
           request_id, property_id, purchase_price, stamp_duty,
           registration_cost, interiors, brokerage, loan_amount,
-          loan_tenure_years, loan_rate
+          loan_tenure_years, loan_rate, request_fingerprint
         )
         SELECT
           ${requestId}, id, ${purchasePrice}, ${stampDuty},
           ${registrationCost}, ${interiors}, ${brokerage}, ${loanAmount},
-          ${loanTenureYears}, ${loanRate}
+          ${loanTenureYears}, ${loanRate}, ${fingerprint}
         FROM property_row
         RETURNING id, status, submitted_at
       )
@@ -146,7 +211,7 @@ export async function POST(request: Request) {
       UNION ALL
       SELECT id, status, submitted_at FROM existing
       LIMIT 1
-    ` as Array<{ id: string; status: string; submitted_at: string }>;
+    `) as Array<{ id: string; status: string; submitted_at: string }>;
 
     const saved = rows[0];
     if (!saved) throw new Error('Contribution was not persisted.');

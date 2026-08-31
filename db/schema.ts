@@ -1,4 +1,5 @@
 import {
+  boolean,
   bigint,
   date,
   index,
@@ -13,6 +14,112 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+export const userAuthProvider = pgEnum('user_auth_provider', [
+  'google',
+  'email_otp',
+]);
+
+export const consentContext = pgEnum('consent_context', ['owner', 'buyer']);
+
+export const appUsers = pgTable(
+  'app_users',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    emailVerifiedAt: timestamp('email_verified_at', {
+      withTimezone: true,
+    }).notNull(),
+    googleSubject: text('google_subject'),
+    displayName: text('display_name'),
+    pictureUrl: text('picture_url'),
+    lastAuthProvider: userAuthProvider('last_auth_provider').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastLoginAt: timestamp('last_login_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('app_users_email_unique').on(table.email),
+    uniqueIndex('app_users_google_subject_unique').on(table.googleSubject),
+  ],
+);
+
+export const userOtpChallenges = pgTable(
+  'user_otp_challenges',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    codeHash: text('code_hash').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    attemptsRemaining: integer('attempts_remaining').default(5).notNull(),
+    requestFingerprint: text('request_fingerprint').notNull(),
+    requestedAt: timestamp('requested_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  },
+  (table) => [
+    index('user_otp_email_requested_idx').on(table.email, table.requestedAt),
+    index('user_otp_fingerprint_requested_idx').on(
+      table.requestFingerprint,
+      table.requestedAt,
+    ),
+  ],
+);
+
+export const userSessions = pgTable(
+  'user_sessions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => appUsers.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    authProvider: userAuthProvider('auth_provider').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('user_sessions_token_unique').on(table.tokenHash),
+    index('user_sessions_user_expires_idx').on(table.userId, table.expiresAt),
+  ],
+);
+
+export const userConsents = pgTable(
+  'user_consents',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => appUsers.id, { onDelete: 'cascade' }),
+    context: consentContext('context').notNull(),
+    covenantVersion: text('covenant_version').notNull(),
+    accepted: boolean('accepted').default(true).notNull(),
+    acceptedAt: timestamp('accepted_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    requestFingerprint: text('request_fingerprint').notNull(),
+  },
+  (table) => [
+    uniqueIndex('user_consents_user_context_version_unique').on(
+      table.userId,
+      table.context,
+      table.covenantVersion,
+    ),
+  ],
+);
+
 export const contributionStatus = pgEnum('contribution_status', [
   'pending',
   'approved',
@@ -23,9 +130,16 @@ export const contributors = pgTable(
   'contributors',
   {
     id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id').references(() => appUsers.id, {
+      onDelete: 'set null',
+    }),
     email: text('email').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [uniqueIndex('contributors_email_unique').on(table.email)],
 );
@@ -47,7 +161,9 @@ export const ownerProperties = pgTable(
     carParks: integer('car_parks').notNull(),
     purchaseDate: date('purchase_date').notNull(),
     facing: text('facing'),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index('owner_properties_contributor_idx').on(table.contributorId),
@@ -72,14 +188,20 @@ export const purchaseContributions = pgTable(
     loanTenureYears: integer('loan_tenure_years'),
     loanRate: numeric('loan_rate', { precision: 6, scale: 3 }),
     status: contributionStatus('status').default('pending').notNull(),
-    submittedAt: timestamp('submitted_at', { withTimezone: true }).defaultNow().notNull(),
+    submittedAt: timestamp('submitted_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
     reviewedBy: text('reviewed_by'),
     reviewNotes: text('review_notes'),
+    requestFingerprint: text('request_fingerprint'),
   },
   (table) => [
     uniqueIndex('purchase_contributions_request_unique').on(table.requestId),
-    index('purchase_contributions_status_idx').on(table.status, table.submittedAt),
+    index('purchase_contributions_status_idx').on(
+      table.status,
+      table.submittedAt,
+    ),
   ],
 );
 
@@ -90,10 +212,21 @@ export const ownerPriceAggregates = pgTable(
     location: text('location').notNull(),
     bhk: text('bhk').notNull(),
     approvedCount: integer('approved_count').notNull(),
-    minPricePerSqFt: numeric('min_price_per_sq_ft', { precision: 12, scale: 2 }).notNull(),
-    medianPricePerSqFt: numeric('median_price_per_sq_ft', { precision: 12, scale: 2 }).notNull(),
-    maxPricePerSqFt: numeric('max_price_per_sq_ft', { precision: 12, scale: 2 }).notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    minPricePerSqFt: numeric('min_price_per_sq_ft', {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
+    medianPricePerSqFt: numeric('median_price_per_sq_ft', {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
+    maxPricePerSqFt: numeric('max_price_per_sq_ft', {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [primaryKey({ columns: [table.society, table.bhk] })],
 );
@@ -116,11 +249,19 @@ export const registeredTransactions = pgTable(
     qaNotes: text('qa_notes'),
     sourceFile: text('source_file').notNull(),
     sourceUrl: text('source_url').notNull(),
-    importedAt: timestamp('imported_at', { withTimezone: true }).defaultNow().notNull(),
+    importedAt: timestamp('imported_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
-    index('registered_transactions_society_bhk_idx').on(table.society, table.bhk),
-    index('registered_transactions_location_bhk_idx').on(table.location, table.bhk),
+    index('registered_transactions_society_bhk_idx').on(
+      table.society,
+      table.bhk,
+    ),
+    index('registered_transactions_location_bhk_idx').on(
+      table.location,
+      table.bhk,
+    ),
   ],
 );
 
@@ -133,7 +274,9 @@ export const adminOtpChallenges = pgTable(
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     attemptsRemaining: integer('attempts_remaining').default(5).notNull(),
     requestFingerprint: text('request_fingerprint').notNull(),
-    requestedAt: timestamp('requested_at', { withTimezone: true }).defaultNow().notNull(),
+    requestedAt: timestamp('requested_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     consumedAt: timestamp('consumed_at', { withTimezone: true }),
   },
   (table) => [
@@ -152,8 +295,12 @@ export const adminSessions = pgTable(
     email: text('email').notNull(),
     tokenHash: text('token_hash').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),
   },
   (table) => [

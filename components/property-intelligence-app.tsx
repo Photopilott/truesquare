@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AccessGate } from '@/components/access-gate';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -352,41 +353,53 @@ function findComparableMatch(
   };
 }
 
-export function AppHeader({ active }: { active: 'owner' | 'buyer' | 'explore' }) {
+export function AppHeader({
+  active,
+}: {
+  active: 'owner' | 'buyer' | 'explore';
+}) {
   return (
     <>
-      <div className="ts-orb-announcement"><strong>EVIDENCE-FIRST</strong><span>No listings sold. No leads sold. No data sold.</span></div>
+      <div className="ts-orb-announcement">
+        <strong>EVIDENCE-FIRST</strong>
+        <span>No listings sold. No leads sold. No data sold.</span>
+      </div>
       <header className="ts-orb-shell ts-orb-nav">
-          <Link className="ts-orb-brand" href="/" aria-label="TrueSquare home">TrueSquare</Link>
-          <nav className="ts-orb-nav-links" aria-label="Product navigation">
-            <Link
-              href="/owner"
-              className={active === 'owner' ? 'font-semibold' : ''}
-            >
-              For owners
-            </Link>
-            <Link
-              href="/buyer"
-              className={active === 'buyer' ? 'font-semibold' : ''}
-            >
-              For buyers
-            </Link>
-            <Link
-              href="/explore"
-              className={active === 'explore' ? 'font-semibold' : ''}
-            >
-              Explore
-            </Link>
-            <Link
-              href="/developer-ratings.html"
-            >
-              Developer ratings
-            </Link>
-          </nav>
-          <div className="ts-orb-nav-actions">
-            <Link href="/explore" className="ts-orb-button ts-orb-button-small">Browse</Link>
-            <Link href="/developer-ratings.html" className="ts-orb-button ts-orb-button-dark ts-orb-button-small">Developer ratings</Link>
-          </div>
+        <Link className="ts-orb-brand" href="/" aria-label="TrueSquare home">
+          TrueSquare
+        </Link>
+        <nav className="ts-orb-nav-links" aria-label="Product navigation">
+          <Link
+            href="/owner"
+            className={active === 'owner' ? 'font-semibold' : ''}
+          >
+            For owners
+          </Link>
+          <Link
+            href="/buyer"
+            className={active === 'buyer' ? 'font-semibold' : ''}
+          >
+            For buyers
+          </Link>
+          <Link
+            href="/explore"
+            className={active === 'explore' ? 'font-semibold' : ''}
+          >
+            Explore
+          </Link>
+          <Link href="/developer-ratings.html">Developer ratings</Link>
+        </nav>
+        <div className="ts-orb-nav-actions">
+          <Link href="/explore" className="ts-orb-button ts-orb-button-small">
+            Browse
+          </Link>
+          <Link
+            href="/developer-ratings.html"
+            className="ts-orb-button ts-orb-button-dark ts-orb-button-small"
+          >
+            Developer ratings
+          </Link>
+        </div>
       </header>
     </>
   );
@@ -409,10 +422,9 @@ export function PropertyIntelligenceApp({
   const [valuation, setValuation] = useState<ValuationResult | null>(null);
   const [showGate, setShowGate] = useState(false);
   const [gateContext, setGateContext] = useState<'owner' | 'buyer'>('owner');
-  const [covenantAccepted, setCovenantAccepted] = useState(false);
-  const [accessEmail, setAccessEmail] = useState('');
   const [gateError, setGateError] = useState('');
-  const [isSubmittingContribution, setIsSubmittingContribution] = useState(false);
+  const [isSubmittingContribution, setIsSubmittingContribution] =
+    useState(false);
   const [plausibilityReviewed, setPlausibilityReviewed] = useState(false);
   const [plausibilityMessage, setPlausibilityMessage] = useState('');
   const [buyerUnlocked, setBuyerUnlocked] = useState(false);
@@ -433,7 +445,6 @@ export function PropertyIntelligenceApp({
 
   useEffect(() => {
     const stored = window.localStorage.getItem('truesquare-owner-draft');
-    const storedEmail = window.localStorage.getItem('truesquare-access-email');
     let savedDraft: OwnerForm | null = null;
     if (stored) {
       try {
@@ -443,11 +454,37 @@ export function PropertyIntelligenceApp({
       }
     }
     const frame = window.requestAnimationFrame(() => {
-      if (storedEmail) setAccessEmail(storedEmail);
       if (savedDraft) setOwnerForm(savedDraft);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const resumeGate = params.get('resumeGate');
+    if (resumeGate !== 'owner' && resumeGate !== 'buyer') return;
+    const frame = window.requestAnimationFrame(() => {
+      setGateContext(resumeGate);
+      if (resumeGate === 'buyer') {
+        const pendingSociety = window.localStorage.getItem(
+          'truesquare-pending-society',
+        );
+        const society = societies.find((item) => item.name === pendingSociety);
+        if (society) setSelectedSociety(society);
+      }
+      setShowGate(true);
+      params.delete('resumeGate');
+      params.delete('auth');
+      params.delete('authError');
+      const query = params.toString();
+      window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`,
+      );
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [societies]);
 
   useEffect(() => {
     if (view === 'owner' && !valuation)
@@ -690,21 +727,17 @@ export function PropertyIntelligenceApp({
     setShowGate(true);
   }
 
-  async function completeAccessGate() {
-    if (!covenantAccepted) return;
+  async function completeVerifiedAccess() {
     if (gateContext === 'buyer') {
       setShowGate(false);
       setBuyerUnlocked(true);
+      window.localStorage.removeItem('truesquare-pending-society');
       return;
     }
 
-    const email = accessEmail.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setGateError('Enter a valid email address.');
-      return;
-    }
-
-    const selected = societies.find((society) => society.name === ownerForm.society);
+    const selected = societies.find(
+      (society) => society.name === ownerForm.society,
+    );
     if (!selected) {
       setGateError('Select a supported society before continuing.');
       return;
@@ -724,7 +757,6 @@ export function PropertyIntelligenceApp({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           requestId,
-          email,
           property: {
             society: ownerForm.society,
             location: selected.location,
@@ -762,7 +794,6 @@ export function PropertyIntelligenceApp({
       setShowGate(false);
       window.localStorage.removeItem('truesquare-owner-draft');
       window.localStorage.removeItem('truesquare-owner-request-id');
-      window.localStorage.setItem('truesquare-access-email', email);
     } catch (error) {
       setGateError(
         error instanceof Error
@@ -789,7 +820,10 @@ export function PropertyIntelligenceApp({
         />
       )}
       {view === 'buyer' && (
-        <div id="buyer-catalogue" className="ts-orb-shell ts-orb-section scroll-mt-24">
+        <div
+          id="buyer-catalogue"
+          className="ts-orb-shell ts-orb-section scroll-mt-24"
+        >
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
           </Button>
@@ -895,7 +929,10 @@ export function PropertyIntelligenceApp({
                 <p>Listing portals show what sellers hope for.</p>
                 <p>Brokers show what closes the deal in front of them.</p>
                 <p>Developers show what they&apos;ve priced this quarter.</p>
-                <p className="mt-3 font-medium text-foreground">Nobody publishes what apartments in these societies have actually sold for. So we did.</p>
+                <p className="mt-3 font-medium text-foreground">
+                  Nobody publishes what apartments in these societies have
+                  actually sold for. So we did.
+                </p>
               </div>
             </section>
             <section className="ts-orb-review-panel p-6">
@@ -951,7 +988,10 @@ export function PropertyIntelligenceApp({
                       <Card className="cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(34,27,19,.10)]">
                         <CardHeader>
                           <div className="flex items-center justify-between gap-3">
-                            <Badge variant="secondary" className="rounded-[2px]">
+                            <Badge
+                              variant="secondary"
+                              className="rounded-[2px]"
+                            >
                               {society.location}
                             </Badge>
                             <span className="font-mono text-[10px] text-muted-foreground">
@@ -995,7 +1035,10 @@ export function PropertyIntelligenceApp({
                           />
                         </CardContent>
                         <CardFooter className="justify-between text-xs text-muted-foreground">
-                          <span>{buyerEvidence.label} · Latest: {formatDate(latestDate)}</span>
+                          <span>
+                            {buyerEvidence.label} · Latest:{' '}
+                            {formatDate(latestDate)}
+                          </span>
                           <span className="flex shrink-0 items-center gap-1 font-medium text-foreground">
                             View evidence <ChevronRight className="size-4" />
                           </span>
@@ -1065,8 +1108,18 @@ export function PropertyIntelligenceApp({
                 Sarjapur Road, Bellandur, Marathahalli, and Haralur.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-                <a href="#property-form" className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground bg-foreground px-5 text-sm font-semibold text-background">Track my property</a>
-                <Link href="/buyer" className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground px-5 text-sm font-semibold">Research a society</Link>
+                <a
+                  href="#property-form"
+                  className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground bg-foreground px-5 text-sm font-semibold text-background"
+                >
+                  Track my property
+                </a>
+                <Link
+                  href="/buyer"
+                  className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground px-5 text-sm font-semibold"
+                >
+                  Research a society
+                </Link>
               </div>
               <div className="mt-7 space-y-3">
                 {[
@@ -1089,8 +1142,14 @@ export function PropertyIntelligenceApp({
                   planned for a later release and are not active in V1.
                 </AlertDescription>
               </Alert>
-              <p className="mt-5 text-sm leading-6 text-muted-foreground">Priced from registered transactions and approved anonymous owner contributions — with a confidence level on every estimate.</p>
-              <p className="mt-6 font-heading text-2xl leading-snug">You&apos;d never hold a mutual fund without a NAV. Why hold ₹1.5 crore without one?</p>
+              <p className="mt-5 text-sm leading-6 text-muted-foreground">
+                Priced from registered transactions and approved anonymous owner
+                contributions — with a confidence level on every estimate.
+              </p>
+              <p className="mt-6 font-heading text-2xl leading-snug">
+                You&apos;d never hold a mutual fund without a NAV. Why hold ₹1.5
+                crore without one?
+              </p>
             </aside>
 
             <form
@@ -1378,78 +1437,14 @@ export function PropertyIntelligenceApp({
         />
       )}
 
-      <Dialog open={showGate} onOpenChange={setShowGate}>
-        <DialogContent className="sm:max-w-md sm:p-7">
-          <DialogHeader>
-            <div className="mb-2 grid size-12 place-items-center rounded-[17px] bg-primary text-primary-foreground">
-              <LockKeyhole className="size-5" />
-            </div>
-            <p className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground">
-              DATA COVENANT
-            </p>
-            <DialogTitle>Sign in only when you unlock intelligence</DialogTitle>
-            <DialogDescription>
-              {gateContext === 'owner'
-                ? 'Your contribution is saved privately and queued for admin review before any anonymous aggregate is updated.'
-                : 'Accept the data covenant to reveal the supporting evidence.'}
-            </DialogDescription>
-          </DialogHeader>
-          {gateContext === 'owner' && (
-            <FormField label="Email">
-              <Input
-                type="email"
-                autoComplete="email"
-                value={accessEmail}
-                onChange={(event) => {
-                  setAccessEmail(event.target.value);
-                  setGateError('');
-                }}
-                placeholder="you@example.com"
-              />
-            </FormField>
-          )}
-          <label className="flex cursor-pointer items-start gap-3 rounded-[10px] border border-border bg-secondary p-4 text-sm leading-relaxed">
-            <input
-              type="checkbox"
-              className="mt-0.5 size-4 shrink-0 accent-primary"
-              checked={covenantAccepted}
-              onChange={(event) => setCovenantAccepted(event.target.checked)}
-            />
-            <span>
-              I accept the data covenant. My exact purchase price will not be
-              shown publicly or used for advertising, targeting, broker access,
-              or developer access.
-            </span>
-          </label>
-          {gateError && (
-            <Alert variant="destructive">
-              <CircleAlert />
-              <AlertTitle>Submission not saved</AlertTitle>
-              <AlertDescription>{gateError}</AlertDescription>
-            </Alert>
-          )}
-          <DialogFooter className="sm:mx-0 sm:mb-0 sm:border-0 sm:bg-transparent sm:p-0">
-            <Button
-              className="h-13 w-full font-mono text-[11px] tracking-[0.1em]"
-              disabled={
-                !covenantAccepted ||
-                isSubmittingContribution ||
-                (gateContext === 'owner' && !accessEmail.trim())
-              }
-              onClick={completeAccessGate}
-            >
-              <span className="grid size-5 place-items-center rounded-full bg-white text-xs font-bold text-primary">
-                G
-              </span>{' '}
-              {isSubmittingContribution
-                ? 'SAVING SECURELY…'
-                : gateContext === 'owner'
-                  ? 'SAVE & SEE MY VALUATION'
-                  : 'SEE SUPPORTING TRANSACTIONS'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AccessGate
+        open={showGate}
+        onOpenChange={setShowGate}
+        context={gateContext}
+        onAuthorized={completeVerifiedAccess}
+        actionPending={isSubmittingContribution}
+        actionError={gateError}
+      />
 
       <Dialog
         open={Boolean(selectedSociety)}
@@ -1468,7 +1463,11 @@ export function PropertyIntelligenceApp({
               unlocked={buyerUnlocked}
               onUnlock={() => {
                 setGateContext('buyer');
-                setCovenantAccepted(false);
+                setGateError('');
+                window.localStorage.setItem(
+                  'truesquare-pending-society',
+                  selectedSociety.name,
+                );
                 setShowGate(true);
               }}
             />
@@ -1581,46 +1580,115 @@ function BuyerEditorialSections() {
     <div className="mt-16 space-y-8 border-t border-border pt-12 sm:mt-24 sm:pt-16">
       <section className="grid gap-6 lg:grid-cols-[.72fr_1.28fr]">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">PER SOCIETY</p>
-          <h2 className="mt-3 font-heading text-4xl font-normal">What you can see</h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">Filter by where, how much, and BHK. That is the complete V1 filter set.</p>
+          <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
+            PER SOCIETY
+          </p>
+          <h2 className="mt-3 font-heading text-4xl font-normal">
+            What you can see
+          </h2>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">
+            Filter by where, how much, and BHK. That is the complete V1 filter
+            set.
+          </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
-            <CardHeader><Badge className="w-fit rounded-[2px]">Live in V1</Badge><CardTitle className="mt-3">Available now</CardTitle></CardHeader>
-            <CardContent className="space-y-3">{liveNow.map((item) => <p key={item} className="flex gap-3 text-sm leading-6"><CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" /><span>{item}</span></p>)}</CardContent>
+            <CardHeader>
+              <Badge className="w-fit rounded-[2px]">Live in V1</Badge>
+              <CardTitle className="mt-3">Available now</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {liveNow.map((item) => (
+                <p key={item} className="flex gap-3 text-sm leading-6">
+                  <CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" />
+                  <span>{item}</span>
+                </p>
+              ))}
+            </CardContent>
           </Card>
           <Card className="bg-secondary">
-            <CardHeader><Badge variant="outline" className="w-fit rounded-[2px]">Source pending</Badge><CardTitle className="mt-3">Not published yet</CardTitle></CardHeader>
-            <CardContent className="space-y-3">{pendingSources.map((item) => <p key={item} className="text-sm leading-6 text-muted-foreground">{item}</p>)}</CardContent>
+            <CardHeader>
+              <Badge variant="outline" className="w-fit rounded-[2px]">
+                Source pending
+              </Badge>
+              <CardTitle className="mt-3">Not published yet</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pendingSources.map((item) => (
+                <p
+                  key={item}
+                  className="text-sm leading-6 text-muted-foreground"
+                >
+                  {item}
+                </p>
+              ))}
+            </CardContent>
           </Card>
         </div>
       </section>
 
       <section className="rounded-[15px] bg-foreground p-6 text-background sm:p-10">
-        <h2 className="font-heading text-4xl font-normal">How to read our numbers</h2>
+        <h2 className="font-heading text-4xl font-normal">
+          How to read our numbers
+        </h2>
         <div className="mt-7 grid gap-5 text-sm leading-7 text-background/72 md:grid-cols-2">
-          <p>Every estimate carries a confidence level. High means several recent comparable transactions. Low means evidence is thin, so we show that clearly and avoid false precision.</p>
-          <p>Five-year scenarios are not live in V1. When added, they will be ranges built from a society&apos;s own history—not predictions.</p>
-          <p>Development signals require a source and publication date. If we cannot source something, we do not publish it.</p>
-          <p>We never label a society a buy, steal, deal, or investment. No society can pay to appear, rank higher, or be recommended.</p>
+          <p>
+            Every estimate carries a confidence level. High means several recent
+            comparable transactions. Low means evidence is thin, so we show that
+            clearly and avoid false precision.
+          </p>
+          <p>
+            Five-year scenarios are not live in V1. When added, they will be
+            ranges built from a society&apos;s own history—not predictions.
+          </p>
+          <p>
+            Development signals require a source and publication date. If we
+            cannot source something, we do not publish it.
+          </p>
+          <p>
+            We never label a society a buy, steal, deal, or investment. No
+            society can pay to appear, rank higher, or be recommended.
+          </p>
         </div>
       </section>
 
       <section className="grid gap-6 rounded-[14px] border border-border bg-card p-6 sm:p-10 lg:grid-cols-[.65fr_1.35fr]">
         <h2 className="font-heading text-4xl font-normal">What this is not</h2>
         <div className="space-y-3 text-sm leading-6 text-muted-foreground">
-          <p>Not a listing marketplace—we describe societies, not individual units for sale.</p>
-          <p>Not a lead-generation product. Your details are never passed to a broker, developer, or agent.</p>
-          <p>Not a formal valuation, legal check, negotiation service, or financial recommendation.</p>
-          <p className="pt-2 font-medium text-foreground">We do one thing: show the evidence behind what apartments have actually sold for here.</p>
+          <p>
+            Not a listing marketplace—we describe societies, not individual
+            units for sale.
+          </p>
+          <p>
+            Not a lead-generation product. Your details are never passed to a
+            broker, developer, or agent.
+          </p>
+          <p>
+            Not a formal valuation, legal check, negotiation service, or
+            financial recommendation.
+          </p>
+          <p className="pt-2 font-medium text-foreground">
+            We do one thing: show the evidence behind what apartments have
+            actually sold for here.
+          </p>
         </div>
       </section>
 
       <section className="py-6 text-center sm:py-10">
-        <h2 className="text-balance font-heading text-4xl font-normal sm:text-5xl">Look at the evidence before you look at the flat.</h2>
-        <a href="#buyer-catalogue" className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-[9px] bg-foreground px-6 text-center text-sm font-semibold text-background">Browse societies in Sarjapur Road, Bellandur, Marathahalli, and Haralur</a>
-        <p className="mt-4 text-xs text-muted-foreground">Can&apos;t find one? Create an on-screen request record. Email delivery is planned for V2.</p>
+        <h2 className="text-balance font-heading text-4xl font-normal sm:text-5xl">
+          Look at the evidence before you look at the flat.
+        </h2>
+        <a
+          href="#buyer-catalogue"
+          className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-[9px] bg-foreground px-6 text-center text-sm font-semibold text-background"
+        >
+          Browse societies in Sarjapur Road, Bellandur, Marathahalli, and
+          Haralur
+        </a>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Can&apos;t find one? Create an on-screen request record. Email
+          delivery is planned for V2.
+        </p>
       </section>
     </div>
   );
@@ -1821,7 +1889,8 @@ function OwnerResult({
   result: ValuationResult;
   onBack: () => void;
 }) {
-  const thinEvidence = result.comparables.length > 0 && result.comparables.length < 3;
+  const thinEvidence =
+    result.comparables.length > 0 && result.comparables.length < 3;
   const purchasePrice = parseIndianCurrency(form.purchasePrice);
   const lowValue = result.low ?? result.estimate;
   const highValue = result.high ?? result.estimate;
@@ -1890,7 +1959,9 @@ function OwnerResult({
                 ESTIMATED CURRENT VALUE
               </p>
               <CardTitle className="mt-2 font-heading text-[48px] tracking-[-0.035em] sm:text-6xl">
-                {thinEvidence ? thinValueRange : formatInr(result.estimate, true)}
+                {thinEvidence
+                  ? thinValueRange
+                  : formatInr(result.estimate, true)}
               </CardTitle>
               <p className="text-sm text-primary-foreground/65">
                 {thinEvidence
@@ -1914,8 +1985,8 @@ function OwnerResult({
                     thinEvidence
                       ? thinReturnRange
                       : result.annualizedReturn == null
-                      ? '—'
-                      : `${(result.annualizedReturn * 100).toFixed(1)}%`
+                        ? '—'
+                        : `${(result.annualizedReturn * 100).toFixed(1)}%`
                   }
                 />
                 <Metric
@@ -1984,7 +2055,8 @@ function OwnerResult({
         <Alert className="mt-6 rounded-[12px] border-[#A9DCB8] bg-accent">
           <CheckCircle2 />
           <AlertTitle>
-            Anonymous owner pool · {result.ownerAggregate.approvedCount} approved contributions
+            Anonymous owner pool · {result.ownerAggregate.approvedCount}{' '}
+            approved contributions
           </AlertTitle>
           <AlertDescription>
             Owners of {form.bhk} BHK homes in this society contributed an
@@ -2051,8 +2123,7 @@ function OwnerResult({
           <CardContent>
             <p className="text-sm leading-6 text-muted-foreground">
               No signal is shown because a source and publication date have not
-              yet been selected. We do not invent or display
-              unsourced rumours.
+              yet been selected. We do not invent or display unsourced rumours.
             </p>
           </CardContent>
         </Card>
@@ -2156,8 +2227,8 @@ function SocietyDetail({
           {bhkFilter === 'All'
             ? 'Society evidence assembled by BHK.'
             : `Filtered to ${bhkFilter} BHK evidence.`}{' '}
-          Evidence tier: {matchLabel}.{' '}
-          This is not a live listing, ranking, or recommendation.
+          Evidence tier: {matchLabel}. This is not a live listing, ranking, or
+          recommendation.
         </DialogDescription>
       </DialogHeader>
       <div className="grid grid-cols-2 gap-4 rounded-xl bg-muted/45 p-4 sm:grid-cols-4">
@@ -2175,7 +2246,11 @@ function SocietyDetail({
         />
         <Metric
           label="Anonymous owner pool"
-          value={ownerContributionCount ? `${ownerContributionCount} approved` : 'Not public yet'}
+          value={
+            ownerContributionCount
+              ? `${ownerContributionCount} approved`
+              : 'Not public yet'
+          }
         />
       </div>
       {unlocked ? (
