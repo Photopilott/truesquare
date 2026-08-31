@@ -8,8 +8,9 @@ import { getRegisteredTransactions } from '@/lib/registered-transactions';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Track your apartment — TrueSquare',
-  description: 'Track an apartment’s estimated value and returns using like-for-like registered transactions and a visible confidence level.',
+  title: 'Track your apartment — FlatData',
+  description:
+    'Track an apartment’s estimated value and returns using like-for-like registered transactions and a visible confidence level.',
 };
 
 export default async function OwnerPage() {
@@ -17,5 +18,12 @@ export default async function OwnerPage() {
     getPublicOwnerAggregates(),
     getRegisteredTransactions(),
   ]);
-  return <PropertyIntelligenceApp societies={propertyData.societies} records={records} ownerAggregates={ownerAggregates} initialView="owner" />;
+  return (
+    <PropertyIntelligenceApp
+      societies={propertyData.societies}
+      records={records}
+      ownerAggregates={ownerAggregates}
+      initialView="owner"
+    />
+  );
 }

@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { BrandWordmark } from '@/components/brand-wordmark';
+
 export const metadata: Metadata = {
-  title: 'Privacy — TrueSquare',
+  title: 'Privacy — FlatData',
   description:
-    'How TrueSquare collects, uses, and protects account and property information.',
+    'How FlatData collects, uses, and protects account and property information.',
 };
 
 const sections = [
@@ -26,7 +28,7 @@ const sections = [
   {
     title: 'Who receives it',
     body: [
-      'We use service providers to run TrueSquare: Google for optional sign-in, AgentMail for email codes, Vercel for hosting, and Neon for the application database.',
+      'We use service providers to run FlatData: Google for optional sign-in, AgentMail for email codes, Vercel for hosting, and Neon for the application database.',
       'We do not sell personal data or send your details to brokers, developers, agents, or lead buyers.',
     ],
   },
@@ -48,8 +50,8 @@ export default function PrivacyPage() {
       </div>
 
       <header className="ts-orb-shell ts-orb-nav">
-        <Link href="/" className="ts-orb-brand">
-          TrueSquare
+        <Link href="/" className="ts-orb-brand" aria-label="FlatData home">
+          <BrandWordmark />
         </Link>
         <Link href="/" className="ts-orb-button ts-orb-button-small">
           BACK HOME
@@ -64,8 +66,8 @@ export default function PrivacyPage() {
           Your property data stays private by default.
         </h1>
         <p className="mt-7 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-          This notice explains what TrueSquare collects, why it is needed, and
-          how it is protected when you use the service.
+          This notice explains what FlatData collects, why it is needed, and how
+          it is protected when you use the service.
         </p>
 
         <div className="mt-12 grid gap-4 md:grid-cols-2">
@@ -89,7 +91,7 @@ export default function PrivacyPage() {
             QUESTIONS OR REQUESTS
           </p>
           <h2 className="mt-4 font-heading text-3xl sm:text-4xl">
-            Contact TrueSquare
+            Contact FlatData
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-[#dce3ff]">
             Email{' '}

@@ -8,8 +8,9 @@ import { getRegisteredTransactions } from '@/lib/registered-transactions';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Research a society — TrueSquare',
-  description: 'See what supported Bengaluru societies have actually sold for using registered transaction evidence.',
+  title: 'Research a society — FlatData',
+  description:
+    'See what supported Bengaluru societies have actually sold for using registered transaction evidence.',
 };
 
 export default async function BuyerPage() {
@@ -17,5 +18,12 @@ export default async function BuyerPage() {
     getPublicOwnerAggregates(),
     getRegisteredTransactions(),
   ]);
-  return <PropertyIntelligenceApp societies={propertyData.societies} records={records} ownerAggregates={ownerAggregates} initialView="buyer" />;
+  return (
+    <PropertyIntelligenceApp
+      societies={propertyData.societies}
+      records={records}
+      ownerAggregates={ownerAggregates}
+      initialView="buyer"
+    />
+  );
 }

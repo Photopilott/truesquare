@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TrueSquare Developer Ratings — Mockup</title>
+  <title>FlatData Developer Ratings — Mockup</title>
   <meta name="description" content="An isolated mockup for a data-led real-estate developer rating and review module." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -81,8 +81,9 @@
       box-shadow: 0 10px 26px rgba(38, 29, 18, .1);
       backdrop-filter: blur(16px);
     }
-    .brand { font-family: var(--serif); font-size: 31px; font-weight: 500; text-decoration: none; letter-spacing: -1px; }
-    .brand span { font-family: var(--pixel); font-size: 8px; letter-spacing: 0; vertical-align: top; margin-left: 5px; }
+    .brand { display: inline-flex; align-items: baseline; font-size: 31px; font-weight: 500; line-height: 1; text-decoration: none; }
+    .brand-flat { font-family: var(--serif); letter-spacing: -.04em; }
+    .brand-data { margin-left: .08em; font-family: var(--pixel); font-size: .7em; font-weight: 400; letter-spacing: -.06em; line-height: 1; }
     .nav-links { display: flex; align-items: center; gap: 26px; font-size: 14px; }
     .nav-links a { text-decoration: none; }
     .nav-actions { display: flex; gap: 10px; }
@@ -333,7 +334,7 @@
   <div class="announcement"><strong>NEW MODULE</strong><span>Developer experience, built from owner and buyer feedback loops.</span></div>
 
   <header class="shell nav" aria-label="Primary navigation">
-    <a class="brand" href="#top">TrueSquare <span>LAB</span></a>
+    <a class="brand" href="#top" aria-label="FlatData home"><span class="brand-flat" aria-hidden="true">Flat</span><span class="brand-data" aria-hidden="true">Data</span></a>
     <nav class="nav-links" aria-label="Mockup sections">
       <a href="#developers">Developers</a>
       <a href="#profile">Rating profile</a>
@@ -467,7 +468,7 @@
     </section>
   </main>
 
-  <footer><div class="shell"><span>TrueSquare Developer Ratings · UI mockup only</span><span>No data submitted here is stored or sent.</span></div></footer>
+  <footer><div class="shell"><span>FlatData Developer Ratings · UI mockup only</span><span>No data submitted here is stored or sent.</span></div></footer>
 
   <dialog id="review-dialog" aria-labelledby="review-title">
     <div id="review-form-view">

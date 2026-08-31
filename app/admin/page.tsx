@@ -6,7 +6,7 @@ import { ADMIN_EMAIL, getCurrentAdminSession } from '@/lib/admin-auth';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Admin review — TrueSquare',
+  title: 'Admin review — FlatData',
   description: 'Private contribution review console.',
   robots: { index: false, follow: false },
 };

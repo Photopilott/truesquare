@@ -26,6 +26,7 @@ import {
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AccessGate } from '@/components/access-gate';
+import { BrandWordmark } from '@/components/brand-wordmark';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -365,8 +366,8 @@ export function AppHeader({
         <span>No listings sold. No leads sold. No data sold.</span>
       </div>
       <header className="ts-orb-shell ts-orb-nav">
-        <Link className="ts-orb-brand" href="/" aria-label="TrueSquare home">
-          TrueSquare
+        <Link className="ts-orb-brand" href="/" aria-label="FlatData home">
+          <BrandWordmark />
         </Link>
         <nav className="ts-orb-nav-links" aria-label="Product navigation">
           <Link
