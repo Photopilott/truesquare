@@ -416,9 +416,6 @@ export function PropertyIntelligenceApp({
     };
   }
 
-  const selectedSocietySummary = societies.find(
-    (society) => society.name === ownerForm.society,
-  );
   const buyerSocietyEvidence = selectedSociety
     ? getBuyerEvidence(selectedSociety, bhkFilter)
     : null;
@@ -1011,23 +1008,13 @@ export function PropertyIntelligenceApp({
                   {fieldError(errors, 'society')}
                 </FormField>
                 <FormField label="Tower / block">
-                  <NativeSelect
-                    className="w-full"
+                  <Input
                     value={ownerForm.tower}
                     onChange={(event) =>
                       updateOwner('tower', event.target.value)
                     }
-                    disabled={!ownerForm.society}
-                  >
-                    <NativeSelectOption value="">
-                      Select tower
-                    </NativeSelectOption>
-                    {selectedSocietySummary?.towers.map((tower) => (
-                      <NativeSelectOption key={tower} value={tower}>
-                        {tower}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
+                    placeholder="e.g. Tower 2 or Block B"
+                  />
                   {fieldError(errors, 'tower')}
                 </FormField>
                 <FormField label="Floor">
