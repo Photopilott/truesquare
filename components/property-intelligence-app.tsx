@@ -84,10 +84,6 @@ type OwnerForm = {
   purchaseDate: string;
   purchasePrice: string;
   stampDuty: string;
-  registrationCost: string;
-  interiors: string;
-  facing: string;
-  brokerage: string;
   loanAmount: string;
   loanTenure: string;
   loanRate: string;
@@ -108,10 +104,6 @@ const EMPTY_FORM: OwnerForm = {
   purchaseDate: '',
   purchasePrice: '',
   stampDuty: '',
-  registrationCost: '',
-  interiors: '',
-  facing: '',
-  brokerage: '',
   loanAmount: '',
   loanTenure: '',
   loanRate: '',
@@ -119,20 +111,27 @@ const EMPTY_FORM: OwnerForm = {
 
 const LOCATIONS = ['Sarjapur Road', 'Bellandur', 'Marathahalli', 'Haralur'];
 
-function parseIsoDate(value: string) {
-  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+function parsePurchaseMonth(value: string) {
+  const match = value.match(/^(\d{4})-(\d{2})$/);
   if (!match) return null;
   const year = Number(match[1]);
   const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
+  const date = new Date(Date.UTC(year, month - 1, 1));
   if (
     date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day
+    date.getUTCMonth() !== month - 1
   )
     return null;
   return date;
+}
+
+function formatPurchaseMonth(value: string, previousValue: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 6);
+  if (digits.length < 4) return digits;
+  if (digits.length === 4) {
+    return value.length < previousValue.length ? digits : `${digits}-`;
+  }
+  return `${digits.slice(0, 4)}-${digits.slice(4)}`;
 }
 
 function parseIndianCurrency(raw: string) {
@@ -321,7 +320,12 @@ export function PropertyIntelligenceApp({
     let savedDraft: OwnerForm | null = null;
     if (stored) {
       try {
-        savedDraft = { ...EMPTY_FORM, ...JSON.parse(stored) };
+        const parsed = JSON.parse(stored) as Partial<OwnerForm>;
+        savedDraft = {
+          ...EMPTY_FORM,
+          ...parsed,
+          purchaseDate: parsed.purchaseDate?.slice(0, 7) ?? '',
+        };
       } catch {
         /* ignore corrupt local draft */
       }
@@ -470,12 +474,12 @@ export function PropertyIntelligenceApp({
         location: society?.location ?? '',
         bhk: form.bhk,
         areaSqFt: Number(form.area),
-        purchaseDate: form.purchaseDate,
+        purchaseDate: `${form.purchaseDate}-01`,
         purchasePrice: parseIndianCurrency(form.purchasePrice),
         stampDuty: parseIndianCurrency(form.stampDuty),
-        registrationCost: parseIndianCurrency(form.registrationCost),
-        interiors: parseIndianCurrency(form.interiors),
-        brokerage: parseIndianCurrency(form.brokerage),
+        registrationCost: 0,
+        interiors: 0,
+        brokerage: 0,
         loanAmount: form.loanAmount
           ? parseIndianCurrency(form.loanAmount)
           : null,
@@ -495,11 +499,10 @@ export function PropertyIntelligenceApp({
       floor: 'Enter the floor number.',
       bhk: 'Select the apartment configuration.',
       area: 'Enter the area in square feet.',
-      purchaseDate: 'Enter the purchase date in YYYY-MM-DD format.',
+      purchaseDate: 'Enter the purchase month in YYYY-MM format.',
       purchasePrice: 'Enter the purchase price.',
-      stampDuty: 'Enter the stamp duty paid (use 0 if none).',
-      registrationCost: 'Enter the registration cost paid (use 0 if none).',
-      interiors: 'Enter the interior cost paid (use 0 if none).',
+      stampDuty:
+        'Enter the total stamp duty and registration cost (use 0 if none).',
     };
     Object.entries(requiredMessages).forEach(([key, message]) => {
       if (!ownerForm[key as keyof OwnerForm]) next[key] = message;
@@ -507,20 +510,13 @@ export function PropertyIntelligenceApp({
     if (ownerForm.area && Number(ownerForm.area) <= 0)
       next.area = 'Area must be greater than zero.';
     const purchaseDate = ownerForm.purchaseDate
-      ? parseIsoDate(ownerForm.purchaseDate)
+      ? parsePurchaseMonth(ownerForm.purchaseDate)
       : null;
     if (ownerForm.purchaseDate && !purchaseDate)
-      next.purchaseDate = 'Use a valid date in YYYY-MM-DD format.';
+      next.purchaseDate = 'Use a valid month in YYYY-MM format.';
     if (purchaseDate && purchaseDate > new Date())
       next.purchaseDate = 'Purchase date cannot be in the future.';
-    [
-      'purchasePrice',
-      'stampDuty',
-      'registrationCost',
-      'interiors',
-      'brokerage',
-      'loanAmount',
-    ].forEach((key) => {
+    ['purchasePrice', 'stampDuty', 'loanAmount'].forEach((key) => {
       const value = ownerForm[key as keyof OwnerForm] as string;
       if (value && Number.isNaN(parseIndianCurrency(value)))
         next[key] = 'Use a value such as 1.25 crore, 85 lakh, or 12500000.';
@@ -597,14 +593,13 @@ export function PropertyIntelligenceApp({
             areaType: ownerForm.areaType,
             carParks: Number(ownerForm.carParks),
             purchaseDate: ownerForm.purchaseDate,
-            facing: ownerForm.facing,
           },
           costs: {
             purchasePrice: parseIndianCurrency(ownerForm.purchasePrice),
             stampDuty: parseIndianCurrency(ownerForm.stampDuty),
-            registrationCost: parseIndianCurrency(ownerForm.registrationCost),
-            interiors: parseIndianCurrency(ownerForm.interiors),
-            brokerage: parseIndianCurrency(ownerForm.brokerage),
+            registrationCost: 0,
+            interiors: 0,
+            brokerage: 0,
             loanAmount: ownerForm.loanAmount
               ? parseIndianCurrency(ownerForm.loanAmount)
               : null,
@@ -1107,14 +1102,21 @@ export function PropertyIntelligenceApp({
                     </NativeSelectOption>
                   </NativeSelect>
                 </FormField>
-                <FormField label="Purchase date">
+                <FormField label="Purchase month">
                   <Input
                     inputMode="numeric"
                     autoComplete="off"
-                    placeholder="YYYY-MM-DD"
+                    maxLength={7}
+                    placeholder="YYYY-MM"
                     value={ownerForm.purchaseDate}
                     onChange={(event) =>
-                      updateOwner('purchaseDate', event.target.value)
+                      updateOwner(
+                        'purchaseDate',
+                        formatPurchaseMonth(
+                          event.target.value,
+                          ownerForm.purchaseDate,
+                        ),
+                      )
                     }
                   />
                   {fieldError(errors, 'purchaseDate')}
@@ -1139,42 +1141,11 @@ export function PropertyIntelligenceApp({
                   errors={errors}
                 />
                 <CurrencyField
-                  label="Stamp duty"
+                  label="Stamp duty + registration cost"
                   name="stampDuty"
                   value={ownerForm.stampDuty}
                   onChange={(value) => updateOwner('stampDuty', value)}
                   errors={errors}
-                />
-                <CurrencyField
-                  label="Registration cost"
-                  name="registrationCost"
-                  value={ownerForm.registrationCost}
-                  onChange={(value) => updateOwner('registrationCost', value)}
-                  errors={errors}
-                />
-                <CurrencyField
-                  label="Interior cost"
-                  name="interiors"
-                  value={ownerForm.interiors}
-                  onChange={(value) => updateOwner('interiors', value)}
-                  errors={errors}
-                />
-                <FormField label="Facing / view" optional>
-                  <Input
-                    value={ownerForm.facing}
-                    onChange={(event) =>
-                      updateOwner('facing', event.target.value)
-                    }
-                    placeholder="e.g. East, lake view"
-                  />
-                </FormField>
-                <CurrencyField
-                  label="Brokerage"
-                  name="brokerage"
-                  value={ownerForm.brokerage}
-                  onChange={(value) => updateOwner('brokerage', value)}
-                  errors={errors}
-                  optional
                 />
               </div>
               <details className="mt-7 rounded-[10px] border border-border bg-secondary p-5">
@@ -1244,7 +1215,7 @@ export function PropertyIntelligenceApp({
               <Button
                 type="submit"
                 size="lg"
-                className="mt-7 h-[58px] w-full font-mono text-[11px] tracking-[0.12em]"
+                className="mt-7 h-[58px] w-full font-mono text-[15px] tracking-[0.08em] sm:text-base"
               >
                 TRACK MY PROPERTY <ArrowRight />
               </Button>

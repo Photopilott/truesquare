@@ -106,6 +106,15 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+function formatMonth(value: string | null) {
+  if (!value) return '—';
+  return new Intl.DateTimeFormat('en-IN', {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(value));
+}
+
 function AuthPanel({ adminEmail }: { adminEmail: string }) {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -354,9 +363,9 @@ function ReviewCard({
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Purchase date</p>
+            <p className="text-xs text-muted-foreground">Purchase month</p>
             <p className="mt-1 font-medium">
-              {formatDate(contribution.purchase_date)}
+              {formatMonth(contribution.purchase_date)}
             </p>
           </div>
           <div>
@@ -375,24 +384,13 @@ function ReviewCard({
             {contribution.email}
           </p>
           <p>
-            <span className="text-muted-foreground">Facing:</span>{' '}
-            {contribution.facing || 'Not supplied'}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Stamp duty:</span>{' '}
-            {formatInr(contribution.stamp_duty)}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Registration:</span>{' '}
-            {formatInr(contribution.registration_cost)}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Interiors:</span>{' '}
-            {formatInr(contribution.interiors)}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Brokerage:</span>{' '}
-            {formatInr(contribution.brokerage)}
+            <span className="text-muted-foreground">
+              Stamp duty + registration:
+            </span>{' '}
+            {formatInr(
+              Number(contribution.stamp_duty) +
+                Number(contribution.registration_cost),
+            )}
           </p>
         </div>
         {contribution.status === 'pending' && (

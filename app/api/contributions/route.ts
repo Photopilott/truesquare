@@ -24,6 +24,7 @@ type ContributionBody = {
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 function requiredText(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
@@ -95,7 +96,12 @@ export async function POST(request: Request) {
   const areaSqFt = requiredNumber(property.areaSqFt, 1);
   const areaType = requiredText(property.areaType);
   const carParks = requiredNumber(property.carParks, 0);
-  const purchaseDate = requiredText(property.purchaseDate);
+  const submittedPurchaseDate = requiredText(property.purchaseDate);
+  const purchaseDate = submittedPurchaseDate
+    ? MONTH_PATTERN.test(submittedPurchaseDate)
+      ? `${submittedPurchaseDate}-01`
+      : submittedPurchaseDate
+    : null;
   const facing = optionalText(property.facing);
   const purchasePrice = requiredNumber(costs.purchasePrice, 1);
   const stampDuty = requiredNumber(costs.stampDuty, 0);
