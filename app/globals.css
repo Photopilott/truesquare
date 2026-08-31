@@ -516,7 +516,10 @@ body {
 
 .ts-evidence-label-copy {
   display: grid;
-  justify-items: end;
+  grid-template-columns: auto minmax(0, auto);
+  align-items: baseline;
+  justify-content: end;
+  column-gap: 8px;
 }
 
 .ts-evidence-ordinal {
@@ -528,6 +531,7 @@ body {
 }
 
 .ts-evidence-label strong {
+  grid-column: 2;
   font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
@@ -535,6 +539,8 @@ body {
 }
 
 .ts-evidence-label-copy > span:last-child {
+  grid-column: 1 / -1;
+  justify-self: end;
   margin-top: 3px;
   color: var(--orb-muted);
   font-size: 11px;
@@ -928,7 +934,10 @@ body {
     text-align: left;
   }
   .ts-evidence-label-copy {
-    justify-items: start;
+    justify-content: start;
+  }
+  .ts-evidence-label-copy > span:last-child {
+    justify-self: start;
   }
   .ts-evidence-label strong {
     font-size: 15px;
