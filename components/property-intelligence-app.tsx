@@ -53,6 +53,15 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import type { OwnerPriceAggregate } from '@/lib/owner-aggregates';
+import {
+  calculateValuation,
+  confidenceForCount,
+  findComparableMatch,
+  median,
+  type ComparableMatch,
+  type TransactionRecord,
+  type ValuationResult,
+} from '@/lib/valuation-engine';
 
 type SocietySummary = {
   slug: string;
@@ -64,24 +73,6 @@ type SocietySummary = {
   medianPrice: number | null;
   medianPricePerSqFt: number | null;
   latestTransactionDate: string | null;
-};
-
-type TransactionRecord = {
-  id: string;
-  location: string;
-  society: string;
-  tower: string | null;
-  bhk: string | null;
-  registrationDate: string | null;
-  rawDate: string;
-  price: number | null;
-  effectiveArea: number | null;
-  pricePerSqFt: number | null;
-  areaBasis: string | null;
-  saleType: string | null;
-  qaNotes: string | null;
-  sourceFile: string;
-  sourceUrl: string;
 };
 
 type OwnerForm = {
@@ -102,34 +93,6 @@ type OwnerForm = {
   loanAmount: string;
   loanTenure: string;
   loanRate: string;
-};
-
-type ValuationResult = {
-  estimate: number | null;
-  low: number | null;
-  high: number | null;
-  confidence: 'Insufficient evidence' | 'Low' | 'Medium' | 'High';
-  comparables: TransactionRecord[];
-  acquisitionCost: number;
-  absoluteAppreciation: number | null;
-  annualizedReturn: number | null;
-  returnAfterCosts: number | null;
-  loanInterest: number;
-  matchTier: ComparableTier;
-  matchLabel: string;
-  ownerAggregate: OwnerPriceAggregate | null;
-};
-
-type ComparableTier =
-  | 'exact-society-bhk'
-  | 'same-society-any-bhk'
-  | 'same-market-bhk'
-  | 'insufficient';
-
-type ComparableMatch = {
-  tier: ComparableTier;
-  label: string;
-  records: TransactionRecord[];
 };
 
 type BuyerEvidence = ComparableMatch & {
@@ -193,15 +156,6 @@ function parseIndianCurrency(raw: string) {
   return base;
 }
 
-function median(values: number[]) {
-  if (!values.length) return null;
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2
-    ? sorted[middle]
-    : (sorted[middle - 1] + sorted[middle]) / 2;
-}
-
 function formatInr(value: number | null, compact = false) {
   if (value == null || Number.isNaN(value)) return '—';
   if (compact) {
@@ -237,27 +191,6 @@ function formatDate(value: string | null) {
     month: 'short',
     year: 'numeric',
   }).format(new Date(value));
-}
-
-function confidenceForCount(count: number): ValuationResult['confidence'] {
-  if (count === 0) return 'Insufficient evidence';
-  if (count <= 2) return 'Low';
-  if (count <= 4) return 'Medium';
-  return 'High';
-}
-
-function totalLoanInterest(
-  principal: number,
-  years: number,
-  annualRate: number,
-) {
-  if (!principal || !years || !annualRate) return 0;
-  const months = years * 12;
-  const rate = annualRate / 1200;
-  const emi =
-    (principal * rate * Math.pow(1 + rate, months)) /
-    (Math.pow(1 + rate, months) - 1);
-  return Math.max(0, emi * months - principal);
 }
 
 function fieldError(errors: Record<string, string>, name: string) {
@@ -299,59 +232,6 @@ function FormField({
       {childArray}
     </div>
   );
-}
-
-function isValidEvidence(record: TransactionRecord) {
-  return Boolean(
-    record.registrationDate &&
-    record.price &&
-    record.effectiveArea &&
-    record.effectiveArea > 0 &&
-    record.pricePerSqFt &&
-    record.pricePerSqFt > 0,
-  );
-}
-
-function findComparableMatch(
-  records: TransactionRecord[],
-  target: { society: string; bhk: string; location: string },
-): ComparableMatch {
-  const eligible = records.filter(isValidEvidence);
-  const tiers: Array<
-    Omit<ComparableMatch, 'records'> & {
-      matches: (record: TransactionRecord) => boolean;
-    }
-  > = [
-    {
-      tier: 'exact-society-bhk',
-      label: 'Exact society + BHK',
-      matches: (record) =>
-        record.society === target.society && record.bhk === target.bhk,
-    },
-    {
-      tier: 'same-society-any-bhk',
-      label: 'Same society · any BHK',
-      matches: (record) => record.society === target.society,
-    },
-    {
-      tier: 'same-market-bhk',
-      label: 'Same micro-market + BHK',
-      matches: (record) =>
-        record.location === target.location && record.bhk === target.bhk,
-    },
-  ];
-
-  for (const tier of tiers) {
-    const matches = eligible.filter(tier.matches);
-    if (matches.length)
-      return { tier: tier.tier, label: tier.label, records: matches };
-  }
-
-  return {
-    tier: 'insufficient',
-    label: 'No evidence in any matching tier',
-    records: [],
-  };
 }
 
 export function AppHeader({
@@ -591,71 +471,28 @@ export function PropertyIntelligenceApp({
   }
 
   function buildValuation(form: OwnerForm): ValuationResult {
-    const comparableMatch = eligibleComparables(form);
-    const comparables = comparableMatch.records;
-    const area = Number(form.area);
-    const impliedValues = comparables.map(
-      (record) => (record.pricePerSqFt ?? 0) * area,
+    const society = societies.find((item) => item.name === form.society);
+    return calculateValuation(
+      {
+        society: form.society,
+        location: society?.location ?? '',
+        bhk: form.bhk,
+        areaSqFt: Number(form.area),
+        purchaseDate: form.purchaseDate,
+        purchasePrice: parseIndianCurrency(form.purchasePrice),
+        stampDuty: parseIndianCurrency(form.stampDuty),
+        registrationCost: parseIndianCurrency(form.registrationCost),
+        interiors: parseIndianCurrency(form.interiors),
+        brokerage: parseIndianCurrency(form.brokerage),
+        loanAmount: form.loanAmount
+          ? parseIndianCurrency(form.loanAmount)
+          : null,
+        loanTenureYears: form.loanTenure ? Number(form.loanTenure) : null,
+        loanRate: form.loanRate ? Number(form.loanRate) : null,
+      },
+      records,
+      ownerAggregates,
     );
-    const estimate = median(impliedValues);
-    const loanInterest = totalLoanInterest(
-      parseIndianCurrency(form.loanAmount),
-      Number(form.loanTenure),
-      Number(form.loanRate),
-    );
-    const acquisitionCost =
-      [
-        'purchasePrice',
-        'stampDuty',
-        'registrationCost',
-        'interiors',
-        'brokerage',
-      ].reduce(
-        (sum, key) =>
-          sum +
-          (parseIndianCurrency(form[key as keyof OwnerForm] as string) || 0),
-        0,
-      ) + loanInterest;
-    let low: number | null = null;
-    let high: number | null = null;
-    if (impliedValues.length === 1 && estimate) {
-      low = estimate * 0.85;
-      high = estimate * 1.15;
-    }
-    if (impliedValues.length > 1) {
-      low = Math.min(...impliedValues);
-      high = Math.max(...impliedValues);
-    }
-    const purchaseDate = new Date(form.purchaseDate);
-    const yearsOwned = Math.max(
-      (Date.now() - purchaseDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000),
-      0.01,
-    );
-    const annualizedReturn =
-      estimate && acquisitionCost > 0
-        ? Math.pow(estimate / acquisitionCost, 1 / yearsOwned) - 1
-        : null;
-    return {
-      estimate,
-      low,
-      high,
-      confidence: confidenceForCount(comparables.length),
-      comparables,
-      acquisitionCost,
-      absoluteAppreciation: estimate
-        ? estimate - parseIndianCurrency(form.purchasePrice)
-        : null,
-      returnAfterCosts: estimate ? estimate - acquisitionCost : null,
-      annualizedReturn,
-      loanInterest,
-      matchTier: comparableMatch.tier,
-      matchLabel: comparableMatch.label,
-      ownerAggregate:
-        ownerAggregates.find(
-          (aggregate) =>
-            aggregate.society === form.society && aggregate.bhk === form.bhk,
-        ) ?? null,
-    };
   }
 
   function validateOwner() {
@@ -786,12 +623,20 @@ export function PropertyIntelligenceApp({
           },
         }),
       });
-      const result = (await response.json()) as { error?: string };
+      const result = (await response.json()) as {
+        error?: string;
+        snapshot?: { id: string; createdAt: string } | null;
+      };
       if (!response.ok) {
         throw new Error(result.error || 'We could not save your contribution.');
       }
 
-      setValuation(buildValuation(ownerForm));
+      const savedValuation = buildValuation(ownerForm);
+      if (result.snapshot) {
+        savedValuation.snapshotId = result.snapshot.id;
+        savedValuation.snapshotCreatedAt = result.snapshot.createdAt;
+      }
+      setValuation(savedValuation);
       setShowGate(false);
       window.localStorage.removeItem('truesquare-owner-draft');
       window.localStorage.removeItem('truesquare-owner-request-id');
@@ -1952,6 +1797,17 @@ function OwnerResult({
           {result.confidence} confidence
         </Badge>
       </div>
+      {result.snapshotCreatedAt && (
+        <Alert className="mb-6 border-[#A9DCB8] bg-accent">
+          <CheckCircle2 />
+          <AlertTitle>Valuation snapshot saved</AlertTitle>
+          <AlertDescription>
+            This result records the matching tier, supporting transaction IDs,
+            and privacy-safe owner evidence used on{' '}
+            {formatDate(result.snapshotCreatedAt)}.
+          </AlertDescription>
+        </Alert>
+      )}
       {result.estimate ? (
         <div className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
           <Card className="border-0 bg-primary py-6 text-primary-foreground ring-0">

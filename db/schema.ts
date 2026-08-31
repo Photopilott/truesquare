@@ -4,6 +4,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -262,6 +263,149 @@ export const registeredTransactions = pgTable(
       table.location,
       table.bhk,
     ),
+  ],
+);
+
+export const transactionImportBatchStatus = pgEnum(
+  'transaction_import_batch_status',
+  ['staged', 'applied'],
+);
+
+export const transactionImportRowStatus = pgEnum(
+  'transaction_import_row_status',
+  ['ready', 'needs_review', 'rejected'],
+);
+
+export const registeredTransactionImports = pgTable(
+  'registered_transaction_imports',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    sourceFileName: text('source_file_name').notNull(),
+    sourceChecksum: text('source_checksum').notNull(),
+    uploadedBy: text('uploaded_by').notNull(),
+    submittedRows: integer('submitted_rows').notNull(),
+    readyRows: integer('ready_rows').notNull(),
+    reviewRows: integer('review_rows').notNull(),
+    rejectedRows: integer('rejected_rows').notNull(),
+    status: transactionImportBatchStatus('status').default('staged').notNull(),
+    appliedAt: timestamp('applied_at', { withTimezone: true }),
+    appliedBy: text('applied_by'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('registered_transaction_imports_checksum_unique').on(
+      table.sourceChecksum,
+    ),
+    index('registered_transaction_imports_created_idx').on(table.createdAt),
+  ],
+);
+
+export const registeredTransactionImportRows = pgTable(
+  'registered_transaction_import_rows',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    importId: uuid('import_id')
+      .notNull()
+      .references(() => registeredTransactionImports.id, {
+        onDelete: 'cascade',
+      }),
+    ordinal: integer('ordinal').notNull(),
+    sourceRecordId: text('source_record_id'),
+    location: text('location'),
+    sourceLocation: text('source_location'),
+    society: text('society'),
+    propertyType: text('property_type'),
+    unitNumber: text('unit_number'),
+    floor: text('floor'),
+    tower: text('tower'),
+    bhk: text('bhk'),
+    registrationDate: date('registration_date'),
+    rawDate: text('raw_date'),
+    price: bigint('price', { mode: 'number' }),
+    effectiveArea: numeric('effective_area', { precision: 12, scale: 2 }),
+    pricePerSqFt: numeric('price_per_sq_ft', { precision: 12, scale: 2 }),
+    areaBasis: text('area_basis'),
+    eventType: text('event_type'),
+    saleType: text('sale_type'),
+    qaNotes: text('qa_notes'),
+    sourceFile: text('source_file'),
+    sourceUrl: text('source_url'),
+    qaStatus: transactionImportRowStatus('qa_status').notNull(),
+    qaReasons: jsonb('qa_reasons').$type<string[]>().notNull(),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewedBy: text('reviewed_by'),
+    reviewNotes: text('review_notes'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('registered_transaction_import_rows_ordinal_unique').on(
+      table.importId,
+      table.ordinal,
+    ),
+    index('registered_transaction_import_rows_status_idx').on(
+      table.importId,
+      table.qaStatus,
+    ),
+    index('registered_transaction_import_rows_source_idx').on(
+      table.sourceRecordId,
+    ),
+  ],
+);
+
+export const valuationSnapshots = pgTable(
+  'valuation_snapshots',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    contributionId: uuid('contribution_id')
+      .notNull()
+      .references(() => purchaseContributions.id, { onDelete: 'cascade' }),
+    algorithmVersion: text('algorithm_version').notNull(),
+    matchTier: text('match_tier').notNull(),
+    matchLabel: text('match_label').notNull(),
+    confidence: text('confidence').notNull(),
+    supportingTransactionIds: jsonb('supporting_transaction_ids')
+      .$type<string[]>()
+      .notNull(),
+    supportingTransactionCount: integer('supporting_transaction_count')
+      .notNull(),
+    estimate: bigint('estimate', { mode: 'number' }),
+    low: bigint('low', { mode: 'number' }),
+    high: bigint('high', { mode: 'number' }),
+    acquisitionCost: bigint('acquisition_cost', { mode: 'number' }).notNull(),
+    absoluteAppreciation: bigint('absolute_appreciation', { mode: 'number' }),
+    returnAfterCosts: bigint('return_after_costs', { mode: 'number' }),
+    annualizedReturn: numeric('annualized_return', {
+      precision: 18,
+      scale: 12,
+    }),
+    loanInterest: bigint('loan_interest', { mode: 'number' }).notNull(),
+    ownerEvidenceCount: integer('owner_evidence_count').notNull(),
+    ownerEvidenceMinPricePerSqFt: numeric('owner_evidence_min_price_per_sq_ft', {
+      precision: 12,
+      scale: 2,
+    }),
+    ownerEvidenceMedianPricePerSqFt: numeric(
+      'owner_evidence_median_price_per_sq_ft',
+      { precision: 12, scale: 2 },
+    ),
+    ownerEvidenceMaxPricePerSqFt: numeric('owner_evidence_max_price_per_sq_ft', {
+      precision: 12,
+      scale: 2,
+    }),
+    inputSnapshot: jsonb('input_snapshot').$type<Record<string, unknown>>().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('valuation_snapshots_contribution_unique').on(
+      table.contributionId,
+    ),
+    index('valuation_snapshots_created_idx').on(table.createdAt),
   ],
 );
 

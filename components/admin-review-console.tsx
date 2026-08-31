@@ -37,6 +37,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { TransactionImportConsole } from '@/components/transaction-import-console';
 
 type ReviewStatus = 'pending' | 'approved' | 'rejected';
 
@@ -636,6 +637,7 @@ function Dashboard({
             </div>
           </div>
         )}
+        <TransactionImportConsole />
       </section>
     </main>
   );

@@ -22,6 +22,20 @@
       "when": 1788153934348,
       "tag": "0002_omniscient_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788164342419,
+      "tag": "0003_nappy_blindfold",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788164799135,
+      "tag": "0004_tough_scrambler",
+      "breakpoints": true
     }
   ]
 }
