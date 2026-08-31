@@ -5,6 +5,7 @@ import { ArrowRight, Check, Menu } from 'lucide-react';
 import Link from 'next/link';
 
 import { BrandWordmark } from '@/components/brand-wordmark';
+import { EvidenceStack } from '@/components/evidence-stack';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -157,7 +158,7 @@ export function HomeNavigation() {
         </div>
       </header>
 
-      <section className="ts-orb-shell ts-orb-hero">
+      <section className="ts-orb-shell ts-orb-hero ts-orb-hero-single">
         <div>
           <p className="ts-orb-eyebrow">BENGALURU · REGISTERED TRANSACTIONS</p>
           <h1 className="ts-orb-hero-title">
@@ -183,59 +184,9 @@ export function HomeNavigation() {
             your numbers.
           </p>
         </div>
-
-        <div className="ts-orb-trust-card">
-          <span className="ts-orb-ribbon">SOURCE-LED EVIDENCE</span>
-          <div className="ts-orb-trust-top">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-mono text-[10px] tracking-[0.13em] text-muted-foreground">
-                  SOCIETY EVIDENCE
-                </p>
-                <h2 className="mt-2 font-heading text-[35px] font-medium leading-none">
-                  A clearer starting point
-                </h2>
-              </div>
-            </div>
-          </div>
-          <div className="ts-orb-trust-body">
-            {[
-              ['Registered sales', 'Like-for-like evidence'],
-              ['Valuation range', 'Never presented as certainty'],
-              ['Confidence level', 'Based on transaction count'],
-            ].map(([title, copy]) => (
-              <div
-                key={title}
-                className="flex items-center gap-4 border-b border-border pb-4 last:border-0 last:pb-0"
-              >
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-card">
-                  <Check className="size-4" />
-                </span>
-                <div>
-                  <p className="text-[14px] font-semibold">{title}</p>
-                  <p className="mt-0.5 text-[12px] text-muted-foreground">
-                    {copy}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="ts-orb-evidence-strip">
-            <div>
-              <strong>Range</strong>
-              <span>Not certainty</span>
-            </div>
-            <div>
-              <strong>Count</strong>
-              <span>Evidence shown</span>
-            </div>
-            <div>
-              <strong>Private</strong>
-              <span>Units hidden</span>
-            </div>
-          </div>
-        </div>
       </section>
+
+      <EvidenceStack />
 
       <section id="paths" className="ts-orb-section scroll-mt-24">
         <div className="ts-orb-shell">

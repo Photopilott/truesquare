@@ -16,6 +16,7 @@
     "db:migrate:remote": "node --env-file=.env.local scripts/apply-pending-migrations.mjs",
     "db:seed": "node scripts/seed-registered-transactions.mjs",
     "test:transaction-import": "node --experimental-strip-types --test test/transaction-import.test.ts",
+    "test:evidence-stack": "node --experimental-strip-types --test test/evidence-stack.test.ts",
     "test:valuation": "node --experimental-strip-types --test test/valuation-engine.test.ts"
   },
   "dependencies": {
