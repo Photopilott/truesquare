@@ -17,13 +17,12 @@ import {
 } from '@/components/ui/sheet';
 
 const navigation = [
-  { label: 'Home', href: '#home' },
-  { label: 'Choose a path', href: '#paths' },
-  { label: 'Coverage', href: '#coverage' },
-  { label: 'How it works', href: '#evidence' },
-  { label: 'Atlas', href: '/atlas' },
-  { label: 'Explorer', href: '/explore' },
-  { label: 'Developer ratings', href: '/developer-ratings.html' },
+  { label: 'HOME', href: '#home' },
+  { label: 'OWNERS', href: '/owner' },
+  { label: 'BUYERS', href: '/buyer' },
+  { label: 'FLAT PRICE VERIFIED', href: '/explore' },
+  { label: 'NEW FLATS R&D', href: '/atlas' },
+  { label: 'DEVELOPER RATINGS', href: '/developer-ratings.html' },
 ];
 
 const paths = [
@@ -282,19 +281,21 @@ export function HomeNavigation() {
 
       <section id="evidence" className="ts-orb-blue scroll-mt-24">
         <div className="ts-orb-shell">
-          <h2>Evidence when it exists. Honesty when it doesn’t.</h2>
-          <div className="mx-auto max-w-2xl space-y-4 text-center text-[#DCE3FF]">
+          <h2>Make your next property decision with evidence.</h2>
+          <div className="mx-auto max-w-2xl text-center text-[#DCE3FF]">
             <p>
-              Owners privately share what they paid. FlatData is designed to
-              pool those contributions anonymously with registered transactions.
-              Everyone gets a price they can check.
+              Whether you own a flat, are buying one, or are checking a
+              developer or project, FlatData helps you see what the market and
+              the public record actually say.
             </p>
-            <p>
-              Registered transactions and private owner contributions now use
-              secure production storage. Owner prices appear publicly only as
-              anonymous ranges after admin approval and the privacy threshold is
-              met.
-            </p>
+          </div>
+          <div className="ts-orb-final-actions">
+            <Link href="/owner" className="ts-orb-final-primary">
+              FIND MY FLAT&apos;S WORTH
+            </Link>
+            <Link href="/explore" className="ts-orb-final-secondary">
+              EXPLORE PROPERTY DATA
+            </Link>
           </div>
         </div>
       </section>

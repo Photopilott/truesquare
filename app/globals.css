@@ -838,6 +838,38 @@ body {
   text-align: center;
 }
 
+.ts-orb-final-actions {
+  margin-top: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ts-orb-final-primary,
+.ts-orb-final-secondary {
+  min-height: 48px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #fff;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ts-orb-final-primary {
+  background: #fff;
+  color: var(--orb-ink);
+}
+
+.ts-orb-final-secondary {
+  background: transparent;
+  color: #fff;
+}
+
 .ts-orb [data-slot='card'] {
   border: 1px solid var(--orb-line);
   border-radius: 12px;
@@ -1019,6 +1051,15 @@ body {
     display: grid;
   }
   .ts-orb-hero-actions .ts-orb-button {
+    width: 100%;
+  }
+  .ts-orb-final-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+  .ts-orb-final-primary,
+  .ts-orb-final-secondary {
     width: 100%;
   }
   .ts-orb-trust-top,
