@@ -186,8 +186,22 @@ export function googleOAuthCookieOptions() {
 
 export function googleConfigured() {
   return Boolean(
-    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_CLIENT_ID &&
+      process.env.GOOGLE_CLIENT_SECRET &&
+      process.env.GOOGLE_REDIRECT_URI,
   );
+}
+
+export function googleRedirectUri() {
+  const value = process.env.GOOGLE_REDIRECT_URI;
+  if (!value) {
+    throw new Error('GOOGLE_REDIRECT_URI is not configured.');
+  }
+  const uri = new URL(value);
+  if (uri.protocol !== 'https:' || uri.pathname !== '/api/auth/google/callback') {
+    throw new Error('GOOGLE_REDIRECT_URI must be an HTTPS Google callback URL.');
+  }
+  return uri.toString();
 }
 
 type GoogleOAuthState = {

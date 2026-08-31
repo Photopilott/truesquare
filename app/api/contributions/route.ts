@@ -272,9 +272,9 @@ export async function POST(request: Request) {
       }>;
       const ownerAggregateRows = await sql`
         SELECT
-          society: society!,
-          location: location!,
-          bhk: bhk!,
+          society,
+          location,
+          bhk,
           approved_count,
           min_price_per_sq_ft,
           median_price_per_sq_ft,

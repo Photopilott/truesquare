@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import {
   GOOGLE_OAUTH_COOKIE,
   googleConfigured,
+  googleRedirectUri,
   googleOAuthCookieOptions,
   pkceChallenge,
   randomToken,
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
   const state = randomToken(24);
   const verifier = randomToken(48);
   const nonce = randomToken(24);
-  const redirectUri = `${requestUrl.origin}/api/auth/google/callback`;
+  const redirectUri = googleRedirectUri();
   const authorization = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   authorization.searchParams.set('client_id', process.env.GOOGLE_CLIENT_ID!);
   authorization.searchParams.set('redirect_uri', redirectUri);
