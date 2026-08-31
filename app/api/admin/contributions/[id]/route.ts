@@ -6,6 +6,7 @@ import {
   isSameOriginRequest,
 } from '@/lib/admin-auth';
 import { MINIMUM_PUBLIC_CONTRIBUTIONS } from '@/lib/owner-aggregates';
+import { sendContributionReviewEmail } from '@/lib/user-email';
 
 export const runtime = 'nodejs';
 
@@ -49,18 +50,31 @@ export async function PATCH(
   try {
     const sql = getSql();
     const targets = await sql`
-      SELECT op.society, op.location, op.bhk
+      SELECT pc.status, c.email, op.society, op.location, op.bhk
       FROM purchase_contributions pc
       JOIN owner_properties op ON op.id = pc.property_id
+      JOIN contributors c ON c.id = op.contributor_id
       WHERE pc.id = ${id}
       LIMIT 1
-    ` as Array<{ society: string; location: string; bhk: string }>;
+    ` as Array<{
+      status: 'pending' | 'approved' | 'rejected';
+      email: string;
+      society: string;
+      location: string;
+      bhk: string;
+    }>;
     const target = targets[0];
     if (!target) {
       return NextResponse.json({ error: 'Contribution not found.' }, { status: 404 });
     }
+    if (target.status !== 'pending') {
+      return NextResponse.json(
+        { error: 'This contribution has already been reviewed.' },
+        { status: 409 },
+      );
+    }
 
-    await sql.transaction([
+    const results = await sql.transaction([
       sql`
         UPDATE purchase_contributions
         SET
@@ -112,9 +126,61 @@ export async function PATCH(
           max_price_per_sq_ft = EXCLUDED.max_price_per_sq_ft,
           updated_at = EXCLUDED.updated_at
       `,
+      sql`
+        INSERT INTO notification_deliveries (
+          contribution_id,
+          recipient_email,
+          event_type,
+          status,
+          attempt_count
+        ) VALUES (
+          ${id},
+          ${target.email},
+          ${status === 'approved'
+            ? 'contribution_approved'
+            : 'contribution_rejected'},
+          'pending',
+          0
+        )
+        RETURNING id
+      `,
     ]);
 
-    return NextResponse.json({ id, status, aggregateRecalculated: true });
+    const delivery = results[3]?.[0] as { id: string } | undefined;
+    if (!delivery) throw new Error('Notification record was not created.');
+
+    let notificationStatus: 'sent' | 'failed' = 'sent';
+    try {
+      await sendContributionReviewEmail({
+        email: target.email,
+        society: target.society,
+        status,
+      });
+      await sql`
+        UPDATE notification_deliveries
+        SET status = 'sent', attempt_count = attempt_count + 1, sent_at = NOW(), last_error = NULL
+        WHERE id = ${delivery.id}
+      `;
+    } catch (notificationError) {
+      notificationStatus = 'failed';
+      const detail =
+        notificationError instanceof Error
+          ? notificationError.message.slice(0, 2_000)
+          : 'Unknown notification error.';
+      await sql`
+        UPDATE notification_deliveries
+        SET status = 'failed', attempt_count = attempt_count + 1, last_error = ${detail}
+        WHERE id = ${delivery.id}
+      `;
+      console.error('Owner review notification failed.', notificationError);
+    }
+
+    return NextResponse.json({
+      id,
+      status,
+      aggregateRecalculated: true,
+      notification: { id: delivery.id, status: notificationStatus },
+    });
   } catch (error) {
     console.error('Admin contribution review failed.', error);
     return NextResponse.json({ error: 'Unable to review contribution.' }, { status: 500 });

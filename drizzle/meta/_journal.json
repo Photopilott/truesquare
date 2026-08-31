@@ -36,6 +36,13 @@
       "when": 1788164799135,
       "tag": "0004_tough_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788247000000,
+      "tag": "0005_tender_notification_delivery",
+      "breakpoints": true
     }
   ]
 }

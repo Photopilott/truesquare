@@ -40,7 +40,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -51,7 +50,6 @@ import {
   NativeSelectOption,
 } from '@/components/ui/native-select';
 import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 import type { OwnerPriceAggregate } from '@/lib/owner-aggregates';
 import {
   calculateValuation,
@@ -316,12 +314,6 @@ export function PropertyIntelligenceApp({
   const [bhkFilter, setBhkFilter] = useState('All');
   const [budgetFilter, setBudgetFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [unknownOpen, setUnknownOpen] = useState(false);
-  const [unknownSent, setUnknownSent] = useState(false);
-  const [unknownName, setUnknownName] = useState('');
-  const [unknownLocation, setUnknownLocation] = useState(LOCATIONS[0]);
-  const [unknownDetails, setUnknownDetails] = useState('');
-  const [unknownError, setUnknownError] = useState('');
   const [visibleSocieties, setVisibleSocieties] = useState(18);
 
   useEffect(() => {
@@ -910,23 +902,9 @@ export function PropertyIntelligenceApp({
                     No supported society matches
                   </h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Create an on-screen request record. Email fulfilment is
-                    planned for V2 and is not promised within 48 hours in V1.
+                    Try a different location, BHK, or budget. Only societies
+                    with registered transaction evidence are shown.
                   </p>
-                  <Button
-                    className="mt-5"
-                    variant="outline"
-                    onClick={() => {
-                      setUnknownOpen(true);
-                      setUnknownSent(false);
-                      setUnknownName(searchQuery.trim());
-                      setUnknownLocation(LOCATIONS[0]);
-                      setUnknownDetails('');
-                      setUnknownError('');
-                    }}
-                  >
-                    Submit missing society
-                  </Button>
                 </div>
               )}
             </section>
@@ -1321,88 +1299,6 @@ export function PropertyIntelligenceApp({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={unknownOpen} onOpenChange={setUnknownOpen}>
-        <DialogContent className="sm:max-w-md sm:p-7">
-          <DialogHeader>
-            <DialogTitle>
-              {unknownSent
-                ? 'Request receipt created'
-                : 'Submit a missing society'}
-            </DialogTitle>
-            <DialogDescription>
-              {unknownSent
-                ? 'This V1 confirmation is on-screen only. No request was sent or permanently stored.'
-                : 'This demonstrates a future data-review request, not a formal appraisal. V1 does not send or store it yet.'}
-            </DialogDescription>
-          </DialogHeader>
-          {unknownSent ? (
-            <div className="rounded-xl bg-accent/35 p-5 text-center">
-              <CheckCircle2 className="mx-auto size-8 text-accent-foreground" />
-              <p className="mt-3 font-medium">
-                {unknownName} · {unknownLocation}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                On-screen confirmation only
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              <FormField label="Society name">
-                <Input
-                  value={unknownName}
-                  onChange={(event) => {
-                    setUnknownName(event.target.value);
-                    setUnknownError('');
-                  }}
-                  placeholder="Enter society name"
-                />
-                {unknownError && (
-                  <p role="alert" className="mt-1 text-xs text-destructive">
-                    {unknownError}
-                  </p>
-                )}
-              </FormField>
-              <FormField label="Location">
-                <NativeSelect
-                  className="w-full"
-                  value={unknownLocation}
-                  onChange={(event) => setUnknownLocation(event.target.value)}
-                >
-                  {LOCATIONS.map((location) => (
-                    <NativeSelectOption key={location} value={location}>
-                      {location}
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
-              </FormField>
-              <FormField label="Available details" optional>
-                <Textarea
-                  value={unknownDetails}
-                  onChange={(event) => setUnknownDetails(event.target.value)}
-                  placeholder="Tower, BHK, area, or anything else you know"
-                />
-              </FormField>
-            </div>
-          )}
-          <DialogFooter>
-            {unknownSent ? (
-              <Button onClick={() => setUnknownOpen(false)}>Done</Button>
-            ) : (
-              <Button
-                onClick={() => {
-                  if (!unknownName.trim()) {
-                    setUnknownError('Enter a society name.');
-                    return;
-                  }
-                  setUnknownSent(true);
-                }}
-              >
-                Show request confirmation
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </main>
   );
 }
@@ -1412,14 +1308,6 @@ function BuyerEditorialSections() {
     'Registered median price and price per square foot',
     'A confidence level based on supporting transaction count',
     'Recent registered transactions with dates, configurations, and hidden unit numbers',
-  ];
-  const pendingSources = [
-    'Price movement and historical appreciation',
-    'Anonymous ranges of what owners paid',
-    'Rental yield and a five-year scenario range',
-    'Amenities and nearby schools',
-    'Comparisons with nearby supported societies',
-    'Sourced developments in the micro-market',
   ];
 
   return (
@@ -1437,35 +1325,17 @@ function BuyerEditorialSections() {
             set.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div>
           <Card>
             <CardHeader>
-              <Badge className="w-fit rounded-[2px]">Live in V1</Badge>
-              <CardTitle className="mt-3">Available now</CardTitle>
+              <Badge className="w-fit rounded-[2px]">Available now</Badge>
+              <CardTitle className="mt-3">Registered evidence</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {liveNow.map((item) => (
                 <p key={item} className="flex gap-3 text-sm leading-6">
                   <CheckCircle2 className="mt-1 size-4 shrink-0 text-accent-foreground" />
                   <span>{item}</span>
-                </p>
-              ))}
-            </CardContent>
-          </Card>
-          <Card className="bg-secondary">
-            <CardHeader>
-              <Badge variant="outline" className="w-fit rounded-[2px]">
-                Source pending
-              </Badge>
-              <CardTitle className="mt-3">Not published yet</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {pendingSources.map((item) => (
-                <p
-                  key={item}
-                  className="text-sm leading-6 text-muted-foreground"
-                >
-                  {item}
                 </p>
               ))}
             </CardContent>
@@ -1482,14 +1352,6 @@ function BuyerEditorialSections() {
             Every estimate carries a confidence level. High means several recent
             comparable transactions. Low means evidence is thin, so we show that
             clearly and avoid false precision.
-          </p>
-          <p>
-            Five-year scenarios are not live in V1. When added, they will be
-            ranges built from a society&apos;s own history—not predictions.
-          </p>
-          <p>
-            Development signals require a source and publication date. If we
-            cannot source something, we do not publish it.
           </p>
           <p>
             We never label a society a buy, steal, deal, or investment. No
@@ -1531,10 +1393,6 @@ function BuyerEditorialSections() {
           Browse societies in Sarjapur Road, Bellandur, Marathahalli, and
           Haralur
         </a>
-        <p className="mt-4 text-xs text-muted-foreground">
-          Can&apos;t find one? Create an on-screen request record. Email
-          delivery is planned for V2.
-        </p>
       </section>
     </div>
   );
@@ -2148,24 +2006,6 @@ function SocietyDetail({
                 </div>
               ))}
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <EmptyEvidence
-              title="Rental yield"
-              text="Rent source not selected yet."
-            />
-            <EmptyEvidence
-              title="Five-year scenario"
-              text="Scenario assumptions not selected yet."
-            />
-            <EmptyEvidence
-              title="Amenities & schools"
-              text="External data provider pending."
-            />
-            <EmptyEvidence
-              title="Nearby comparison"
-              text="Will use only comparable supported societies."
-            />
-          </div>
         </div>
       ) : (
         <div className="rounded-xl border border-border bg-primary p-5 text-primary-foreground">
@@ -2175,7 +2015,7 @@ function SocietyDetail({
           </h3>
           <p className="mt-2 text-sm leading-6 text-primary-foreground/70">
             Explore freely, then sign in only when revealing transaction-level
-            intelligence. Production will use Google and request email only.
+            intelligence. Use Google or verify an email with a one-time code.
           </p>
           <Button
             className="mt-4 bg-white text-primary hover:bg-white/90"
@@ -2186,14 +2026,5 @@ function SocietyDetail({
         </div>
       )}
     </>
-  );
-}
-
-function EmptyEvidence({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="rounded-lg border border-dashed border-border p-3">
-      <p className="font-medium">{title}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{text}</p>
-    </div>
   );
 }

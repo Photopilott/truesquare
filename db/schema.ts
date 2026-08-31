@@ -409,6 +409,40 @@ export const valuationSnapshots = pgTable(
   ],
 );
 
+export const notificationDeliveryStatus = pgEnum('notification_delivery_status', [
+  'pending',
+  'sent',
+  'failed',
+]);
+
+export const notificationDeliveries = pgTable(
+  'notification_deliveries',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    contributionId: uuid('contribution_id')
+      .notNull()
+      .references(() => purchaseContributions.id, { onDelete: 'cascade' }),
+    recipientEmail: text('recipient_email').notNull(),
+    eventType: text('event_type').notNull(),
+    status: notificationDeliveryStatus('status').default('pending').notNull(),
+    attemptCount: integer('attempt_count').default(0).notNull(),
+    lastError: text('last_error'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('notification_deliveries_contribution_unique').on(
+      table.contributionId,
+    ),
+    index('notification_deliveries_status_created_idx').on(
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const adminOtpChallenges = pgTable(
   'admin_otp_challenges',
   {

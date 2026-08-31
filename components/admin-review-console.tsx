@@ -67,6 +67,26 @@ type Contribution = {
   price_per_sq_ft: number | string;
 };
 
+type NotificationDelivery = {
+  id: string;
+  event_type: 'contribution_approved' | 'contribution_rejected';
+  recipient_email: string;
+  status: 'pending' | 'sent' | 'failed';
+  attempt_count: number;
+  last_error: string | null;
+  created_at: string;
+  sent_at: string | null;
+  society: string;
+  bhk: string;
+};
+
+type OperationsSummary = {
+  pending_contributions: number;
+  staged_imports: number;
+  import_rows_needing_review: number;
+  failed_notifications: number;
+};
+
 function formatInr(value: number | string | null, compact = false) {
   if (value == null || Number.isNaN(Number(value))) return '—';
   return new Intl.NumberFormat('en-IN', {
@@ -412,6 +432,195 @@ function ReviewCard({
   );
 }
 
+function OperationsPanel() {
+  const [summary, setSummary] = useState<OperationsSummary | null>(null);
+  const [deliveries, setDeliveries] = useState<NotificationDelivery[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  const loadOperations = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/admin/operations', {
+        cache: 'no-store',
+      });
+      if (response.status === 401) {
+        window.location.reload();
+        return;
+      }
+      const payload = (await response.json()) as {
+        summary?: OperationsSummary;
+        deliveries?: NotificationDelivery[];
+        error?: string;
+      };
+      if (!response.ok || !payload.summary) {
+        throw new Error(payload.error || 'Unable to load operations.');
+      }
+      setSummary(payload.summary);
+      setDeliveries(payload.deliveries ?? []);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Unable to load operations.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => void loadOperations());
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadOperations]);
+
+  async function retryDelivery(id: string) {
+    setRetryingId(id);
+    setError('');
+    setMessage('');
+    try {
+      const response = await fetch(`/api/admin/notifications/${id}/retry`, {
+        method: 'POST',
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to retry the email.');
+      }
+      setMessage('Email sent.');
+      await loadOperations();
+    } catch (retryError) {
+      setError(
+        retryError instanceof Error
+          ? retryError.message
+          : 'Unable to retry the email.',
+      );
+    } finally {
+      setRetryingId(null);
+    }
+  }
+
+  const summaryCards = [
+    ['Owner reviews waiting', summary?.pending_contributions ?? 0],
+    ['Staged workbooks', summary?.staged_imports ?? 0],
+    ['Import rows to check', summary?.import_rows_needing_review ?? 0],
+    ['Emails to retry', summary?.failed_notifications ?? 0],
+  ];
+
+  return (
+    <section className="mb-10 rounded-[14px] border border-border bg-secondary/45 p-5 sm:p-7">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="ts-orb-eyebrow">OPERATIONS</p>
+          <h2 className="mt-2 font-heading text-3xl font-normal">
+            What needs attention
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Reviews, transaction-import checks, and owner email delivery are
+            tracked here. A failed email never reverses a completed review.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void loadOperations()}
+          disabled={loading}
+        >
+          <RefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
+        </Button>
+      </div>
+
+      {error && (
+        <Alert variant="destructive" className="mt-5">
+          <X />
+          <AlertTitle>Operations could not load</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      {message && (
+        <Alert className="mt-5 border-[#A9DCB8] bg-accent">
+          <CheckCircle2 />
+          <AlertTitle>Saved</AlertTitle>
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {summaryCards.map(([label, count]) => (
+          <div key={String(label)} className="rounded-[10px] border border-border bg-card p-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+              {label}
+            </p>
+            <strong className="mt-2 block font-heading text-4xl font-normal">
+              {loading ? '—' : count}
+            </strong>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-7">
+        <h3 className="font-medium">Owner email delivery</h3>
+        {loading ? (
+          <div className="grid min-h-28 place-items-center">
+            <LoaderCircle className="size-5 animate-spin" />
+          </div>
+        ) : deliveries.length ? (
+          <div className="mt-3 space-y-2">
+            {deliveries.slice(0, 8).map((delivery) => (
+              <div
+                key={delivery.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-[9px] border border-border bg-card p-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">
+                    {delivery.event_type === 'contribution_approved'
+                      ? 'Approval'
+                      : 'Not approved'}{' '}
+                    · {delivery.society} · {delivery.bhk} BHK
+                  </p>
+                  <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {delivery.recipient_email} ·{' '}
+                    {delivery.status === 'sent'
+                      ? `Sent ${formatDate(delivery.sent_at)}`
+                      : delivery.last_error || 'Waiting to send'}
+                  </p>
+                </div>
+                {delivery.status === 'failed' ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={retryingId === delivery.id}
+                    onClick={() => void retryDelivery(delivery.id)}
+                  >
+                    {retryingId === delivery.id ? (
+                      <LoaderCircle className="animate-spin" />
+                    ) : (
+                      <Mail />
+                    )}
+                    Retry email
+                  </Button>
+                ) : (
+                  <Badge
+                    variant={delivery.status === 'sent' ? 'secondary' : 'outline'}
+                  >
+                    {delivery.status}
+                  </Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">
+            No owner review emails have been created yet.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function Dashboard({
   adminEmail,
   sessionExpiresAt,
@@ -495,11 +704,14 @@ function Dashboard({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: nextStatus, notes: notes[id] || '' }),
       });
-      const result = (await response.json()) as { error?: string };
+      const result = (await response.json()) as {
+        error?: string;
+        notification?: { status: 'sent' | 'failed' };
+      };
       if (!response.ok)
         throw new Error(result.error || 'The review could not be saved.');
       setMessage(
-        `Contribution ${nextStatus}. Public aggregates were recalculated.`,
+        `Contribution ${nextStatus}. Public aggregates were recalculated. Owner email ${result.notification?.status === 'failed' ? 'failed and is listed above for retry.' : 'sent.'}`,
       );
       await loadData(status);
     } catch (reviewError) {
@@ -540,6 +752,7 @@ function Dashboard({
         </div>
       </header>
       <section className="ts-orb-shell ts-orb-section">
+        <OperationsPanel />
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="ts-orb-eyebrow">PRIVATE REVIEW CONSOLE</p>
