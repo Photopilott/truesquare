@@ -1,5 +1,5 @@
-import { MarketRegister } from '@/components/ledger/market-register';
+import { HomeNavigation } from '@/components/home-navigation';
 
 export default function Home() {
-  return <MarketRegister />;
+  return <HomeNavigation />;
 }

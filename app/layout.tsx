@@ -1,45 +1,50 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { DM_Sans, Newsreader, Silkscreen } from 'next/font/google';
 import './globals.css';
 
-const geist = Geist({
-  variable: '--font-geist',
+const dmSans = DM_Sans({ variable: '--font-dm-sans', subsets: ['latin'] });
+const newsreader = Newsreader({
+  variable: '--font-newsreader',
   subsets: ['latin'],
-  display: 'swap',
+  weight: 'variable',
+  axes: ['opsz'],
 });
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const silkscreen = Silkscreen({
+  variable: '--font-silkscreen',
   subsets: ['latin'],
-  display: 'swap',
+  weight: ['400', '700'],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bengaluru-flat-atlas.luthratushar999.chatgpt.site'),
-  title: 'Ledger · Bengaluru Urban public record',
-  description: 'Declared residential inventory, project timelines, builder history and record gaps from Karnataka RERA public filings.',
+  metadataBase: new URL(
+    process.env.SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : 'http://localhost:3000'),
+  ),
+  title: 'FlatData — Bengaluru Property Intelligence',
+  description:
+    'Independent pricing intelligence for gated Bengaluru societies, built from registered transaction evidence without brokers, developer ads, or paid rankings.',
   openGraph: {
-    title: 'Ledger · Bengaluru Urban public record',
-    description: 'Declared residential inventory, project timelines, builder history and record gaps from Karnataka RERA public filings.',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Ledger · Indian real estate public record' }],
+    title: 'FlatData',
+    description: 'Bengaluru property intelligence',
+    images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ledger · Bengaluru Urban public record',
-    description: 'Declared residential inventory, project timelines and builder history from Karnataka RERA.',
+    title: 'FlatData',
+    description: 'Bengaluru property intelligence',
     images: ['/og.png'],
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body
-        className={`${geist.variable} ${geistMono.variable}`}
+        className={`${dmSans.variable} ${newsreader.variable} ${silkscreen.variable} antialiased`}
       >
         {children}
       </body>

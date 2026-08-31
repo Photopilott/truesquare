@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlatData Developer Ratings — Mockup</title>
+  <meta name="description" content="An isolated mockup for a data-led real-estate developer rating and review module." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f7f4ed;
+      --paper-2: #efebe2;
+      --ink: #15110d;
+      --muted: #6d675f;
+      --line: #d9d3ca;
+      --white: #fffdfa;
+      --mint: #8be6a9;
+      --mint-soft: #ddf8e5;
+      --blue: #2f50d2;
+      --blue-soft: #e2e8ff;
+      --orange: #f59b62;
+      --shadow: 0 18px 50px rgba(34, 27, 19, .1);
+      --serif: "Newsreader", Georgia, serif;
+      --sans: "DM Sans", Arial, sans-serif;
+      --pixel: "Silkscreen", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+    .announcement {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px 18px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 13px;
+      text-align: center;
+    }
+    .announcement strong {
+      color: var(--ink);
+      background: var(--mint);
+      padding: 5px 8px;
+      font-family: var(--pixel);
+      font-size: 9px;
+      font-weight: 400;
+    }
+
+    .shell { width: min(1160px, calc(100% - 32px)); margin: 0 auto; }
+    .nav {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      min-height: 74px;
+      margin-top: 24px;
+      padding: 12px 14px 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      background: rgba(255, 253, 250, .94);
+      border: 1px solid rgba(21, 17, 13, .08);
+      border-radius: 14px;
+      box-shadow: 0 10px 26px rgba(38, 29, 18, .1);
+      backdrop-filter: blur(16px);
+    }
+    .brand { display: inline-flex; align-items: baseline; font-size: 31px; font-weight: 500; line-height: 1; text-decoration: none; }
+    .brand-flat { font-family: var(--serif); letter-spacing: -.04em; }
+    .brand-data { margin-left: .08em; font-family: var(--pixel); font-size: .7em; font-weight: 400; letter-spacing: -.06em; line-height: 1; }
+    .nav-links { display: flex; align-items: center; gap: 26px; font-size: 14px; }
+    .nav-links a { text-decoration: none; }
+    .nav-actions { display: flex; gap: 10px; }
+
+    .button {
+      min-height: 46px;
+      border: 1.5px solid var(--ink);
+      border-radius: 9px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(21,17,13,.12); }
+    .button.dark { background: var(--ink); color: #fff; }
+    .button.mint { background: var(--mint); }
+    .button.small { min-height: 40px; padding: 0 14px; font-size: 13px; }
+
+    .hero {
+      min-height: 720px;
+      padding: 126px 0 92px;
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .eyebrow {
+      margin: 0 0 22px;
+      font-family: var(--pixel);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 720px;
+      margin-bottom: 26px;
+      font-family: var(--serif);
+      font-size: clamp(56px, 6.4vw, 88px);
+      font-weight: 400;
+      line-height: .94;
+      letter-spacing: -.035em;
+    }
+    .pixel { font-family: var(--pixel); font-size: .75em; line-height: 1.1; letter-spacing: -.06em; }
+    .hero-copy { max-width: 610px; color: #3f3932; font-size: 18px; line-height: 1.65; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .hero-note { margin-top: 18px; color: var(--muted); font-size: 12px; }
+
+    .trust-card {
+      position: relative;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .trust-card::before {
+      content: "ILLUSTRATIVE DATA";
+      position: absolute;
+      top: 18px;
+      right: -45px;
+      z-index: 2;
+      width: 180px;
+      padding: 7px 0;
+      transform: rotate(36deg);
+      background: var(--blue);
+      color: white;
+      font-family: var(--pixel);
+      font-size: 8px;
+      text-align: center;
+    }
+    .trust-top { padding: 30px; border-bottom: 1px solid var(--line); }
+    .profile-kicker { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .profile-name { margin: 5px 0 20px; font-family: var(--serif); font-size: 35px; font-weight: 500; line-height: 1; }
+    .score-row { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+    .score { font-family: var(--serif); font-size: 78px; line-height: .8; letter-spacing: -.06em; }
+    .score small { font-family: var(--sans); font-size: 16px; color: var(--muted); letter-spacing: 0; }
+    .recommend { text-align: right; font-size: 13px; color: var(--muted); }
+    .recommend strong { display: block; color: var(--ink); font-family: var(--pixel); font-size: 17px; font-weight: 400; }
+    .trust-bars { padding: 22px 30px 30px; display: grid; gap: 15px; }
+    .bar-line { display: grid; grid-template-columns: 1fr 108px 28px; gap: 10px; align-items: center; font-size: 12px; }
+    .bar { height: 8px; background: var(--paper-2); overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--blue); }
+    .evidence-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); background: var(--paper-2); }
+    .evidence-strip div { padding: 18px; text-align: center; border-right: 1px solid var(--line); }
+    .evidence-strip div:last-child { border-right: 0; }
+    .evidence-strip strong { display: block; font-family: var(--serif); font-size: 25px; }
+    .evidence-strip span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+
+    .section { padding: 96px 0; border-top: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: .9fr 1.1fr; gap: 50px; align-items: end; margin-bottom: 44px; }
+    .section h2 { margin-bottom: 0; font-family: var(--serif); font-size: clamp(44px, 5vw, 68px); font-weight: 400; line-height: .98; letter-spacing: -.025em; }
+    .section-intro { max-width: 570px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
+
+    .finder { background: var(--ink); color: #fff; padding: 24px; border-radius: 15px; }
+    .finder-controls { display: grid; grid-template-columns: 1fr 190px 190px; gap: 10px; }
+    .field { min-height: 52px; width: 100%; border: 1px solid #5c5751; border-radius: 8px; background: #24201c; color: #fff; padding: 0 16px; }
+    .field::placeholder { color: #aaa49d; }
+    select.field { appearance: none; background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%); background-position: calc(100% - 17px) 22px, calc(100% - 11px) 22px; background-size: 6px 6px; background-repeat: no-repeat; }
+
+    .developer-grid { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .developer-card {
+      min-height: 270px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .developer-card:hover, .developer-card.active { transform: translateY(-4px); border-color: var(--ink); }
+    .card-top { display: flex; justify-content: space-between; gap: 16px; }
+    .developer-card h3 { margin: 6px 0 4px; font-family: var(--serif); font-size: 28px; font-weight: 500; line-height: 1.05; }
+    .developer-card .area { color: var(--muted); font-size: 12px; }
+    .mini-score { font-family: var(--pixel); font-size: 20px; }
+    .mini-score small { font-family: var(--sans); font-size: 10px; color: var(--muted); }
+    .card-bars { margin: 24px 0; display: grid; gap: 10px; }
+    .card-bar { display: grid; grid-template-columns: 1fr 70px; gap: 10px; font-size: 11px; align-items: center; }
+    .card-bar i { display: block; height: 5px; background: var(--paper-2); }
+    .card-bar i span { display: block; height: 100%; background: var(--blue); }
+    .card-foot { margin-top: auto; display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+    .card-foot strong { color: var(--ink); }
+    .empty { display: none; padding: 40px 20px; text-align: center; color: #bbb; }
+
+    .profile-layout { display: grid; grid-template-columns: .77fr 1.23fr; gap: 22px; }
+    .profile-summary, .review-panel { background: var(--white); border: 1px solid var(--line); border-radius: 14px; }
+    .profile-summary { padding: 30px; align-self: start; position: sticky; top: 110px; }
+    .profile-summary h3 { margin: 6px 0 5px; font-family: var(--serif); font-size: 39px; font-weight: 500; }
+    .score-block { margin: 28px 0; padding: 24px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .score-block .score { font-size: 70px; }
+    .rating-list { display: grid; gap: 16px; }
+    .rating-item { display: grid; grid-template-columns: 1fr 100px 30px; gap: 10px; align-items: center; font-size: 12px; }
+    .rating-item .bar span { background: var(--blue); }
+    .profile-action { width: 100%; margin-top: 26px; }
+
+    .review-panel { overflow: hidden; }
+    .review-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); }
+    .review-tabs button { flex: 0 0 auto; min-height: 54px; padding: 0 20px; border: 0; border-right: 1px solid var(--line); background: transparent; cursor: pointer; color: var(--muted); }
+    .review-tabs button.active { background: var(--mint-soft); color: var(--ink); font-weight: 700; }
+    .review-list { padding: 6px 28px; }
+    .review { padding: 28px 0; border-bottom: 1px solid var(--line); }
+    .review:last-child { border-bottom: 0; }
+    .review-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 11px; }
+    .review h4 { margin: 14px 0 7px; font-family: var(--serif); font-size: 25px; font-weight: 500; line-height: 1.15; }
+    .review p { margin-bottom: 14px; color: #514a42; font-size: 14px; line-height: 1.65; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag { padding: 6px 9px; border: 1px solid var(--line); font-size: 10px; background: var(--paper); }
+    .verified { color: #126d38; font-weight: 700; }
+
+    .principles { background: var(--mint-soft); }
+    .principle-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #a9dcb8; }
+    .principle { min-height: 275px; padding: 28px; border-right: 1px solid #a9dcb8; }
+    .principle:last-child { border-right: 0; }
+    .principle-number { font-family: var(--pixel); font-size: 11px; }
+    .principle h3 { margin: 54px 0 12px; font-family: var(--serif); font-size: 31px; font-weight: 500; }
+    .principle p { color: #4f6154; font-size: 14px; }
+
+    .cta { padding: 100px 0; text-align: center; background: var(--blue); color: #fff; }
+    .cta h2 { max-width: 800px; margin: 0 auto 22px; font-family: var(--serif); font-size: clamp(48px, 6vw, 78px); font-weight: 400; line-height: .98; }
+    .cta p { max-width: 600px; margin: 0 auto 30px; color: #dce3ff; }
+    .cta .button { background: #fff; }
+    footer { padding: 30px 0 50px; color: var(--muted); font-size: 12px; }
+    footer .shell { display: flex; justify-content: space-between; gap: 20px; }
+
+    dialog {
+      width: min(680px, calc(100% - 24px));
+      max-height: calc(100vh - 30px);
+      padding: 0;
+      border: 1px solid var(--ink);
+      border-radius: 14px;
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 30px 100px rgba(0,0,0,.28);
+    }
+    dialog::backdrop { background: rgba(21,17,13,.64); backdrop-filter: blur(3px); }
+    .modal-head { padding: 25px 28px; display: flex; align-items: start; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 2px 0 0; font-family: var(--serif); font-size: 31px; font-weight: 500; }
+    .icon-button { width: 40px; height: 40px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 20px; }
+    .modal-body { padding: 25px 28px 30px; overflow-y: auto; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    label { display: grid; gap: 7px; font-size: 12px; font-weight: 700; }
+    .form-control { min-height: 47px; width: 100%; padding: 10px 12px; border: 1px solid var(--line); background: #fff; border-radius: 6px; }
+    textarea.form-control { min-height: 110px; resize: vertical; }
+    .full { grid-column: 1 / -1; }
+    .stars { display: flex; gap: 4px; }
+    .stars button { border: 0; background: transparent; padding: 2px; color: #b8b1a8; font-size: 27px; cursor: pointer; }
+    .stars button.selected { color: var(--orange); }
+    .privacy-note { margin: 18px 0; padding: 13px; background: var(--paper-2); color: var(--muted); font-size: 11px; }
+    .success { display: none; padding: 45px 20px; text-align: center; }
+    .success .pixel { color: var(--blue); font-size: 20px; }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 90px; }
+      .trust-card { max-width: 650px; }
+      .section-head, .profile-layout { grid-template-columns: 1fr; }
+      .developer-grid { grid-template-columns: 1fr 1fr; }
+      .profile-summary { position: static; }
+      .principle-grid { grid-template-columns: 1fr; }
+      .principle { min-height: auto; border-right: 0; border-bottom: 1px solid #a9dcb8; }
+      .principle:last-child { border-bottom: 0; }
+    }
+
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 20px, 1160px); }
+      .announcement { justify-content: flex-start; text-align: left; }
+      .nav { top: 6px; margin-top: 10px; min-height: 62px; padding: 9px 10px 9px 15px; }
+      .brand { font-size: 25px; }
+      .nav-actions .button:first-child { display: none; }
+      .nav-actions .button { min-height: 40px; padding: 0 12px; font-size: 12px; }
+      .hero { padding: 76px 0 70px; gap: 44px; }
+      h1 { font-size: clamp(51px, 16vw, 68px); }
+      .pixel { font-size: .65em; }
+      .hero-copy { font-size: 16px; }
+      .hero-actions { display: grid; }
+      .hero-actions .button { width: 100%; }
+      .trust-top, .trust-bars { padding-left: 20px; padding-right: 20px; }
+      .score { font-size: 62px; }
+      .evidence-strip span { font-size: 8px; }
+      .section { padding: 72px 0; }
+      .section-head { gap: 22px; }
+      .section h2 { font-size: 48px; }
+      .finder { padding: 14px; }
+      .finder-controls, .developer-grid { grid-template-columns: 1fr; }
+      .developer-card { min-height: 245px; }
+      .profile-summary, .review-list { padding-left: 18px; padding-right: 18px; }
+      .rating-item { grid-template-columns: 1fr 72px 25px; }
+      .review-tabs button { padding: 0 13px; font-size: 12px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+      footer .shell { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="announcement"><strong>NEW MODULE</strong><span>Developer experience, built from owner and buyer feedback loops.</span></div>
+
+  <header class="shell nav" aria-label="Primary navigation">
+    <a class="brand" href="#top" aria-label="FlatData home"><span class="brand-flat" aria-hidden="true">Flat</span><span class="brand-data" aria-hidden="true">Data</span></a>
+    <nav class="nav-links" aria-label="Mockup sections">
+      <a href="#developers">Developers</a>
+      <a href="#profile">Rating profile</a>
+      <a href="#method">Method</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="button small" href="#developers">Browse</a>
+      <button class="button dark small" type="button" data-open-review>Write a review</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="shell hero">
+      <div>
+        <p class="eyebrow">Builder quality &amp; reputation</p>
+        <h1>Don’t just buy a home. <span class="pixel">Know the builder.</span></h1>
+        <p class="hero-copy">A Glassdoor-like record of the buying and ownership experience—possession timelines, flat quality, price parity, fittings, delivery against promises, and after-sales support.</p>
+        <div class="hero-actions">
+          <a class="button dark" href="#developers">Explore developer ratings <span aria-hidden="true">→</span></a>
+          <button class="button" type="button" data-open-review>Share your experience</button>
+        </div>
+        <p class="hero-note">Mockup only · All developer names and review data below are illustrative.</p>
+      </div>
+
+      <aside class="trust-card" aria-label="Illustrative developer trust profile">
+        <div class="trust-top">
+          <p class="profile-kicker">Developer trust profile</p>
+          <h2 class="profile-name">Aster Communities</h2>
+          <div class="score-row">
+            <div class="score">3.8 <small>/ 5</small></div>
+            <div class="recommend"><strong>72%</strong>would recommend</div>
+          </div>
+        </div>
+        <div class="trust-bars">
+          <div class="bar-line"><span>Flat quality</span><div class="bar"><span style="width:82%"></span></div><strong>4.1</strong></div>
+          <div class="bar-line"><span>Price parity</span><div class="bar"><span style="width:74%"></span></div><strong>3.7</strong></div>
+          <div class="bar-line"><span>Possession timeline</span><div class="bar"><span style="width:68%"></span></div><strong>3.4</strong></div>
+          <div class="bar-line"><span>Delivered as promised</span><div class="bar"><span style="width:64%"></span></div><strong>3.2</strong></div>
+        </div>
+        <div class="evidence-strip">
+          <div><strong>148</strong><span>Reviews</span></div>
+          <div><strong>9</strong><span>Projects</span></div>
+          <div><strong>61%</strong><span>Verified</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="developers">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="eyebrow">Developer directory</p><h2>Start with the experience, not the brochure.</h2></div>
+          <p class="section-intro">Search and compare builders using structured owner feedback. Every rating shows its evidence count, project coverage, and verification mix so buyers can judge the signal—not just the score.</p>
+        </div>
+
+        <div class="finder">
+          <div class="finder-controls">
+            <input class="field" id="search" type="search" placeholder="Search developer or project" aria-label="Search developer or project" />
+            <select class="field" id="experience-filter" aria-label="Filter by experience">
+              <option value="all">All experiences</option>
+              <option value="delivery">Delivery strength</option>
+              <option value="quality">Build quality</option>
+              <option value="service">After-sales service</option>
+            </select>
+            <select class="field" id="sort" aria-label="Sort developers">
+              <option value="reviews">Most reviewed</option>
+              <option value="rating">Highest rated</option>
+              <option value="recommend">Most recommended</option>
+            </select>
+          </div>
+          <div class="developer-grid" id="developer-grid" aria-live="polite"></div>
+          <div class="empty" id="empty-state">No illustrative developer matches that search.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="profile">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="eyebrow">Developer rating</p><h2 id="profile-heading">Aster Communities, unpacked.</h2></div>
+          <p class="section-intro">The overall score is only the start. Buyers can see which parts of the experience are strong, where feedback diverges, and what verified residents say in their own words.</p>
+        </div>
+
+        <div class="profile-layout">
+          <aside class="profile-summary">
+            <p class="profile-kicker">Illustrative profile · Bengaluru</p>
+            <h3 id="detail-name">Aster Communities</h3>
+            <p class="area" id="detail-projects">9 projects represented</p>
+            <div class="score-block">
+              <div class="score" id="detail-score">3.8 <small>/ 5</small></div>
+              <p id="detail-evidence">148 reviews · 61% verified owners</p>
+            </div>
+            <div class="rating-list" id="rating-list"></div>
+            <button class="button dark profile-action" type="button" data-open-review>Review this developer</button>
+          </aside>
+
+          <div class="review-panel">
+            <div class="review-tabs" role="tablist" aria-label="Review themes">
+              <button class="active" type="button" data-theme="all" role="tab">All feedback</button>
+              <button type="button" data-theme="delivery" role="tab">Possession</button>
+              <button type="button" data-theme="quality" role="tab">Quality</button>
+              <button type="button" data-theme="price" role="tab">Price parity</button>
+              <button type="button" data-theme="service" role="tab">After-sales</button>
+            </div>
+            <div class="review-list" id="review-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section principles" id="method">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="eyebrow">Published rules</p><h2>Feedback loops need guardrails.</h2></div>
+          <p class="section-intro">The module is designed to make buyers and owners smarter without turning anonymous opinion into unquestioned truth.</p>
+        </div>
+        <div class="principle-grid">
+          <article class="principle"><span class="principle-number">01</span><h3>Evidence before averages</h3><p>Every score carries its review count, project spread, freshness, and verified-owner share. Thin evidence stays visibly thin.</p></article>
+          <article class="principle"><span class="principle-number">02</span><h3>Structured, not sensational</h3><p>Reviews focus on possession, quality, parity, fittings, promises, and service. Personal attacks and unverifiable claims do not belong.</p></article>
+          <article class="principle"><span class="principle-number">03</span><h3>Right to respond</h3><p>Developers may add a dated public response, but cannot pay to remove criticism, improve a score, or rank above another builder.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="shell">
+        <p class="eyebrow">The feedback layer</p>
+        <h2>Make the next homebuyer smarter than the last one.</h2>
+        <p>Owners contribute lived experience. Buyers see patterns. Developers receive a clearer signal about what must improve.</p>
+        <button class="button" type="button" data-open-review>Share an experience</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="shell"><span>FlatData Developer Ratings · UI mockup only</span><span>No data submitted here is stored or sent.</span></div></footer>
+
+  <dialog id="review-dialog" aria-labelledby="review-title">
+    <div id="review-form-view">
+      <div class="modal-head"><div><p class="eyebrow">Owner feedback</p><h3 id="review-title">Review a developer</h3></div><button class="icon-button" type="button" data-close aria-label="Close review form">×</button></div>
+      <form class="modal-body" id="review-form">
+        <div class="form-grid">
+          <label>Developer<select class="form-control" id="review-developer"><option>Aster Communities</option><option>Northfield Homes</option><option>Cedar &amp; Stone</option></select></label>
+          <label>Project<input class="form-control" required placeholder="Project or society name" /></label>
+          <label>Relationship<select class="form-control"><option>Current owner</option><option>Past owner</option><option>Buyer — purchase completed</option><option>Buyer — purchase cancelled</option></select></label>
+          <label>Possession year<input class="form-control" inputmode="numeric" placeholder="e.g. 2024" /></label>
+          <label class="full">Overall experience<div class="stars" aria-label="Overall rating"><button type="button" data-star="1" aria-label="1 star">★</button><button type="button" data-star="2" aria-label="2 stars">★</button><button type="button" data-star="3" aria-label="3 stars">★</button><button type="button" data-star="4" aria-label="4 stars">★</button><button type="button" data-star="5" aria-label="5 stars">★</button></div></label>
+          <label class="full">What should another buyer know?<textarea class="form-control" required placeholder="Focus on timelines, quality, price parity, fittings, promises, and after-sales experience."></textarea></label>
+        </div>
+        <div class="privacy-note">Mockup behaviour only. This form does not store or transmit anything. A real version should verify ownership privately and publish only anonymised feedback.</div>
+        <button class="button dark" type="submit">Preview submission</button>
+      </form>
+    </div>
+    <div class="success" id="review-success"><p class="pixel">Feedback ready</p><h3>Thanks for making the record sharper.</h3><p>This is a mockup confirmation. Nothing was saved or sent.</p><button class="button dark" type="button" data-close>Done</button></div>
+  </dialog>
+
+  <script>
+    const developers = [
+      {
+        id: 'aster', name: 'Aster Communities', city: 'Bengaluru', score: 3.8, reviews: 148, projects: 9, verified: 61, recommend: 72,
+        metrics: { 'Possession timeline': 3.4, 'Flat quality': 4.1, 'Purchase price parity': 3.7, 'Fittings quality': 3.9, 'Delivered as promised': 3.2, 'After-sales support': 3.1 },
+        strengths: ['quality', 'delivery'],
+        reviewsList: [
+          { theme:'quality', rating:4, title:'The structure and common areas have aged well', body:'Handover took longer than the original estimate, but the finishing quality in our tower has held up well. Snag resolution was responsive during the first six months.', meta:'Verified owner · 3 BHK · Possession 2023', tags:['Flat quality 4/5','Delay: 4–8 months','Resolved snags'] },
+          { theme:'delivery', rating:3, title:'Good home, but the possession updates were uneven', body:'The final apartment broadly matched what was shown, although milestone communication became less reliable near handover. Buyers should ask for tower-specific delivery history.', meta:'Verified owner · 2 BHK · Possession 2024', tags:['Timeline 3/5','Promise parity 3/5','Tower-specific'] },
+          { theme:'price', rating:4, title:'Final cost stayed close to the signed schedule', body:'There were a few maintenance and utility deposits near possession, but the purchase price itself stayed close to the agreement. The cost sheet was clearer than others we evaluated.', meta:'Buyer · 3 BHK · Registered 2022', tags:['Price parity 4/5','Clear cost sheet'] }
+        ]
+      },
+      {
+        id: 'northfield', name: 'Northfield Homes', city: 'Bengaluru', score: 4.2, reviews: 86, projects: 5, verified: 68, recommend: 81,
+        metrics: { 'Possession timeline': 4.3, 'Flat quality': 4.2, 'Purchase price parity': 4.0, 'Fittings quality': 3.8, 'Delivered as promised': 4.4, 'After-sales support': 3.6 },
+        strengths: ['delivery', 'quality'],
+        reviewsList: [
+          { theme:'delivery', rating:5, title:'The handover date was realistic and well communicated', body:'Construction updates matched visible progress, and our tower was handed over within the stated quarter. Documentation at registration was organised.', meta:'Verified owner · 2 BHK · Possession 2024', tags:['On-time band','Communication 5/5'] },
+          { theme:'service', rating:3, title:'Strong delivery, slower after-sales queue', body:'The possession process was efficient. Minor plumbing and door-alignment items took several follow-ups after moving in, though all were eventually closed.', meta:'Verified owner · 3 BHK · Possession 2023', tags:['After-sales 3/5','Issues closed'] }
+        ]
+      },
+      {
+        id: 'cedar', name: 'Cedar & Stone', city: 'Bengaluru', score: 3.5, reviews: 54, projects: 4, verified: 57, recommend: 64,
+        metrics: { 'Possession timeline': 3.1, 'Flat quality': 3.8, 'Purchase price parity': 3.5, 'Fittings quality': 3.7, 'Delivered as promised': 3.3, 'After-sales support': 3.4 },
+        strengths: ['service'],
+        reviewsList: [
+          { theme:'quality', rating:4, title:'Thoughtful layout and decent fittings', body:'The apartment layout uses space well and the standard fittings were better than expected. Common-area completion continued after residents started moving in.', meta:'Verified owner · 2 BHK · Possession 2023', tags:['Fittings 4/5','Common areas pending'] },
+          { theme:'delivery', rating:3, title:'Useful updates, but the date moved twice', body:'The team shared progress regularly, but the expected possession quarter shifted twice. The final handover quality was acceptable after a detailed snag list.', meta:'Owner · 3 BHK · Possession 2024', tags:['Delay: 8–12 months','Snag list'] }
+        ]
+      }
+    ];
+
+    const grid = document.querySelector('#developer-grid');
+    const search = document.querySelector('#search');
+    const filter = document.querySelector('#experience-filter');
+    const sort = document.querySelector('#sort');
+    const empty = document.querySelector('#empty-state');
+    let selected = developers[0];
+    let activeTheme = 'all';
+
+    const stars = value => '★'.repeat(Math.round(value)) + '☆'.repeat(5 - Math.round(value));
+
+    function renderCards() {
+      const query = search.value.trim().toLowerCase();
+      const category = filter.value;
+      const sortBy = sort.value;
+      const items = developers
+        .filter(item => (!query || `${item.name} ${item.city}`.toLowerCase().includes(query)) && (category === 'all' || item.strengths.includes(category)))
+        .sort((a,b) => sortBy === 'rating' ? b.score-a.score : sortBy === 'recommend' ? b.recommend-a.recommend : b.reviews-a.reviews);
+      grid.innerHTML = items.map(item => `
+        <button class="developer-card ${selected.id === item.id ? 'active' : ''}" type="button" data-id="${item.id}" aria-label="View ${item.name} rating profile">
+          <div class="card-top"><div><span class="area">${item.city} · ${item.projects} projects</span><h3>${item.name}</h3></div><div class="mini-score">${item.score}<small>/5</small></div></div>
+          <div class="card-bars">
+            <div class="card-bar"><span>Possession timeline</span><i><span style="width:${item.metrics['Possession timeline']*20}%"></span></i></div>
+            <div class="card-bar"><span>Flat quality</span><i><span style="width:${item.metrics['Flat quality']*20}%"></span></i></div>
+            <div class="card-bar"><span>Delivered as promised</span><i><span style="width:${item.metrics['Delivered as promised']*20}%"></span></i></div>
+          </div>
+          <div class="card-foot"><span><strong>${item.reviews}</strong> reviews</span><span><strong>${item.recommend}%</strong> recommend →</span></div>
+        </button>`).join('');
+      empty.style.display = items.length ? 'none' : 'block';
+      grid.style.display = items.length ? 'grid' : 'none';
+      grid.querySelectorAll('[data-id]').forEach(card => card.addEventListener('click', () => selectDeveloper(card.dataset.id, true)));
+    }
+
+    function selectDeveloper(id, scrollToProfile = false) {
+      selected = developers.find(item => item.id === id) || developers[0];
+      document.querySelector('#profile-heading').textContent = `${selected.name}, unpacked.`;
+      document.querySelector('#detail-name').textContent = selected.name;
+      document.querySelector('#detail-projects').textContent = `${selected.projects} illustrative projects represented`;
+      document.querySelector('#detail-score').innerHTML = `${selected.score} <small>/ 5</small>`;
+      document.querySelector('#detail-evidence').textContent = `${selected.reviews} reviews · ${selected.verified}% verified owners`;
+      document.querySelector('#review-developer').value = selected.name;
+      document.querySelector('#rating-list').innerHTML = Object.entries(selected.metrics).map(([label,value]) => `<div class="rating-item"><span>${label}</span><div class="bar"><span style="width:${value*20}%"></span></div><strong>${value}</strong></div>`).join('');
+      renderReviews();
+      renderCards();
+      if (scrollToProfile) document.querySelector('#profile').scrollIntoView({behavior:'smooth'});
+    }
+
+    function renderReviews() {
+      const reviews = selected.reviewsList.filter(review => activeTheme === 'all' || review.theme === activeTheme);
+      document.querySelector('#review-list').innerHTML = reviews.length ? reviews.map(review => `
+        <article class="review"><div class="review-meta"><span class="verified">✓ ${review.meta}</span><span>${stars(review.rating)} · ${review.rating}/5</span></div><h4>${review.title}</h4><p>${review.body}</p><div class="tag-row">${review.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></article>`).join('') : '<div class="review"><p>No illustrative review is tagged with this theme.</p></div>';
+    }
+
+    [search, filter, sort].forEach(control => control.addEventListener(control.tagName === 'INPUT' ? 'input' : 'change', renderCards));
+    document.querySelectorAll('[data-theme]').forEach(tab => tab.addEventListener('click', () => {
+      activeTheme = tab.dataset.theme;
+      document.querySelectorAll('[data-theme]').forEach(item => item.classList.toggle('active', item === tab));
+      renderReviews();
+    }));
+
+    const dialog = document.querySelector('#review-dialog');
+    document.querySelectorAll('[data-open-review]').forEach(button => button.addEventListener('click', () => {
+      document.querySelector('#review-form-view').style.display = 'block';
+      document.querySelector('#review-success').style.display = 'none';
+      dialog.showModal();
+    }));
+    document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => dialog.close()));
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    document.querySelectorAll('[data-star]').forEach(button => button.addEventListener('click', () => {
+      const rating = Number(button.dataset.star);
+      document.querySelectorAll('[data-star]').forEach(star => star.classList.toggle('selected', Number(star.dataset.star) <= rating));
+    }));
+    document.querySelector('#review-form').addEventListener('submit', event => {
+      event.preventDefault();
+      document.querySelector('#review-form-view').style.display = 'none';
+      document.querySelector('#review-success').style.display = 'block';
+    });
+
+    selectDeveloper('aster');
+  </script>
+</body>
+</html>
