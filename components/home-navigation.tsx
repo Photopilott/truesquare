@@ -161,21 +161,20 @@ export function HomeNavigation() {
         <div>
           <p className="ts-orb-eyebrow">BENGALURU · REGISTERED TRANSACTIONS</p>
           <h1 className="ts-orb-hero-title">
-            Before you believe a flat price, check it.
+            Make your next property decision with evidence.
           </h1>
           <p className="ts-orb-hero-copy">
-            Independent pricing intelligence for gated societies in Bengaluru.
-            Built from registered transactions today, with private owner-paid
-            contributions designed to sharpen the ranges as they come in. No
-            brokers, no developer ads, no paid rankings.
+            Whether you own a flat, are buying one, or are checking a developer
+            or project, FlatData helps you see what the market and the public
+            record actually say.
           </p>
           <div className="ts-orb-hero-actions">
             <Link href="/owner" className="ts-orb-button ts-orb-button-dark">
-              I OWN A PROPERTY · FIND WHAT IT&apos;S WORTH TODAY{' '}
+              FIND MY FLAT&apos;S WORTH{' '}
               <ArrowRight className="size-4 shrink-0" />
             </Link>
-            <Link href="/buyer" className="ts-orb-button">
-              I&apos;M BUYING · SEE WHAT SOCIETIES ACTUALLY SELL FOR
+            <Link href="/explore" className="ts-orb-button">
+              EXPLORE PROPERTY DATA
             </Link>
           </div>
           <p className="ts-orb-note">
@@ -281,21 +280,19 @@ export function HomeNavigation() {
 
       <section id="evidence" className="ts-orb-blue scroll-mt-24">
         <div className="ts-orb-shell">
-          <h2>Make your next property decision with evidence.</h2>
-          <div className="mx-auto max-w-2xl text-center text-[#DCE3FF]">
+          <h2>Evidence when it exists. Honesty when it doesn’t.</h2>
+          <div className="mx-auto max-w-2xl space-y-4 text-center text-[#DCE3FF]">
             <p>
-              Whether you own a flat, are buying one, or are checking a
-              developer or project, FlatData helps you see what the market and
-              the public record actually say.
+              Owners privately share what they paid. FlatData is designed to
+              pool those contributions anonymously with registered transactions.
+              Everyone gets a price they can check.
             </p>
-          </div>
-          <div className="ts-orb-final-actions">
-            <Link href="/owner" className="ts-orb-final-primary">
-              FIND MY FLAT&apos;S WORTH
-            </Link>
-            <Link href="/explore" className="ts-orb-final-secondary">
-              EXPLORE PROPERTY DATA
-            </Link>
+            <p>
+              Registered transactions and private owner contributions now use
+              secure production storage. Owner prices appear publicly only as
+              anonymous ranges after admin approval and the privacy threshold is
+              met.
+            </p>
           </div>
         </div>
       </section>
