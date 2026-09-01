@@ -17,7 +17,9 @@
     "db:seed": "node scripts/seed-registered-transactions.mjs",
     "test:transaction-import": "node --experimental-strip-types --test test/transaction-import.test.ts",
     "test:evidence-stack": "node --experimental-strip-types --test test/evidence-stack.test.ts",
-    "test:valuation": "node --experimental-strip-types --test test/valuation-engine.test.ts"
+    "test:valuation": "node --experimental-strip-types --test test/valuation-engine.test.ts",
+    "test:society-evidence": "node --experimental-strip-types --test test/society-evidence.test.ts",
+    "test:share-tracking": "node --experimental-strip-types --test test/share-tracking.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

@@ -141,7 +141,11 @@ export function AccessGate({
   }
 
   function continueWithGoogle() {
-    const returnTo = `${window.location.pathname}?resumeGate=${context}`;
+    const params = new URLSearchParams(window.location.search);
+    params.set('resumeGate', context);
+    params.delete('auth');
+    params.delete('authError');
+    const returnTo = `${window.location.pathname}?${params.toString()}`;
     window.location.assign(
       `/api/auth/google/start?returnTo=${encodeURIComponent(returnTo)}`,
     );
@@ -215,7 +219,9 @@ export function AccessGate({
           <DialogTitle>Sign in to unlock intelligence</DialogTitle>
           <DialogDescription>
             Use Google, or verify any email with a one-time code. We ask only
-            for a verified email—never your phone number.
+            for a verified email—never your phone number.{' '}
+            {context === 'owner' &&
+              'Your flat price and private valuation are never shared.'}
           </DialogDescription>
         </DialogHeader>
 

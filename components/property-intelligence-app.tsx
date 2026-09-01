@@ -27,6 +27,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AccessGate } from '@/components/access-gate';
 import { BrandWordmark } from '@/components/brand-wordmark';
+import { SocietyShare } from '@/components/society-share';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,6 +52,11 @@ import {
 } from '@/components/ui/native-select';
 import { Separator } from '@/components/ui/separator';
 import type { OwnerPriceAggregate } from '@/lib/owner-aggregates';
+import {
+  buildPublicSocietyEvidence,
+  type PublicSocietyEvidence,
+} from '@/lib/society-evidence';
+import { UUID_PATTERN } from '@/lib/share-tracking';
 import {
   calculateValuation,
   confidenceForCount,
@@ -117,10 +123,7 @@ function parsePurchaseMonth(value: string) {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const date = new Date(Date.UTC(year, month - 1, 1));
-  if (
-    date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1
-  )
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1)
     return null;
   return date;
 }
@@ -314,8 +317,16 @@ export function PropertyIntelligenceApp({
   const [budgetFilter, setBudgetFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleSocieties, setVisibleSocieties] = useState(18);
+  const [referralShareId, setReferralShareId] = useState<string | null>(null);
+  const [isWhatsAppReferral, setIsWhatsAppReferral] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const referredSociety = societies.find(
+      (society) => society.slug === params.get('society'),
+    );
+    const suppliedReferral = params.get('ref');
+    const cameFromWhatsApp = params.get('source') === 'whatsapp';
     const stored = window.localStorage.getItem('truesquare-owner-draft');
     let savedDraft: OwnerForm | null = null;
     if (stored) {
@@ -331,10 +342,31 @@ export function PropertyIntelligenceApp({
       }
     }
     const frame = window.requestAnimationFrame(() => {
-      if (savedDraft) setOwnerForm(savedDraft);
+      if (savedDraft || referredSociety) {
+        const draftForSociety =
+          referredSociety && savedDraft?.society !== referredSociety.name
+            ? EMPTY_FORM
+            : (savedDraft ?? EMPTY_FORM);
+        setOwnerForm({
+          ...draftForSociety,
+          ...(referredSociety
+            ? {
+                society: referredSociety.name,
+                tower:
+                  savedDraft?.society === referredSociety.name
+                    ? savedDraft.tower
+                    : '',
+              }
+            : {}),
+        });
+      }
+      if (suppliedReferral && UUID_PATTERN.test(suppliedReferral)) {
+        setReferralShareId(suppliedReferral);
+      }
+      setIsWhatsAppReferral(cameFromWhatsApp);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [societies]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -420,6 +452,12 @@ export function PropertyIntelligenceApp({
     ? getBuyerEvidence(selectedSociety, bhkFilter)
     : null;
   const buyerSocietyRecords = buyerSocietyEvidence?.records ?? [];
+  const ownerSociety = societies.find(
+    (society) => society.name === ownerForm.society,
+  );
+  const ownerPublicEvidence = ownerSociety
+    ? buildPublicSocietyEvidence(ownerSociety, records, ownerAggregates)
+    : null;
 
   const filteredSocieties = (() => {
     const budget = budgetFilter === 'All' ? Infinity : Number(budgetFilter);
@@ -580,6 +618,7 @@ export function PropertyIntelligenceApp({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           requestId,
+          referralShareId,
           property: {
             society: ownerForm.society,
             location: selected.location,
@@ -621,6 +660,20 @@ export function PropertyIntelligenceApp({
         savedValuation.snapshotCreatedAt = result.snapshot.createdAt;
       }
       setValuation(savedValuation);
+      if (referralShareId) {
+        void fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventName: 'referred_valuation_completed',
+            shareId: referralShareId,
+            contentType: 'society',
+            contentId: selected.slug,
+            sourceScreen: 'owner_result',
+          }),
+          keepalive: true,
+        }).catch(() => undefined);
+      }
       setShowGate(false);
       window.localStorage.removeItem('truesquare-owner-draft');
       window.localStorage.removeItem('truesquare-owner-request-id');
@@ -973,6 +1026,19 @@ export function PropertyIntelligenceApp({
               onSubmit={beginOwnerReveal}
               className="ts-orb-form-panel min-w-0"
             >
+              {isWhatsAppReferral && ownerForm.society && (
+                <Alert className="mb-6 rounded-[12px] border-[#A9DCB8] bg-accent">
+                  <LockKeyhole />
+                  <AlertTitle>
+                    {ownerForm.society} is already selected
+                  </AlertTitle>
+                  <AlertDescription>
+                    Add your details to see your private estimated value, gain
+                    or loss, and returns. Nothing about your flat is posted back
+                    to WhatsApp.
+                  </AlertDescription>
+                </Alert>
+              )}
               <div className="mb-7">
                 <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
                   PROPERTY MATCH
@@ -1118,6 +1184,10 @@ export function PropertyIntelligenceApp({
                   Indian formats such as “1.25 crore” and “85 lakh” are
                   accepted.
                 </p>
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-accent-foreground">
+                  <LockKeyhole className="size-3.5" /> Your flat price stays
+                  private. Always. It is never included in a shared link.
+                </p>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <CurrencyField
@@ -1204,8 +1274,15 @@ export function PropertyIntelligenceApp({
                 size="lg"
                 className="mt-7 h-[58px] w-full font-mono text-[15px] tracking-[0.08em] sm:text-base"
               >
-                TRACK MY PROPERTY <ArrowRight />
+                {isWhatsAppReferral
+                  ? 'SHOW MY PRIVATE VALUATION'
+                  : 'TRACK MY PROPERTY'}{' '}
+                <ArrowRight />
               </Button>
+              <p className="mt-3 text-center text-xs font-medium text-muted-foreground">
+                Your flat price and personal result are visible only to you. Any
+                later share contains only the society benchmark.
+              </p>
             </form>
           </div>
         </div>
@@ -1215,6 +1292,7 @@ export function PropertyIntelligenceApp({
         <OwnerResult
           form={ownerForm}
           result={valuation}
+          publicEvidence={ownerPublicEvidence}
           onBack={() => setValuation(null)}
         />
       )}
@@ -1237,6 +1315,11 @@ export function PropertyIntelligenceApp({
             <SocietyDetail
               society={selectedSociety}
               records={buyerSocietyRecords}
+              publicEvidence={buildPublicSocietyEvidence(
+                selectedSociety,
+                records,
+                ownerAggregates,
+              )}
               ownerAggregates={ownerAggregates.filter(
                 (aggregate) => aggregate.society === selectedSociety.name,
               )}
@@ -1256,7 +1339,6 @@ export function PropertyIntelligenceApp({
           )}
         </DialogContent>
       </Dialog>
-
     </main>
   );
 }
@@ -1545,10 +1627,12 @@ function Metric({ label, value }: { label: string; value: string }) {
 function OwnerResult({
   form,
   result,
+  publicEvidence,
   onBack,
 }: {
   form: OwnerForm;
   result: ValuationResult;
+  publicEvidence: PublicSocietyEvidence | null;
   onBack: () => void;
 }) {
   const thinEvidence =
@@ -1742,6 +1826,36 @@ function OwnerResult({
           </AlertDescription>
         </Alert>
       )}
+      {publicEvidence && (
+        <Card className="mt-7 border-[#A9DCB8] bg-accent">
+          <CardHeader>
+            <p className="font-mono text-[10px] tracking-[0.12em] text-accent-foreground">
+              SHARE WITHOUT REVEALING YOUR RESULT
+            </p>
+            <CardTitle className="mt-2 text-3xl">
+              Help neighbours check the {form.society} benchmark
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
+            <div>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Your valuation, purchase price, returns, floor, and identity
+                stay private. The share contains only the public society
+                benchmark and its supporting evidence count.
+              </p>
+              <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-accent-foreground">
+                <LockKeyhole className="size-4" /> Your flat price stays
+                private. Always.
+              </p>
+            </div>
+            <SocietyShare
+              evidence={publicEvidence}
+              sourceScreen="owner_result"
+              buttonLabel="Share benchmark on WhatsApp"
+            />
+          </CardContent>
+        </Card>
+      )}
       <section className="mt-10">
         <div className="mb-5">
           <p className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
@@ -1846,6 +1960,7 @@ function ResultRow({
 function SocietyDetail({
   society,
   records,
+  publicEvidence,
   ownerAggregates,
   bhkFilter,
   matchLabel,
@@ -1854,6 +1969,7 @@ function SocietyDetail({
 }: {
   society: SocietySummary;
   records: TransactionRecord[];
+  publicEvidence: PublicSocietyEvidence;
   ownerAggregates: OwnerPriceAggregate[];
   bhkFilter: string;
   matchLabel: string;
@@ -1925,6 +2041,25 @@ function SocietyDetail({
               : 'Not public yet'
           }
         />
+      </div>
+      <div className="rounded-xl border border-[#A9DCB8] bg-accent p-4">
+        <p className="text-sm leading-6 text-muted-foreground">
+          Share the public {society.name} benchmark with your society group.
+          Your own flat price is never part of the link.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <SocietyShare
+            evidence={publicEvidence}
+            sourceScreen="buyer_detail"
+            buttonLabel="Share on WhatsApp"
+          />
+          <Link
+            href={`/societies/${society.slug}`}
+            className="text-sm font-semibold underline underline-offset-4"
+          >
+            Open permanent society page
+          </Link>
+        </div>
       </div>
       {unlocked ? (
         <div>

@@ -172,11 +172,44 @@ export const ownerProperties = pgTable(
   ],
 );
 
+export const shareRecords = pgTable(
+  'share_records',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    createdByUserId: uuid('created_by_user_id').references(() => appUsers.id, {
+      onDelete: 'set null',
+    }),
+    contentType: text('content_type').notNull(),
+    contentId: text('content_id').notNull(),
+    sourceScreen: text('source_screen').notNull(),
+    messageVariant: text('message_variant').notNull(),
+    requestFingerprint: text('request_fingerprint'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('share_records_content_idx').on(
+      table.contentType,
+      table.contentId,
+      table.createdAt,
+    ),
+    index('share_records_user_created_idx').on(
+      table.createdByUserId,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const purchaseContributions = pgTable(
   'purchase_contributions',
   {
     id: uuid('id').defaultRandom().primaryKey(),
     requestId: uuid('request_id').notNull(),
+    referralShareId: uuid('referral_share_id').references(
+      () => shareRecords.id,
+      { onDelete: 'set null' },
+    ),
     propertyId: uuid('property_id')
       .notNull()
       .references(() => ownerProperties.id, { onDelete: 'cascade' }),
@@ -202,6 +235,36 @@ export const purchaseContributions = pgTable(
     index('purchase_contributions_status_idx').on(
       table.status,
       table.submittedAt,
+    ),
+    index('purchase_contributions_referral_idx').on(table.referralShareId),
+  ],
+);
+
+export const productEvents = pgTable(
+  'product_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    shareId: uuid('share_id').references(() => shareRecords.id, {
+      onDelete: 'set null',
+    }),
+    eventName: text('event_name').notNull(),
+    contentType: text('content_type').notNull(),
+    contentId: text('content_id').notNull(),
+    sourceScreen: text('source_screen').notNull(),
+    metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull(),
+    requestFingerprint: text('request_fingerprint'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('product_events_name_created_idx').on(
+      table.eventName,
+      table.createdAt,
+    ),
+    index('product_events_share_created_idx').on(
+      table.shareId,
+      table.createdAt,
     ),
   ],
 );
@@ -370,8 +433,9 @@ export const valuationSnapshots = pgTable(
     supportingTransactionIds: jsonb('supporting_transaction_ids')
       .$type<string[]>()
       .notNull(),
-    supportingTransactionCount: integer('supporting_transaction_count')
-      .notNull(),
+    supportingTransactionCount: integer(
+      'supporting_transaction_count',
+    ).notNull(),
     estimate: bigint('estimate', { mode: 'number' }),
     low: bigint('low', { mode: 'number' }),
     high: bigint('high', { mode: 'number' }),
@@ -384,19 +448,27 @@ export const valuationSnapshots = pgTable(
     }),
     loanInterest: bigint('loan_interest', { mode: 'number' }).notNull(),
     ownerEvidenceCount: integer('owner_evidence_count').notNull(),
-    ownerEvidenceMinPricePerSqFt: numeric('owner_evidence_min_price_per_sq_ft', {
-      precision: 12,
-      scale: 2,
-    }),
+    ownerEvidenceMinPricePerSqFt: numeric(
+      'owner_evidence_min_price_per_sq_ft',
+      {
+        precision: 12,
+        scale: 2,
+      },
+    ),
     ownerEvidenceMedianPricePerSqFt: numeric(
       'owner_evidence_median_price_per_sq_ft',
       { precision: 12, scale: 2 },
     ),
-    ownerEvidenceMaxPricePerSqFt: numeric('owner_evidence_max_price_per_sq_ft', {
-      precision: 12,
-      scale: 2,
-    }),
-    inputSnapshot: jsonb('input_snapshot').$type<Record<string, unknown>>().notNull(),
+    ownerEvidenceMaxPricePerSqFt: numeric(
+      'owner_evidence_max_price_per_sq_ft',
+      {
+        precision: 12,
+        scale: 2,
+      },
+    ),
+    inputSnapshot: jsonb('input_snapshot')
+      .$type<Record<string, unknown>>()
+      .notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -409,11 +481,10 @@ export const valuationSnapshots = pgTable(
   ],
 );
 
-export const notificationDeliveryStatus = pgEnum('notification_delivery_status', [
-  'pending',
-  'sent',
-  'failed',
-]);
+export const notificationDeliveryStatus = pgEnum(
+  'notification_delivery_status',
+  ['pending', 'sent', 'failed'],
+);
 
 export const notificationDeliveries = pgTable(
   'notification_deliveries',

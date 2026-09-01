@@ -17,6 +17,7 @@ export const runtime = 'nodejs';
 
 type ContributionBody = {
   requestId?: unknown;
+  referralShareId?: unknown;
   property?: Record<string, unknown>;
   costs?: Record<string, unknown>;
 };
@@ -86,6 +87,7 @@ export async function POST(request: Request) {
   }
 
   const requestId = requiredText(body.requestId);
+  const submittedReferralShareId = optionalText(body.referralShareId);
   const property = body.property ?? {};
   const costs = body.costs ?? {};
   const society = requiredText(property.society);
@@ -122,6 +124,8 @@ export async function POST(request: Request) {
   if (
     !requestId ||
     !UUID_PATTERN.test(requestId) ||
+    (submittedReferralShareId != null &&
+      !UUID_PATTERN.test(submittedReferralShareId)) ||
     !knownSociety ||
     !tower ||
     !floor ||
@@ -146,6 +150,18 @@ export async function POST(request: Request) {
 
   try {
     const sql = getSql();
+    let referralShareId: string | null = null;
+    if (submittedReferralShareId) {
+      const referralRows = (await sql`
+        SELECT id
+        FROM share_records
+        WHERE id = ${submittedReferralShareId}
+          AND content_type = 'society'
+          AND content_id = ${knownSociety.slug}
+        LIMIT 1
+      `) as Array<{ id: string }>;
+      referralShareId = referralRows[0]?.id ?? null;
+    }
     const fingerprint = requestFingerprint(request);
     const rateRows = (await sql`
       SELECT
@@ -206,12 +222,12 @@ export async function POST(request: Request) {
         RETURNING id
       ), inserted AS (
         INSERT INTO purchase_contributions (
-          request_id, property_id, purchase_price, stamp_duty,
+          request_id, referral_share_id, property_id, purchase_price, stamp_duty,
           registration_cost, interiors, brokerage, loan_amount,
           loan_tenure_years, loan_rate, request_fingerprint
         )
         SELECT
-          ${requestId}, id, ${purchasePrice}, ${stampDuty},
+          ${requestId}, ${referralShareId}, id, ${purchasePrice}, ${stampDuty},
           ${registrationCost}, ${interiors}, ${brokerage}, ${loanAmount},
           ${loanTenureYears}, ${loanRate}, ${fingerprint}
         FROM property_row
@@ -231,16 +247,16 @@ export async function POST(request: Request) {
     const saved = rows[0];
     if (!saved) throw new Error('Contribution was not persisted.');
 
-    const existingSnapshots = await sql`
+    const existingSnapshots = (await sql`
       SELECT id, created_at
       FROM valuation_snapshots
       WHERE contribution_id = ${saved.id}
       LIMIT 1
-    ` as Array<{ id: string; created_at: string | Date }>;
+    `) as Array<{ id: string; created_at: string | Date }>;
 
     let snapshot = existingSnapshots[0];
     if (!snapshot) {
-      const transactionRows = await sql`
+      const transactionRows = (await sql`
         SELECT
           id,
           location,
@@ -259,7 +275,7 @@ export async function POST(request: Request) {
           source_url
         FROM registered_transactions
         ORDER BY society, registration_date DESC NULLS LAST, id
-      ` as Array<{
+      `) as Array<{
         id: string;
         location: string;
         society: string;
@@ -276,7 +292,7 @@ export async function POST(request: Request) {
         source_file: string;
         source_url: string;
       }>;
-      const ownerAggregateRows = await sql`
+      const ownerAggregateRows = (await sql`
         SELECT
           society,
           location,
@@ -288,7 +304,7 @@ export async function POST(request: Request) {
           updated_at
         FROM owner_price_aggregates
         WHERE society = ${society} AND bhk = ${bhk}
-      ` as Array<{
+      `) as Array<{
         society: string;
         location: string;
         bhk: string;
@@ -350,7 +366,7 @@ export async function POST(request: Request) {
       );
       const toWholeRupee = (value: number | null) =>
         value == null ? null : Math.round(value);
-      const createdSnapshots = await sql`
+      const createdSnapshots = (await sql`
         INSERT INTO valuation_snapshots (
           contribution_id,
           algorithm_version,
@@ -418,7 +434,7 @@ export async function POST(request: Request) {
         )
         ON CONFLICT (contribution_id) DO NOTHING
         RETURNING id, created_at
-      ` as Array<{ id: string; created_at: string | Date }>;
+      `) as Array<{ id: string; created_at: string | Date }>;
       snapshot = createdSnapshots[0];
     }
 
