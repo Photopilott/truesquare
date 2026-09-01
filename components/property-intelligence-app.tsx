@@ -8,6 +8,7 @@ import {
   SyntheticEvent,
   useEffect,
   useId,
+  useRef,
   useState,
 } from 'react';
 import Link from 'next/link';
@@ -47,6 +48,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import {
   NativeSelect,
   NativeSelectOption,
@@ -320,6 +322,8 @@ export function PropertyIntelligenceApp({
   const [visibleSocieties, setVisibleSocieties] = useState(18);
   const [referralShareId, setReferralShareId] = useState<string | null>(null);
   const [isWhatsAppReferral, setIsWhatsAppReferral] = useState(false);
+  const ownerFormStarted = useRef(false);
+  const ownerFormSubmitted = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -327,7 +331,9 @@ export function PropertyIntelligenceApp({
       (society) => society.slug === params.get('society'),
     );
     const suppliedReferral = params.get('ref');
-    const cameFromWhatsApp = params.get('source') === 'whatsapp';
+    const cameFromWhatsApp =
+      params.get('source') === 'whatsapp' ||
+      params.get('utm_source') === 'whatsapp';
     const stored = window.localStorage.getItem('truesquare-owner-draft');
     let savedDraft: OwnerForm | null = null;
     if (stored) {
@@ -399,6 +405,8 @@ export function PropertyIntelligenceApp({
       params.delete('resumeGate');
       params.delete('auth');
       params.delete('authError');
+      params.delete('authMode');
+      params.delete('authMethod');
       const query = params.toString();
       window.history.replaceState(
         null,
@@ -496,6 +504,12 @@ export function PropertyIntelligenceApp({
   })();
 
   function updateOwner<K extends keyof OwnerForm>(key: K, value: OwnerForm[K]) {
+    if (!ownerFormStarted.current) {
+      trackAnalyticsEvent('owner_form_start', {
+        is_referral: Boolean(referralShareId),
+      });
+      ownerFormStarted.current = true;
+    }
     setOwnerForm((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: '' }));
     if (key === 'society')
@@ -578,12 +592,28 @@ export function PropertyIntelligenceApp({
         'Enter loan amount, tenure, and interest rate together—or leave all three blank.';
     }
     setErrors(next);
+    if (Object.keys(next).length) {
+      trackAnalyticsEvent('form_validation_error', {
+        context: 'owner_valuation',
+        validation_group: 'field_validation',
+        error_count: Object.keys(next).length,
+      });
+    }
     return Object.keys(next).length === 0;
   }
 
   function beginOwnerReveal(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!validateOwner()) return;
+    if (!ownerFormSubmitted.current) {
+      trackAnalyticsEvent('owner_form_submit', {
+        society_slug:
+          societies.find((society) => society.name === ownerForm.society)
+            ?.slug ?? 'unknown',
+        is_referral: Boolean(referralShareId),
+      });
+      ownerFormSubmitted.current = true;
+    }
     const comps = eligibleComparables(ownerForm).records;
     const compMedian = median(comps.map((record) => record.pricePerSqFt ?? 0));
     const submittedPpsf =
@@ -606,6 +636,9 @@ export function PropertyIntelligenceApp({
     if (gateContext === 'buyer') {
       setShowGate(false);
       setBuyerUnlocked(true);
+      trackAnalyticsEvent('evidence_unlock', {
+        society_slug: selectedSociety?.slug ?? 'unknown',
+      });
       window.localStorage.removeItem('truesquare-pending-society');
       return;
     }
@@ -674,7 +707,15 @@ export function PropertyIntelligenceApp({
         savedValuation.snapshotCreatedAt = result.snapshot.createdAt;
       }
       setValuation(savedValuation);
+      trackAnalyticsEvent('valuation_complete', {
+        society_slug: selected.slug,
+        is_referral: Boolean(referralShareId),
+      });
       if (referralShareId) {
+        trackAnalyticsEvent('referred_valuation_completed', {
+          society_slug: selected.slug,
+          source_screen: 'owner_result',
+        });
         void fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -745,6 +786,12 @@ export function PropertyIntelligenceApp({
                       setSearchQuery(event.target.value);
                       setVisibleSocieties(18);
                     }}
+                    onBlur={() =>
+                      searchQuery.trim() &&
+                      trackAnalyticsEvent('buyer_filter_use', {
+                        filter_type: 'society_search',
+                      })
+                    }
                     placeholder="e.g. Sobha, Purva…"
                   />
                 </FormField>
@@ -755,6 +802,9 @@ export function PropertyIntelligenceApp({
                     onChange={(event) => {
                       setLocationFilter(event.target.value);
                       setVisibleSocieties(18);
+                      trackAnalyticsEvent('buyer_filter_use', {
+                        filter_type: 'location',
+                      });
                     }}
                   >
                     <NativeSelectOption value="All">
@@ -774,6 +824,9 @@ export function PropertyIntelligenceApp({
                     onChange={(event) => {
                       setBhkFilter(event.target.value);
                       setVisibleSocieties(18);
+                      trackAnalyticsEvent('buyer_filter_use', {
+                        filter_type: 'bhk',
+                      });
                     }}
                   >
                     <NativeSelectOption value="All">
@@ -793,6 +846,9 @@ export function PropertyIntelligenceApp({
                     onChange={(event) => {
                       setBudgetFilter(event.target.value);
                       setVisibleSocieties(18);
+                      trackAnalyticsEvent('buyer_filter_use', {
+                        filter_type: 'budget',
+                      });
                     }}
                   >
                     <NativeSelectOption value="All">
@@ -880,6 +936,10 @@ export function PropertyIntelligenceApp({
                       onClick={() => {
                         setSelectedSociety(society);
                         setBuyerUnlocked(false);
+                        trackAnalyticsEvent('society_detail_view', {
+                          society_slug: society.slug,
+                          source_screen: 'buyer_catalogue',
+                        });
                       }}
                     >
                       <Card className="cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(34,27,19,.10)]">
@@ -1341,6 +1401,10 @@ export function PropertyIntelligenceApp({
               matchLabel={buyerSocietyEvidence?.label ?? 'No evidence'}
               unlocked={buyerUnlocked}
               onUnlock={() => {
+                trackAnalyticsEvent('evidence_unlock_click', {
+                  society_slug: selectedSociety.slug,
+                  source_screen: 'buyer_detail',
+                });
                 setGateContext('buyer');
                 setGateError('');
                 window.localStorage.setItem(

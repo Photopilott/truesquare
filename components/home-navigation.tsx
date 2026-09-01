@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { BrandWordmark } from '@/components/brand-wordmark';
 import { EvidenceStack } from '@/components/evidence-stack';
 import { Button } from '@/components/ui/button';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import {
   Sheet,
   SheetContent,
@@ -169,11 +170,29 @@ export function HomeNavigation() {
             record actually say.
           </p>
           <div className="ts-orb-hero-actions">
-            <Link href="/owner" className="ts-orb-button ts-orb-button-dark">
+            <Link
+              href="/owner"
+              className="ts-orb-button ts-orb-button-dark"
+              onClick={() =>
+                trackAnalyticsEvent('primary_cta_click', {
+                  button_id: 'home_find_flat_worth',
+                  destination: '/owner',
+                })
+              }
+            >
               FIND MY FLAT&apos;S WORTH{' '}
               <ArrowRight className="size-4 shrink-0" />
             </Link>
-            <Link href="/explore" className="ts-orb-button">
+            <Link
+              href="/explore"
+              className="ts-orb-button"
+              onClick={() =>
+                trackAnalyticsEvent('primary_cta_click', {
+                  button_id: 'home_explore_property_data',
+                  destination: '/explore',
+                })
+              }
+            >
               EXPLORE PROPERTY DATA
             </Link>
           </div>
@@ -236,6 +255,12 @@ export function HomeNavigation() {
             <Link
               href={selectedHref}
               className="ts-orb-button ts-orb-button-dark w-full max-w-md"
+              onClick={() =>
+                trackAnalyticsEvent('primary_cta_click', {
+                  button_id: `home_path_${selectedPath}`,
+                  destination: selectedHref,
+                })
+              }
             >
               {selectedPath === 'owner'
                 ? 'TRACK MY PROPERTY'

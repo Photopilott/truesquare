@@ -14,6 +14,7 @@ import {
   TopNav,
 } from '@/components/atlas/primitives';
 import { filings, indian, markets } from '@/lib/atlas-data';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 const PAGE_SIZE = 20;
 const paths = markets
@@ -43,6 +44,7 @@ export function MarketRegister() {
   function chooseArea(name: string) {
     setArea(name);
     setPage(1);
+    trackAnalyticsEvent('atlas_filter_use', { filter_type: 'area' });
   }
 
   return (
@@ -144,6 +146,9 @@ export function MarketRegister() {
                   onClick={() => {
                     setFilter(key);
                     setPage(1);
+                    trackAnalyticsEvent('atlas_filter_use', {
+                      filter_type: 'asset_class',
+                    });
                   }}
                   className={filter === key ? 'current' : ''}
                 >
@@ -168,7 +173,12 @@ export function MarketRegister() {
               <Pagination
                 page={page}
                 totalPages={totalPages}
-                onPage={setPage}
+                onPage={(nextPage) => {
+                  setPage(nextPage);
+                  trackAnalyticsEvent('atlas_filter_use', {
+                    filter_type: 'pagination',
+                  });
+                }}
               />
             </>
           ) : (

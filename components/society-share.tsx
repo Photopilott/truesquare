@@ -18,6 +18,7 @@ import {
   type PublicSocietyEvidence,
 } from '@/lib/society-evidence';
 import type { ShareSourceScreen } from '@/lib/share-tracking';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 async function trackEvent(payload: Record<string, unknown>) {
   try {
@@ -76,16 +77,31 @@ export function SocietyShare({
     return null;
   }
 
-  async function shareUrl() {
+  async function shareUrl(method: 'whatsapp' | 'copy_link') {
     const shareId = await createShare();
     const url = new URL(canonicalPath, window.location.origin);
-    url.searchParams.set('source', 'whatsapp');
+    url.searchParams.set(
+      'utm_source',
+      method === 'whatsapp' ? 'whatsapp' : 'flatdata_share',
+    );
+    url.searchParams.set(
+      'utm_medium',
+      method === 'whatsapp' ? 'messaging' : 'referral',
+    );
+    url.searchParams.set('utm_campaign', 'society_benchmark');
     if (shareId) url.searchParams.set('ref', shareId);
     return { shareId, url: url.toString() };
   }
 
   async function shareOnWhatsApp() {
-    const { shareId, url } = await shareUrl();
+    const { shareId, url } = await shareUrl('whatsapp');
+    trackAnalyticsEvent('share', {
+      method: 'whatsapp',
+      content_type: 'society',
+      content_id: evidence.society.slug,
+      society_slug: evidence.society.slug,
+      source_screen: sourceScreen,
+    });
     void trackEvent({
       eventName: 'whatsapp_share_started',
       shareId,
@@ -102,9 +118,16 @@ export function SocietyShare({
   }
 
   async function copyLink() {
-    const { shareId, url } = await shareUrl();
+    const { shareId, url } = await shareUrl('copy_link');
     await navigator.clipboard.writeText(url);
     setCopied(true);
+    trackAnalyticsEvent('share', {
+      method: 'copy_link',
+      content_type: 'society',
+      content_id: evidence.society.slug,
+      society_slug: evidence.society.slug,
+      source_screen: sourceScreen,
+    });
     void trackEvent({
       eventName: 'share_link_copied',
       shareId,
@@ -123,6 +146,12 @@ export function SocietyShare({
           size="lg"
           onClick={() => {
             setOpen(true);
+            trackAnalyticsEvent('share_preview_opened', {
+              content_type: 'society',
+              content_id: evidence.society.slug,
+              society_slug: evidence.society.slug,
+              source_screen: sourceScreen,
+            });
             void trackEvent({
               eventName: 'share_preview_opened',
               contentType: 'society',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   CheckCircle2,
   CircleAlert,
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 type GateContext = 'owner' | 'buyer' | 'subscription';
 type SessionPayload = {
@@ -61,6 +62,7 @@ export function AccessGate({
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState('');
   const [accepted, setAccepted] = useState(false);
+  const gateViewTracked = useRef(false);
 
   const loadSession = useCallback(async () => {
     setLoadingSession(true);
@@ -87,12 +89,23 @@ export function AccessGate({
   }, [context]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      gateViewTracked.current = false;
+      return;
+    }
+    if (!gateViewTracked.current) {
+      trackAnalyticsEvent('auth_gate_view', { context });
+      gateViewTracked.current = true;
+    }
     const frame = window.requestAnimationFrame(() => void loadSession());
     return () => window.cancelAnimationFrame(frame);
-  }, [loadSession, open]);
+  }, [context, loadSession, open]);
 
   async function requestOtp() {
+    trackAnalyticsEvent('auth_method_selected', {
+      method: 'email_otp',
+      context,
+    });
     setAuthBusy(true);
     setAuthError('');
     try {
@@ -127,9 +140,16 @@ export function AccessGate({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ challengeId, email, otp }),
       });
-      const payload = (await response.json()) as { error?: string };
+      const payload = (await response.json()) as {
+        error?: string;
+        newUser?: boolean;
+      };
       if (!response.ok)
         throw new Error(payload.error || 'Unable to verify the code.');
+      trackAnalyticsEvent(payload.newUser ? 'sign_up' : 'login', {
+        method: 'email_otp',
+        context,
+      });
       setChallengeId('');
       setOtp('');
       await loadSession();
@@ -143,10 +163,16 @@ export function AccessGate({
   }
 
   function continueWithGoogle() {
+    trackAnalyticsEvent('auth_method_selected', {
+      method: 'google',
+      context,
+    });
     const params = new URLSearchParams(window.location.search);
     params.set('resumeGate', context);
     params.delete('auth');
     params.delete('authError');
+    params.delete('authMode');
+    params.delete('authMethod');
     const returnTo = `${window.location.pathname}?${params.toString()}`;
     window.location.assign(
       `/api/auth/google/start?returnTo=${encodeURIComponent(returnTo)}`,
@@ -198,6 +224,11 @@ export function AccessGate({
             : current,
         );
       }
+      trackAnalyticsEvent('access_verified', { context });
+      trackAnalyticsEvent('consent_complete', {
+        context,
+        consent_state: session.consent?.[context] ? 'existing' : 'new',
+      });
       await onAuthorized();
     } catch (error) {
       setAuthError(

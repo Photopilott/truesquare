@@ -19,7 +19,8 @@
     "test:evidence-stack": "node --experimental-strip-types --test test/evidence-stack.test.ts",
     "test:valuation": "node --experimental-strip-types --test test/valuation-engine.test.ts",
     "test:society-evidence": "node --experimental-strip-types --test test/society-evidence.test.ts",
-    "test:share-tracking": "node --experimental-strip-types --test test/share-tracking.test.ts"
+    "test:share-tracking": "node --experimental-strip-types --test test/share-tracking.test.ts",
+    "test:analytics": "node --experimental-strip-types --test test/analytics.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",

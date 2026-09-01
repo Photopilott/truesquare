@@ -16,6 +16,10 @@ import {
   VerdictStrip,
 } from '@/components/atlas/primitives';
 import {
+  AnalyticsAnchor,
+  AnalyticsEventOnView,
+} from '@/components/analytics-controls';
+import {
   builderPortfolio,
   indian,
   monthYear,
@@ -208,13 +212,30 @@ export function ProjectRead({ project }: { project: Filing }) {
 
   return (
     <main>
+      <AnalyticsEventOnView
+        eventName="atlas_project_open"
+        eventParams={{ item_id: project.slug }}
+      />
+      <AnalyticsEventOnView
+        eventName="atlas_deep_read"
+        eventParams={{ item_id: project.slug, chapter: 'authority' }}
+        targetId="chapter-04"
+      />
       <IndependenceBar />
       <div className="utility-row">
         <div className="frame">
-          <a href="#watch">Watch</a>
-          <a href="#compare">Compare</a>
-          <a href="#share">Share</a>
-          <a href="#report">Report an inaccuracy</a>
+          {['watch', 'compare', 'share', 'report'].map((action) => (
+            <AnalyticsAnchor
+              key={action}
+              href={`#${action}`}
+              eventName="atlas_secondary_action"
+              eventParams={{ action, item_id: project.slug }}
+            >
+              {action === 'report'
+                ? 'Report an inaccuracy'
+                : `${action[0].toUpperCase()}${action.slice(1)}`}
+            </AnalyticsAnchor>
+          ))}
         </div>
       </div>
       <TopNav project />
@@ -499,9 +520,7 @@ export function ProjectRead({ project }: { project: Filing }) {
               eyebrow="What this record cannot tell you"
               headline="The filing stops here."
             />
-            <ProvenanceLine>
-              Atlas · limits of the public record
-            </ProvenanceLine>
+            <ProvenanceLine>Atlas · limits of the public record</ProvenanceLine>
             <div className="unknowns">
               <p>
                 <strong>Build quality.</strong> A registration filing does not
@@ -575,7 +594,9 @@ export function ProjectRead({ project }: { project: Filing }) {
                     </div>
                   </dl>
                   <div>
-                    <a href={`/atlas/projects/${filing.slug}`}>Open the read →</a>
+                    <a href={`/atlas/projects/${filing.slug}`}>
+                      Open the read →
+                    </a>
                     <a href="#compare">Compare</a>
                   </div>
                 </article>

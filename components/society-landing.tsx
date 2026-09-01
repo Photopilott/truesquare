@@ -15,6 +15,7 @@ import {
   wholeInr,
   type PublicSocietyEvidence,
 } from '@/lib/society-evidence';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 export function SocietyLanding({
   evidence,
@@ -25,12 +26,20 @@ export function SocietyLanding({
 }) {
   const ownerParams = new URLSearchParams({
     society: evidence.society.slug,
-    source: 'whatsapp',
   });
-  if (referralShareId) ownerParams.set('ref', referralShareId);
+  if (referralShareId) {
+    ownerParams.set('source', 'whatsapp');
+    ownerParams.set('ref', referralShareId);
+  }
 
   useEffect(() => {
     if (!referralShareId) return;
+    trackAnalyticsEvent('shared_link_opened', {
+      content_type: 'society',
+      content_id: evidence.society.slug,
+      society_slug: evidence.society.slug,
+      source_screen: 'society_page',
+    });
     void fetch('/api/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -149,6 +158,19 @@ export function SocietyLanding({
                 href={`/owner?${ownerParams.toString()}`}
                 className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-[9px] bg-primary px-5 text-sm font-semibold text-primary-foreground"
                 onClick={() => {
+                  trackAnalyticsEvent(
+                    referralShareId
+                      ? 'referred_owner_started'
+                      : 'primary_cta_click',
+                    {
+                      button_id: 'society_check_private_value',
+                      destination: '/owner',
+                      society_slug: evidence.society.slug,
+                      source_screen: 'society_page',
+                      is_referral: Boolean(referralShareId),
+                    },
+                  );
+                  if (!referralShareId) return;
                   void fetch('/api/events', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

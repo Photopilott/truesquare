@@ -98,23 +98,35 @@ export async function POST(request: Request) {
 
   await sql`UPDATE user_otp_challenges SET consumed_at = NOW() WHERE id = ${challengeId}`;
   const users = (await sql`
-    INSERT INTO app_users (
-      email, email_verified_at, last_auth_provider, last_login_at, updated_at
-    ) VALUES (
-      ${email}, NOW(), 'email_otp', NOW(), NOW()
+    WITH inserted AS (
+      INSERT INTO app_users (
+        email, email_verified_at, last_auth_provider, last_login_at, updated_at
+      ) VALUES (
+        ${email}, NOW(), 'email_otp', NOW(), NOW()
+      )
+      ON CONFLICT (email) DO NOTHING
+      RETURNING id, email
+    ), updated AS (
+      UPDATE app_users SET
+        email_verified_at = NOW(),
+        last_auth_provider = 'email_otp',
+        last_login_at = NOW(),
+        updated_at = NOW()
+      WHERE email = ${email}
+        AND NOT EXISTS (SELECT 1 FROM inserted)
+      RETURNING id, email
     )
-    ON CONFLICT (email) DO UPDATE SET
-      email_verified_at = NOW(),
-      last_auth_provider = 'email_otp',
-      last_login_at = NOW(),
-      updated_at = NOW()
-    RETURNING id, email
-  `) as Array<{ id: string; email: string }>;
+    SELECT id, email, TRUE AS new_user FROM inserted
+    UNION ALL
+    SELECT id, email, FALSE AS new_user FROM updated
+    LIMIT 1
+  `) as Array<{ id: string; email: string; new_user: boolean }>;
   const user = users[0];
   const token = await createUserSession(user.id, 'email_otp');
   const response = NextResponse.json({
     authenticated: true,
     email: user.email,
+    newUser: user.new_user,
   });
   response.cookies.set(USER_SESSION_COOKIE, token, userSessionCookieOptions());
   return response;

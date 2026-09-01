@@ -5,6 +5,7 @@ import { Bell, Check, LoaderCircle } from 'lucide-react';
 
 import { AccessGate } from '@/components/access-gate';
 import { Button } from '@/components/ui/button';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 type SubscriptionStatus = {
   authenticated: boolean;
@@ -31,6 +32,8 @@ function clearSubscriptionResumeState() {
   params.delete('subscriptionSociety');
   params.delete('auth');
   params.delete('authError');
+  params.delete('authMode');
+  params.delete('authMethod');
   const query = params.toString();
   window.history.replaceState(
     null,
@@ -73,6 +76,10 @@ export function SocietySubscribe({
       setSubscribed(true);
       setEmail(payload.email ?? '');
       setGateOpen(false);
+      trackAnalyticsEvent('subscription_complete', {
+        society_slug: society.slug,
+        source_screen: sourceScreen,
+      });
       clearSubscriptionResumeState();
     } finally {
       setSubscribing(false);
@@ -112,6 +119,10 @@ export function SocietySubscribe({
 
   async function handleClick() {
     if (subscribed) return;
+    trackAnalyticsEvent('subscription_start', {
+      society_slug: society.slug,
+      source_screen: sourceScreen,
+    });
     setError('');
     setChecking(true);
     try {
@@ -155,6 +166,10 @@ export function SocietySubscribe({
         throw new Error(payload.error || 'Unable to stop these updates.');
       setSubscribed(false);
       setEmail('');
+      trackAnalyticsEvent('subscription_cancelled', {
+        society_slug: society.slug,
+        source_screen: sourceScreen,
+      });
     } catch (cause) {
       setError(
         cause instanceof Error
