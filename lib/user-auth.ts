@@ -16,7 +16,7 @@ export const USER_SESSION_SECONDS = 60 * 60 * 24 * 30;
 export const DATA_COVENANT_VERSION = '2026-08-31';
 
 export type UserAuthProvider = 'google' | 'email_otp';
-export type ConsentContext = 'owner' | 'buyer';
+export type ConsentContext = 'owner' | 'buyer' | 'subscription';
 
 export type UserSession = {
   sessionId: string;
@@ -187,8 +187,8 @@ export function googleOAuthCookieOptions() {
 export function googleConfigured() {
   return Boolean(
     process.env.GOOGLE_CLIENT_ID &&
-      process.env.GOOGLE_CLIENT_SECRET &&
-      process.env.GOOGLE_REDIRECT_URI,
+    process.env.GOOGLE_CLIENT_SECRET &&
+    process.env.GOOGLE_REDIRECT_URI,
   );
 }
 
@@ -198,8 +198,13 @@ export function googleRedirectUri() {
     throw new Error('GOOGLE_REDIRECT_URI is not configured.');
   }
   const uri = new URL(value);
-  if (uri.protocol !== 'https:' || uri.pathname !== '/api/auth/google/callback') {
-    throw new Error('GOOGLE_REDIRECT_URI must be an HTTPS Google callback URL.');
+  if (
+    uri.protocol !== 'https:' ||
+    uri.pathname !== '/api/auth/google/callback'
+  ) {
+    throw new Error(
+      'GOOGLE_REDIRECT_URI must be an HTTPS Google callback URL.',
+    );
   }
   return uri.toString();
 }

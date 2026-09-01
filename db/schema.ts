@@ -20,7 +20,11 @@ export const userAuthProvider = pgEnum('user_auth_provider', [
   'email_otp',
 ]);
 
-export const consentContext = pgEnum('consent_context', ['owner', 'buyer']);
+export const consentContext = pgEnum('consent_context', [
+  'owner',
+  'buyer',
+  'subscription',
+]);
 
 export const appUsers = pgTable(
   'app_users',
@@ -117,6 +121,44 @@ export const userConsents = pgTable(
       table.userId,
       table.context,
       table.covenantVersion,
+    ),
+  ],
+);
+
+export const societyPriceSubscriptionStatus = pgEnum(
+  'society_price_subscription_status',
+  ['active', 'unsubscribed'],
+);
+
+export const societyPriceSubscriptions = pgTable(
+  'society_price_subscriptions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => appUsers.id, { onDelete: 'cascade' }),
+    societySlug: text('society_slug').notNull(),
+    societyName: text('society_name').notNull(),
+    status: societyPriceSubscriptionStatus('status')
+      .default('active')
+      .notNull(),
+    sourceScreen: text('source_screen').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    unsubscribedAt: timestamp('unsubscribed_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('society_price_subscriptions_user_society_unique').on(
+      table.userId,
+      table.societySlug,
+    ),
+    index('society_price_subscriptions_society_status_idx').on(
+      table.societySlug,
+      table.status,
     ),
   ],
 );
@@ -508,6 +550,38 @@ export const notificationDeliveries = pgTable(
       table.contributionId,
     ),
     index('notification_deliveries_status_created_idx').on(
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const societySubscriptionDeliveries = pgTable(
+  'society_subscription_deliveries',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    subscriptionId: uuid('subscription_id')
+      .notNull()
+      .references(() => societyPriceSubscriptions.id, { onDelete: 'cascade' }),
+    recipientEmail: text('recipient_email').notNull(),
+    societySlug: text('society_slug').notNull(),
+    societyName: text('society_name').notNull(),
+    eventType: text('event_type').notNull(),
+    eventKey: text('event_key').notNull(),
+    status: notificationDeliveryStatus('status').default('pending').notNull(),
+    attemptCount: integer('attempt_count').default(0).notNull(),
+    lastError: text('last_error'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex('society_subscription_deliveries_event_unique').on(
+      table.subscriptionId,
+      table.eventKey,
+    ),
+    index('society_subscription_deliveries_status_created_idx').on(
       table.status,
       table.createdAt,
     ),

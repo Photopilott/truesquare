@@ -161,19 +161,25 @@ export function SocietyShare({
             </h3>
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Median registered price</p>
+                <p className="text-muted-foreground">12-month median price</p>
                 <p className="mt-1 font-semibold">
                   {compactInr(evidence.registeredMedianPrice)}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Median / sq ft</p>
+                <p className="text-muted-foreground">Latest / sq ft</p>
                 <p className="mt-1 font-semibold">
-                  {wholeInr(evidence.registeredMedianPricePerSqFt)}
+                  {wholeInr(evidence.latestRegisteredPricePerSqFt)}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Supporting sales</p>
+                <p className="text-muted-foreground">Latest flat sold</p>
+                <p className="mt-1 font-semibold">
+                  {compactInr(evidence.latestRegisteredPrice)}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">12-month sales</p>
                 <p className="mt-1 font-semibold">{evidence.registeredCount}</p>
               </div>
               <div>

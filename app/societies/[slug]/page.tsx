@@ -23,13 +23,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const evidence = await getPublicSocietyEvidence(slug);
   if (!evidence) return {};
-  const description = `${evidence.society.name} registered price benchmark: ${compactInr(evidence.registeredMedianPrice)}, based on ${evidence.registeredCount} supporting sales. Personal flat prices stay private.`;
+  const description = `${evidence.society.name} 12-month registered price benchmark: ${compactInr(evidence.registeredMedianPrice)}, based on ${evidence.registeredCount} supporting sales. Personal flat prices stay private.`;
   return {
-    title: `${evidence.society.name} price benchmark — FlatData`,
+    title: `${evidence.society.name} latest price benchmark — FlatData`,
     description,
     alternates: { canonical: `/societies/${slug}` },
     openGraph: {
-      title: `${evidence.society.name} · Registered price benchmark`,
+      title: `${evidence.society.name} · Latest registered price benchmark`,
       description,
       type: 'website',
       url: `/societies/${slug}`,
@@ -37,7 +37,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${evidence.society.name} · Registered price benchmark`,
+      title: `${evidence.society.name} · Latest registered price benchmark`,
       description,
       images: [`/societies/${slug}/opengraph-image`],
     },

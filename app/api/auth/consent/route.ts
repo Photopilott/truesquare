@@ -34,7 +34,12 @@ export async function POST(request: Request) {
     );
   }
   const context = body.context;
-  if ((context !== 'owner' && context !== 'buyer') || body.accepted !== true) {
+  if (
+    (context !== 'owner' &&
+      context !== 'buyer' &&
+      context !== 'subscription') ||
+    body.accepted !== true
+  ) {
     return NextResponse.json(
       { error: 'Accept the data covenant to continue.' },
       { status: 400 },

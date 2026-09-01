@@ -28,6 +28,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AccessGate } from '@/components/access-gate';
 import { BrandWordmark } from '@/components/brand-wordmark';
 import { SocietyShare } from '@/components/society-share';
+import { SocietySubscribe } from '@/components/society-subscribe';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -371,6 +372,19 @@ export function PropertyIntelligenceApp({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const resumeGate = params.get('resumeGate');
+    if (resumeGate === 'subscription') {
+      const subscriptionSociety = params.get('subscriptionSociety');
+      const society = societies.find(
+        (item) => item.slug === subscriptionSociety,
+      );
+      if (society) {
+        const frame = window.requestAnimationFrame(() =>
+          setSelectedSociety(society),
+        );
+        return () => window.cancelAnimationFrame(frame);
+      }
+      return;
+    }
     if (resumeGate !== 'owner' && resumeGate !== 'buyer') return;
     const frame = window.requestAnimationFrame(() => {
       setGateContext(resumeGate);
@@ -1976,16 +1990,6 @@ function SocietyDetail({
   unlocked: boolean;
   onUnlock: () => void;
 }) {
-  const detailMedianPrice = median(
-    records
-      .map((record) => record.price)
-      .filter((price): price is number => Boolean(price)),
-  );
-  const detailMedianPpsf = median(
-    records
-      .map((record) => record.pricePerSqFt)
-      .filter((price): price is number => Boolean(price)),
-  );
   const detailBhks = [
     ...new Set(
       records
@@ -2006,7 +2010,7 @@ function SocietyDetail({
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{society.location}</Badge>
           <Badge variant="outline">
-            {confidenceForCount(records.length)} confidence
+            {publicEvidence.confidence} confidence
           </Badge>
         </div>
         <DialogTitle className="mt-2 font-heading text-2xl">
@@ -2022,13 +2026,21 @@ function SocietyDetail({
       </DialogHeader>
       <div className="grid grid-cols-2 gap-4 rounded-xl bg-muted/45 p-4 sm:grid-cols-4">
         <Metric
-          label={
-            bhkFilter === 'All' ? 'Median price' : `${bhkFilter} BHK median`
-          }
-          value={formatInr(detailMedianPrice, true)}
+          label="12-month median"
+          value={formatInr(publicEvidence.registeredMedianPrice, true)}
         />
-        <Metric label="Median / sq ft" value={formatInr(detailMedianPpsf)} />
-        <Metric label="Registered sales" value={String(records.length)} />
+        <Metric
+          label="Latest / sq ft"
+          value={formatInr(publicEvidence.latestRegisteredPricePerSqFt)}
+        />
+        <Metric
+          label="Latest flat sold"
+          value={formatInr(publicEvidence.latestRegisteredPrice, true)}
+        />
+        <Metric
+          label="12-month sales"
+          value={String(publicEvidence.registeredCount)}
+        />
         <Metric
           label="BHK evidence"
           value={detailBhks.join(', ') || 'Sparse'}
@@ -2053,6 +2065,7 @@ function SocietyDetail({
             sourceScreen="buyer_detail"
             buttonLabel="Share on WhatsApp"
           />
+          <SocietySubscribe society={society} sourceScreen="buyer_detail" />
           <Link
             href={`/societies/${society.slug}`}
             className="text-sm font-semibold underline underline-offset-4"

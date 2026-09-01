@@ -50,6 +50,13 @@
       "when": 1788250686919,
       "tag": "0006_married_tombstone",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788256693321,
+      "tag": "0007_stiff_ted_forrester",
+      "breakpoints": true
     }
   ]
 }

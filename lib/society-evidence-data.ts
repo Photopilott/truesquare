@@ -17,6 +17,10 @@ export function getSocietySummary(slug: string) {
   return societies.find((society) => society.slug === slug) ?? null;
 }
 
+export function getSocietySummaryByName(name: string) {
+  return societies.find((society) => society.name === name) ?? null;
+}
+
 export function getAllSocietySummaries() {
   return societies;
 }

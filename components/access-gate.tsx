@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-type GateContext = 'owner' | 'buyer';
+type GateContext = 'owner' | 'buyer' | 'subscription';
 type SessionPayload = {
   authenticated: boolean;
   googleConfigured: boolean;
@@ -33,7 +33,7 @@ type SessionPayload = {
     pictureUrl: string | null;
     provider: 'google' | 'email_otp';
   };
-  consent?: { owner: boolean; buyer: boolean };
+  consent?: { owner: boolean; buyer: boolean; subscription: boolean };
 };
 
 export function AccessGate({
@@ -43,6 +43,7 @@ export function AccessGate({
   onAuthorized,
   actionPending,
   actionError,
+  subject,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -50,6 +51,7 @@ export function AccessGate({
   onAuthorized: () => Promise<void> | void;
   actionPending: boolean;
   actionError: string;
+  subject?: string;
 }) {
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [loadingSession, setLoadingSession] = useState(false);
@@ -189,6 +191,7 @@ export function AccessGate({
                 consent: {
                   owner: current.consent?.owner ?? false,
                   buyer: current.consent?.buyer ?? false,
+                  subscription: current.consent?.subscription ?? false,
                   [context]: true,
                 },
               }
@@ -214,16 +217,48 @@ export function AccessGate({
             <LockKeyhole className="size-5" />
           </div>
           <p className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground">
-            VERIFIED ACCESS
+            {context === 'subscription'
+              ? 'PRICE UPDATE ACCESS'
+              : 'VERIFIED ACCESS'}
           </p>
-          <DialogTitle>Sign in to unlock intelligence</DialogTitle>
+          <DialogTitle>
+            {context === 'subscription'
+              ? `Get ${subject ?? 'society'} price updates`
+              : 'Sign in to unlock intelligence'}
+          </DialogTitle>
           <DialogDescription>
-            Use Google, or verify any email with a one-time code. We ask only
-            for a verified email—never your phone number.{' '}
-            {context === 'owner' &&
-              'Your flat price and private valuation are never shared.'}
+            {context === 'subscription' ? (
+              <>
+                Verify your email once. We will email you only when FlatData
+                adds new price evidence for {subject ?? 'this society'}.
+              </>
+            ) : (
+              <>
+                Use Google, or verify any email with a one-time code. We ask
+                only for a verified email—never your phone number.{' '}
+                {context === 'owner' &&
+                  'Your flat price and private valuation are never shared.'}
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
+
+        {context === 'subscription' ? (
+          <div className="space-y-2 rounded-[10px] border border-[#A9DCB8] bg-accent p-4 text-sm">
+            <p className="flex items-start gap-2">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
+              New anonymous owner benchmark and latest pricing
+            </p>
+            <p className="flex items-start gap-2">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
+              Latest verified transaction pricing
+            </p>
+            <p className="flex items-start gap-2 font-medium">
+              <LockKeyhole className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
+              No spam. No calls. No sale of your data. Only evidence.
+            </p>
+          </div>
+        ) : null}
 
         {loadingSession ? (
           <div className="grid min-h-32 place-items-center">
@@ -258,9 +293,9 @@ export function AccessGate({
                 onChange={(event) => setAccepted(event.target.checked)}
               />
               <span>
-                I accept the data covenant. My exact purchase price will not be
-                shown publicly or used for advertising, targeting, broker
-                access, or developer access.
+                {context === 'subscription'
+                  ? `Email me when FlatData adds a new anonymous owner benchmark or verified sale for ${subject ?? 'this society'}. No spam, calls, or sale of my data—only evidence.`
+                  : 'I accept the data covenant. My exact purchase price will not be shown publicly or used for advertising, targeting, broker access, or developer access.'}
               </span>
             </label>
           </div>
@@ -368,7 +403,9 @@ export function AccessGate({
                 ? 'SAVING SECURELY…'
                 : context === 'owner'
                   ? 'SAVE & SEE MY VALUATION'
-                  : 'SEE SUPPORTING TRANSACTIONS'}
+                  : context === 'buyer'
+                    ? 'SEE SUPPORTING TRANSACTIONS'
+                    : 'SUBSCRIBE FOR PRICE UPDATES'}
             </Button>
           </DialogFooter>
         )}

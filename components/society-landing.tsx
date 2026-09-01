@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle2, LockKeyhole } from 'lucide-react';
 
 import { AppHeader } from '@/components/property-intelligence-app';
 import { SocietyShare } from '@/components/society-share';
+import { SocietySubscribe } from '@/components/society-subscribe';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -71,18 +72,26 @@ export function SocietyLanding({
               <Card className="mt-8 border-0 bg-primary text-primary-foreground ring-0">
                 <CardHeader>
                   <p className="font-mono text-[10px] tracking-[0.12em] text-primary-foreground/60">
-                    MEDIAN REGISTERED PRICE
+                    12-MONTH MEDIAN REGISTERED PRICE
                   </p>
                   <CardTitle className="mt-2 font-heading text-5xl sm:text-6xl">
                     {compactInr(evidence.registeredMedianPrice)}
                   </CardTitle>
                   <p className="text-sm text-primary-foreground/65">
-                    {wholeInr(evidence.registeredMedianPricePerSqFt)} per sq ft
+                    12 months ending {evidenceDate(evidence.evidenceWindowEnd)}
                   </p>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-5 border-t border-white/12 pt-5 sm:grid-cols-4">
+                <CardContent className="grid grid-cols-2 gap-5 border-t border-white/12 pt-5 sm:grid-cols-3">
                   <Metric
-                    label="Supporting sales"
+                    label="Latest / sq ft"
+                    value={wholeInr(evidence.latestRegisteredPricePerSqFt)}
+                  />
+                  <Metric
+                    label="Latest flat sold"
+                    value={compactInr(evidence.latestRegisteredPrice)}
+                  />
+                  <Metric
+                    label="12-month sales"
                     value={`${evidence.registeredCount}`}
                   />
                   <Metric label="Confidence" value={evidence.confidence} />
@@ -97,11 +106,15 @@ export function SocietyLanding({
                 </CardContent>
               </Card>
 
-              <div className="mt-7">
+              <div className="mt-7 flex flex-wrap items-start gap-4">
                 <SocietyShare
                   evidence={evidence}
                   sourceScreen="society_page"
                   buttonLabel="Share this benchmark"
+                />
+                <SocietySubscribe
+                  society={evidence.society}
+                  sourceScreen="society_page"
                 />
               </div>
             </section>

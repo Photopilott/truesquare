@@ -24,12 +24,22 @@ export type PublicSocietyEvidence = {
   registeredMedianPrice: number | null;
   registeredMedianPricePerSqFt: number | null;
   registeredCount: number;
+  evidenceWindowStart: string | null;
+  evidenceWindowEnd: string | null;
+  latestRegisteredPrice: number | null;
+  latestRegisteredPricePerSqFt: number | null;
   confidence: ValuationResult['confidence'];
   bhks: string[];
   latestEvidenceDate: string | null;
   publicOwnerContributionCount: number;
   publicOwnerAggregateCount: number;
 };
+
+function subtractOneYear(value: string) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  date.setUTCFullYear(date.getUTCFullYear() - 1);
+  return date.toISOString().slice(0, 10);
+}
 
 function isEligibleRegisteredRecord(record: TransactionRecord) {
   return Boolean(
@@ -52,38 +62,53 @@ export function buildPublicSocietyEvidence(
     (record) =>
       record.society === society.name && isEligibleRegisteredRecord(record),
   );
+  const recordsByNewest = [...registeredRecords].sort((a, b) => {
+    const dateComparison = (b.registrationDate ?? '').localeCompare(
+      a.registrationDate ?? '',
+    );
+    return dateComparison || b.id.localeCompare(a.id);
+  });
+  const latestRegisteredRecord = recordsByNewest[0] ?? null;
+  const evidenceWindowEnd = latestRegisteredRecord?.registrationDate ?? null;
+  const evidenceWindowStart = evidenceWindowEnd
+    ? subtractOneYear(evidenceWindowEnd)
+    : null;
+  const oneYearRegisteredRecords = evidenceWindowStart
+    ? registeredRecords.filter(
+        (record) => (record.registrationDate ?? '') >= evidenceWindowStart,
+      )
+    : [];
   const societyOwnerAggregates = ownerAggregates.filter(
     (aggregate) => aggregate.society === society.name,
   );
   const bhks = [
     ...new Set(
-      registeredRecords
+      oneYearRegisteredRecords
         .map((record) => record.bhk)
         .filter((bhk): bhk is string => Boolean(bhk)),
     ),
   ].sort((a, b) => Number(a) - Number(b));
-  const evidenceDates = registeredRecords
-    .map((record) => record.registrationDate)
-    .filter((date): date is string => Boolean(date))
-    .sort((a, b) => b.localeCompare(a));
-
   return {
     society,
     registeredRecords,
     registeredMedianPrice: median(
-      registeredRecords
+      oneYearRegisteredRecords
         .map((record) => record.price)
         .filter((price): price is number => price != null),
     ),
     registeredMedianPricePerSqFt: median(
-      registeredRecords
+      oneYearRegisteredRecords
         .map((record) => record.pricePerSqFt)
         .filter((price): price is number => price != null),
     ),
-    registeredCount: registeredRecords.length,
-    confidence: confidenceForCount(registeredRecords.length),
+    registeredCount: oneYearRegisteredRecords.length,
+    evidenceWindowStart,
+    evidenceWindowEnd,
+    latestRegisteredPrice: latestRegisteredRecord?.price ?? null,
+    latestRegisteredPricePerSqFt: latestRegisteredRecord?.pricePerSqFt ?? null,
+    confidence: confidenceForCount(oneYearRegisteredRecords.length),
     bhks,
-    latestEvidenceDate: evidenceDates[0] ?? null,
+    latestEvidenceDate: evidenceWindowEnd,
     publicOwnerContributionCount: societyOwnerAggregates.reduce(
       (total, aggregate) => total + aggregate.approvedCount,
       0,
@@ -123,7 +148,7 @@ export function evidenceDate(value: string | null) {
 
 export function societyShareMessage(evidence: PublicSocietyEvidence) {
   const benchmarkPricePerSqFt =
-    evidence.registeredMedianPricePerSqFt ??
+    evidence.latestRegisteredPricePerSqFt ??
     evidence.society.medianPricePerSqFt;
   return `Found a site that shows what your flat is worth today and how much it's gone up since you bought it. Uses actual registration data, not broker listings.\n${evidence.society.name} is at ${wholeInr(benchmarkPricePerSqFt)}/sq ft right now.`;
 }

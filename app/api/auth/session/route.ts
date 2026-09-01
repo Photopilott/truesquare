@@ -23,9 +23,10 @@ export async function GET(request: Request) {
     );
   }
 
-  const [ownerConsent, buyerConsent] = await Promise.all([
+  const [ownerConsent, buyerConsent, subscriptionConsent] = await Promise.all([
     consentForUser(session.userId, 'owner'),
     consentForUser(session.userId, 'buyer'),
+    consentForUser(session.userId, 'subscription'),
   ]);
   return NextResponse.json(
     {
@@ -38,7 +39,11 @@ export async function GET(request: Request) {
         pictureUrl: session.pictureUrl,
         provider: session.authProvider,
       },
-      consent: { owner: ownerConsent, buyer: buyerConsent },
+      consent: {
+        owner: ownerConsent,
+        buyer: buyerConsent,
+        subscription: subscriptionConsent,
+      },
     },
     { headers: { 'Cache-Control': 'no-store' } },
   );

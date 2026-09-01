@@ -6,40 +6,56 @@ import {
   isSameOriginRequest,
 } from '@/lib/admin-auth';
 import { MINIMUM_PUBLIC_CONTRIBUTIONS } from '@/lib/owner-aggregates';
+import { getSocietySummaryByName } from '@/lib/society-evidence-data';
+import { notifySocietyPriceSubscribers } from '@/lib/society-subscriptions';
 import { sendContributionReviewEmail } from '@/lib/user-email';
 
 export const runtime = 'nodejs';
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   if (!isSameOriginRequest(request)) {
-    return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });
+    return NextResponse.json(
+      { error: 'Invalid request origin.' },
+      { status: 403 },
+    );
   }
   const session = await getAdminSessionFromRequest(request);
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
   if (!hasDatabase()) {
-    return NextResponse.json({ error: 'Database unavailable.' }, { status: 503 });
+    return NextResponse.json(
+      { error: 'Database unavailable.' },
+      { status: 503 },
+    );
   }
 
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) {
-    return NextResponse.json({ error: 'Invalid contribution ID.' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid contribution ID.' },
+      { status: 400 },
+    );
   }
 
   let body: { status?: unknown; notes?: unknown };
   try {
     body = (await request.json()) as { status?: unknown; notes?: unknown };
   } catch {
-    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Invalid request body.' },
+      { status: 400 },
+    );
   }
   const status = body.status;
-  const notes = typeof body.notes === 'string' ? body.notes.trim().slice(0, 2000) : null;
+  const notes =
+    typeof body.notes === 'string' ? body.notes.trim().slice(0, 2000) : null;
   if (status !== 'approved' && status !== 'rejected') {
     return NextResponse.json(
       { error: 'Status must be approved or rejected.' },
@@ -49,14 +65,14 @@ export async function PATCH(
 
   try {
     const sql = getSql();
-    const targets = await sql`
+    const targets = (await sql`
       SELECT pc.status, c.email, op.society, op.location, op.bhk
       FROM purchase_contributions pc
       JOIN owner_properties op ON op.id = pc.property_id
       JOIN contributors c ON c.id = op.contributor_id
       WHERE pc.id = ${id}
       LIMIT 1
-    ` as Array<{
+    `) as Array<{
       status: 'pending' | 'approved' | 'rejected';
       email: string;
       society: string;
@@ -65,7 +81,10 @@ export async function PATCH(
     }>;
     const target = targets[0];
     if (!target) {
-      return NextResponse.json({ error: 'Contribution not found.' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Contribution not found.' },
+        { status: 404 },
+      );
     }
     if (target.status !== 'pending') {
       return NextResponse.json(
@@ -136,9 +155,11 @@ export async function PATCH(
         ) VALUES (
           ${id},
           ${target.email},
-          ${status === 'approved'
-            ? 'contribution_approved'
-            : 'contribution_rejected'},
+          ${
+            status === 'approved'
+              ? 'contribution_approved'
+              : 'contribution_rejected'
+          },
           'pending',
           0
         )
@@ -175,14 +196,43 @@ export async function PATCH(
       console.error('Owner review notification failed.', notificationError);
     }
 
+    let subscriberNotification = { attempted: 0, sent: 0, failed: 0 };
+    if (status === 'approved') {
+      const publicAggregates = await sql`
+        SELECT approved_count
+        FROM owner_price_aggregates
+        WHERE society = ${target.society} AND bhk = ${target.bhk}
+        LIMIT 1
+      `;
+      const society = getSocietySummaryByName(target.society);
+      if (publicAggregates[0] && society) {
+        try {
+          subscriberNotification = await notifySocietyPriceSubscribers({
+            societySlug: society.slug,
+            eventType: 'owner_benchmark_updated',
+            eventKey: `owner-contribution:${id}`,
+          });
+        } catch (subscriberError) {
+          console.error(
+            'Owner benchmark subscriber notification failed.',
+            subscriberError,
+          );
+        }
+      }
+    }
+
     return NextResponse.json({
       id,
       status,
       aggregateRecalculated: true,
       notification: { id: delivery.id, status: notificationStatus },
+      subscriberNotification,
     });
   } catch (error) {
     console.error('Admin contribution review failed.', error);
-    return NextResponse.json({ error: 'Unable to review contribution.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Unable to review contribution.' },
+      { status: 500 },
+    );
   }
 }

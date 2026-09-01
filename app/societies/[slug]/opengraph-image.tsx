@@ -39,7 +39,7 @@ export default async function Image({
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: 22, color: '#5e554c', letterSpacing: 2 }}>
-          REGISTERED SOCIETY BENCHMARK
+          12-MONTH REGISTERED SOCIETY BENCHMARK
         </div>
         <div style={{ marginTop: 18, fontSize: 64, fontWeight: 700 }}>
           {evidence.society.name}
@@ -56,7 +56,7 @@ export default async function Image({
             {compactInr(evidence.registeredMedianPrice)}
           </div>
           <div style={{ paddingBottom: 12, fontSize: 28, color: '#5e554c' }}>
-            {wholeInr(evidence.registeredMedianPricePerSqFt)} / sq ft
+            Latest {wholeInr(evidence.latestRegisteredPricePerSqFt)} / sq ft
           </div>
         </div>
       </div>
