@@ -378,6 +378,7 @@ export const atlasProjects = pgTable(
     registration: text('registration').notNull(),
     name: text('name').notNull(),
     builder: text('builder').notNull(),
+    namedDeveloper: text('named_developer').notNull(),
     status: text('status').notNull(),
     taluk: text('taluk').notNull(),
     address: text('address'),
@@ -441,6 +442,7 @@ export const atlasProjects = pgTable(
   (table) => [
     uniqueIndex('atlas_projects_registration_unique').on(table.registration),
     index('atlas_projects_builder_idx').on(table.builder),
+    index('atlas_projects_named_developer_idx').on(table.namedDeveloper),
     index('atlas_projects_market_idx').on(table.market),
     index('atlas_projects_status_idx').on(table.status),
     index('atlas_projects_authority_idx').on(table.planningAuthority),

@@ -18,6 +18,7 @@ export type RawProject = {
   registration: string | null;
   name: string;
   builder: string;
+  named_developer: string;
   status: string | null;
   taluk: string | null;
   address: string | null;
@@ -135,9 +136,9 @@ export function toFiling(project: RawProject): Filing {
   };
 }
 
-export function builderPortfolio(filings: Filing[], builder: string) {
+export function builderPortfolio(filings: Filing[], namedDeveloper: string) {
   return filings
-    .filter((item) => item.builder === builder)
+    .filter((item) => item.named_developer === namedDeveloper)
     .sort((a, b) =>
       (a.startedAt || '9999').localeCompare(b.startedAt || '9999'),
     )

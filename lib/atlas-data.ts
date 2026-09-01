@@ -18,6 +18,7 @@ type AtlasProjectRow = {
   registration: string;
   name: string;
   builder: string;
+  named_developer: string;
   status: string | null;
   taluk: string | null;
   address: string | null;
@@ -80,6 +81,7 @@ export function atlasRowToProject(row: AtlasProjectRow): RawProject {
     registration: row.registration,
     name: row.name,
     builder: row.builder,
+    named_developer: row.named_developer,
     status: row.status,
     taluk: row.taluk,
     address: row.address,
@@ -124,6 +126,7 @@ function snapshotProjects() {
   return (
     source.projects as Omit<
       RawProject,
+      | 'named_developer'
       | 'towers'
       | 'floors'
       | 'built_up_sqm'
@@ -134,6 +137,7 @@ function snapshotProjects() {
     >[]
   ).map((project) => ({
     ...project,
+    named_developer: project.builder,
     towers: null,
     floors: null,
     built_up_sqm: null,
@@ -183,6 +187,7 @@ async function readDatabaseProjects() {
       registration,
       name,
       builder,
+      named_developer,
       status,
       taluk,
       address,
@@ -245,7 +250,7 @@ export const getAtlasProjectRead = cache(async (slug: string) => {
   if (!project) return null;
   return {
     project,
-    portfolio: builderPortfolio(filings, project.builder),
+    portfolio: builderPortfolio(filings, project.named_developer),
     nearby: nearbyFilings(filings, project),
   };
 });

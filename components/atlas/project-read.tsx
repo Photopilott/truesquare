@@ -116,7 +116,7 @@ function Portfolio({
         <StatCell
           label="Projects"
           value={indian(projects.length)}
-          caption="same builder name in this extract"
+          caption="same named developer group"
         />
         <StatCell label="Cities" value="1" caption="Bengaluru extract only" />
         <StatCell
@@ -132,7 +132,7 @@ function Portfolio({
       </div>
       <div
         className="portfolio-chart"
-        aria-label={`${projects.length} builder filings on a shared 2017 to 2029 axis`}
+        aria-label={`${projects.length} developer-group filings on a shared 2017 to 2029 axis`}
       >
         <TimeAxis domain={domain} />
         <div
@@ -164,10 +164,10 @@ function Portfolio({
         </div>
       </div>
       <CaveatSentence>
-        {indian(projects.length)} filings share this exact builder name in the
-        Bengaluru inventory extract, capped at 200. Dates are start and target
-        completion as filed; whether a project was delivered is not reported
-        here.
+        {indian(projects.length)} filings share this cleaned developer group in
+        the Bengaluru inventory extract, capped at 200. Dates are start and
+        target completion as filed; whether a project was delivered is not
+        reported here.
       </CaveatSentence>
     </>
   );
@@ -230,7 +230,10 @@ export function ProjectRead({
             </p>
             <h1>{project.name}</h1>
             <p className="project-byline">
-              <a href="#builder">{project.builder}</a>
+              <a href="#builder">{project.named_developer}</a>
+              {project.builder !== project.named_developer && (
+                <span>Filed entity · {project.builder}</span>
+              )}
               <span>{project.reraNumber}</span>
             </p>
             <VerdictStrip project={project} />
@@ -316,7 +319,7 @@ export function ProjectRead({
               <StatCell
                 label="Projects by this developer"
                 value={indian(portfolio.length)}
-                caption="same builder name in this extract"
+                caption="same named developer group"
               />
             </DividerGrid>
             <div className="subsection-title">
@@ -405,8 +408,8 @@ export function ProjectRead({
             <SectionHead
               ordinal="03"
               eyebrow="Builder's track record"
-              headline="One builder name across the register."
-              lede="This comparison follows the builder name exactly as filed. Similar names are not merged."
+              headline="One developer group across the register."
+              lede="This comparison combines casing, punctuation and clearly related business entities under one named developer."
             />
             <ProvenanceLine>
               RERA Karnataka · Bengaluru inventory extract · derived grouping
@@ -416,13 +419,13 @@ export function ProjectRead({
             </div>
             <div className="subsection-title">
               <p>Builder summary</p>
-              <h3>Scale in the records carrying this builder name.</h3>
+              <h3>Scale in the records carrying this developer group.</h3>
             </div>
             <DividerGrid className="dna-grid">
               <StatCell
                 label="Projects on record"
                 value={indian(portfolio.length)}
-                caption="exact builder name"
+                caption="named developer group"
                 large
               />
               <StatCell
@@ -433,9 +436,10 @@ export function ProjectRead({
               />
             </DividerGrid>
             <CaveatSentence>
-              Portfolio totals are derived from records sharing this exact
-              builder name. They are a footprint, not a ranking, and do not
-              prove delivery.
+              Portfolio totals are derived from records sharing this cleaned
+              developer group. The filed legal entity remains visible above.
+              These totals are a footprint, not a ranking, and do not prove
+              delivery.
             </CaveatSentence>
             <ConfidenceLine
               sample={portfolio.length}

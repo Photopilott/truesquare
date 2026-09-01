@@ -17,6 +17,7 @@
     "db:seed": "node scripts/seed-registered-transactions.mjs",
     "db:seed:atlas": "node scripts/seed-atlas-projects.mjs",
     "db:seed:atlas:workbook-only": "node scripts/seed-atlas-workbook-only-projects.mjs",
+    "db:classify:atlas-developers": "node scripts/classify-atlas-developers.mjs",
     "test:transaction-import": "node --experimental-strip-types --test test/transaction-import.test.ts",
     "test:evidence-stack": "node --experimental-strip-types --test test/evidence-stack.test.ts",
     "test:valuation": "node --experimental-strip-types --test test/valuation-engine.test.ts",

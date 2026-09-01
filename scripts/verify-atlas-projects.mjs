@@ -37,6 +37,9 @@ const [summary] = await sql`
     count(*)::int as rows,
     count(distinct id)::int as distinct_ids,
     count(distinct registration)::int as distinct_registrations,
+    count(named_developer)::int as named_developer_rows,
+    count(distinct builder)::int as raw_builder_names,
+    count(distinct named_developer)::int as named_developers,
     count(*) filter (where enrichment_match_method = 'registration')::int as exact_matches,
     count(*) filter (where enrichment_match_method = 'new-registration')::int as added_rows,
     count(*) filter (where enrichment_match_method is null)::int as original_unmatched_rows,
@@ -49,6 +52,28 @@ const [summary] = await sql`
     count(construction_progress)::int as construction_progress,
     count(units)::int as units,
     count(planning_authority)::int as planning_authority
+  from public.atlas_projects
+`;
+const developerGroups = await sql`
+  select named_developer, count(*)::int as projects
+  from public.atlas_projects
+  where named_developer in ('Prestige', 'Sobha', 'Assetz', 'Mythri Builders')
+  group by named_developer
+  order by named_developer
+`;
+const developerGroupCounts = Object.fromEntries(
+  developerGroups.map((row) => [row.named_developer, row.projects]),
+);
+const [falseMergeChecks] = await sql`
+  select
+    count(*) filter (
+      where builder ilike '%sobha rani%'
+        and named_developer = 'Sobha'
+    )::int as sobha_rani,
+    count(*) filter (
+      where (builder ilike '%mythreyi%' or builder ilike '%mythrielite%')
+        and named_developer = 'Mythri Builders'
+    )::int as mythri_lookalikes
   from public.atlas_projects
 `;
 const [unrelated] = await sql`
@@ -139,14 +164,23 @@ if (
   summary.rows !== 4717 ||
   summary.distinct_ids !== 4717 ||
   summary.distinct_registrations !== 4717 ||
+  summary.named_developer_rows !== 4717 ||
+  summary.raw_builder_names !== 3313 ||
+  summary.named_developers !== 2763 ||
   summary.exact_matches !== 2271 ||
   summary.added_rows !== 2348 ||
   summary.original_unmatched_rows !== 98 ||
+  developerGroupCounts.Prestige !== 77 ||
+  developerGroupCounts.Sobha !== 119 ||
+  developerGroupCounts.Assetz !== 16 ||
+  developerGroupCounts['Mythri Builders'] !== 10 ||
+  falseMergeChecks.sobha_rani !== 0 ||
+  falseMergeChecks.mythri_lookalikes !== 0 ||
   unrelated.bangalore_flat_inventory_rows !== 418 ||
   mismatches.length
 ) {
   throw new Error(
-    `Atlas verification failed: ${JSON.stringify({ summary, unrelated, mismatches: mismatches.slice(0, 5) })}`,
+    `Atlas verification failed: ${JSON.stringify({ summary, developerGroupCounts, falseMergeChecks, unrelated, mismatches: mismatches.slice(0, 5) })}`,
   );
 }
 
@@ -154,6 +188,8 @@ console.log(
   JSON.stringify(
     {
       summary,
+      developerGroupCounts,
+      falseMergeChecks,
       unrelated,
       valueMismatches: mismatches.length,
       samples: stored.slice(0, 3),

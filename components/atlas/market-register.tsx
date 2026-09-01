@@ -44,7 +44,7 @@ export function MarketRegister({
   const active = records.filter(
     (item) => !item.targetAt || item.targetAt >= '2026-09',
   ).length;
-  const builders = new Set(records.map((item) => item.builder)).size;
+  const developers = new Set(records.map((item) => item.named_developer)).size;
 
   function chooseArea(name: string) {
     setArea(name);
@@ -64,9 +64,11 @@ export function MarketRegister({
             <h1>Before you trust a project, read its record.</h1>
             <p className="market-lede">
               {indian(records.length)} projects with declared flat inventory in
-              this district extract, reproduced as filed. Names, dates and areas
-              stay verbatim; nothing is corrected, ranked or recommended. Where
-              a filing is silent, so is this page.
+              this district extract, built from filed records. Project names,
+              dates and areas stay verbatim; developer names are cleaned into
+              groups while the filed entity stays on each project page. Nothing
+              is ranked or recommended. Where a filing is silent, so is this
+              page.
             </p>
             <EvidenceChips />
           </div>
@@ -83,9 +85,9 @@ export function MarketRegister({
               caption="target not passed"
             />
             <StatCell
-              label="Builders"
-              value={indian(builders)}
-              caption="exact filed names"
+              label="Developers"
+              value={indian(developers)}
+              caption="cleaned group names"
             />
           </DividerGrid>
         </header>

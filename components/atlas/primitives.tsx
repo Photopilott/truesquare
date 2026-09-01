@@ -317,7 +317,7 @@ export function RecordRow({
         <p className="record-eyebrow">{project.assetClass}</p>
         <h3>{project.name}</h3>
         <p className="record-subline">
-          {project.builder} · {project.subArea}
+          {project.named_developer} · {project.subArea}
         </p>
       </div>
       <div className="record-duration">

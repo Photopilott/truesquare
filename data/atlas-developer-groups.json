@@ -1,0 +1,41 @@
+[
+  { "name": "Prestige", "patterns": ["^prestige\\b"] },
+  { "name": "Sobha", "patterns": ["^sobha limited$"] },
+  { "name": "Assetz", "patterns": ["^assetz\\b"] },
+  {
+    "name": "Mythri Builders",
+    "patterns": ["^mythri (builders|developers|housing)\\b"]
+  },
+  { "name": "Brigade", "patterns": ["^brigade\\b"] },
+  { "name": "DS-MAX", "patterns": ["^ds max\\b"] },
+  {
+    "name": "Puravankara",
+    "patterns": ["^(puravankara|provident)\\b"]
+  },
+  { "name": "Godrej Properties", "patterns": ["^godrej\\b"] },
+  { "name": "Sumadhura", "patterns": ["^sumadhura\\b"] },
+  {
+    "name": "Casagrand",
+    "patterns": ["^(casa grande|casagrand)\\b"]
+  },
+  { "name": "Sattva", "patterns": ["^sattva\\b"] },
+  { "name": "Bhartiya Urban", "patterns": ["^bhartiya\\b"] },
+  { "name": "Manyata", "patterns": ["^manyata\\b"] },
+  { "name": "Mahindra Lifespaces", "patterns": ["^mahindra\\b"] },
+  { "name": "Lodha", "patterns": ["^(lodha|macrotech)\\b"] },
+  { "name": "Embassy", "patterns": ["^embassy\\b"] },
+  { "name": "Rohan", "patterns": ["^rohan\\b"] },
+  { "name": "KNS", "patterns": ["^kns\\b"] },
+  { "name": "Abhee", "patterns": ["^abhee\\b"] },
+  { "name": "Sowparnika", "patterns": ["^sowparnika\\b"] },
+  { "name": "Concorde", "patterns": ["^concorde\\b"] },
+  {
+    "name": "Total Environment",
+    "patterns": ["^total environment\\b"]
+  },
+  {
+    "name": "Arvind SmartSpaces",
+    "patterns": ["^arvind smart ?spaces\\b"]
+  },
+  { "name": "L&T Realty", "patterns": ["^l (and )?t realty\\b"] }
+]
