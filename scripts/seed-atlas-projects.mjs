@@ -21,6 +21,14 @@ const enrichment = JSON.parse(
     'utf8',
   ),
 );
+const excludedProjectIds = new Set(
+  JSON.parse(
+    await readFile(
+      new URL('../data/atlas-excluded-project-ids.json', import.meta.url),
+      'utf8',
+    ),
+  ),
+);
 const enrichmentById = new Map(enrichment.map((row) => [row.atlasId, row]));
 
 if (atlas.projects.length !== 2369) {
@@ -74,7 +82,16 @@ if (
   );
 }
 
-const queries = atlas.projects.map((project) => {
+const excludedIds = [...excludedProjectIds];
+await sql`
+  delete from public.atlas_projects
+  where id = any(${excludedIds}::bigint[])
+`;
+
+const includedProjects = atlas.projects.filter(
+  (project) => !excludedProjectIds.has(project.id),
+);
+const queries = includedProjects.map((project) => {
   const added = enrichmentById.get(project.id);
   return sql`
     insert into public.atlas_projects (

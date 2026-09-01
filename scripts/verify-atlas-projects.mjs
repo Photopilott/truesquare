@@ -21,15 +21,31 @@ const enrichment = JSON.parse(
     'utf8',
   ),
 );
+const excludedProjectIds = new Set(
+  JSON.parse(
+    await readFile(
+      new URL('../data/atlas-excluded-project-ids.json', import.meta.url),
+      'utf8',
+    ),
+  ),
+);
 const enrichmentById = new Map(enrichment.map((row) => [row.atlasId, row]));
-const projectById = new Map(atlas.projects.map((row) => [row.id, row]));
+const projectById = new Map(
+  atlas.projects
+    .filter((row) => !excludedProjectIds.has(row.id))
+    .map((row) => [row.id, row]),
+);
 const workbookOnly = JSON.parse(
   await readFile(
     new URL('../data/atlas-workbook-only-projects.json', import.meta.url),
     'utf8',
   ),
 );
-const workbookOnlyById = new Map(workbookOnly.map((row) => [row.id, row]));
+const workbookOnlyById = new Map(
+  workbookOnly
+    .filter((row) => !excludedProjectIds.has(row.id))
+    .map((row) => [row.id, row]),
+);
 const sql = neon(databaseUrl);
 
 const [summary] = await sql`
@@ -161,15 +177,15 @@ for (const row of stored) {
 }
 
 if (
-  summary.rows !== 4717 ||
-  summary.distinct_ids !== 4717 ||
-  summary.distinct_registrations !== 4717 ||
-  summary.named_developer_rows !== 4717 ||
-  summary.raw_builder_names !== 3313 ||
-  summary.named_developers !== 2763 ||
-  summary.exact_matches !== 2271 ||
-  summary.added_rows !== 2348 ||
-  summary.original_unmatched_rows !== 98 ||
+  summary.rows !== 4619 ||
+  summary.distinct_ids !== 4619 ||
+  summary.distinct_registrations !== 4619 ||
+  summary.named_developer_rows !== 4619 ||
+  summary.raw_builder_names !== 3285 ||
+  summary.named_developers !== 2745 ||
+  summary.exact_matches !== 2201 ||
+  summary.added_rows !== 2327 ||
+  summary.original_unmatched_rows !== 91 ||
   developerGroupCounts.Prestige !== 77 ||
   developerGroupCounts.Sobha !== 119 ||
   developerGroupCounts.Assetz !== 16 ||

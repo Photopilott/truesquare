@@ -15,6 +15,14 @@ const rows = JSON.parse(
     'utf8',
   ),
 );
+const excludedProjectIds = new Set(
+  JSON.parse(
+    await readFile(
+      new URL('../data/atlas-excluded-project-ids.json', import.meta.url),
+      'utf8',
+    ),
+  ),
+);
 if (rows.length !== 2348) {
   throw new Error(
     `Expected 2348 workbook-only projects, found ${rows.length}.`,
@@ -48,6 +56,12 @@ if (
   );
 }
 
+const excludedIds = [...excludedProjectIds];
+await sql`
+  delete from public.atlas_projects
+  where id = any(${excludedIds}::bigint[])
+`;
+
 const existing = await sql`
   select id, registration
   from public.atlas_projects
@@ -57,7 +71,7 @@ const existingByRegistration = new Map(
   existing.map((row) => [row.registration, row.id]),
 );
 const pending = [];
-for (const row of rows) {
+for (const row of rows.filter((row) => !excludedProjectIds.has(row.id))) {
   const registrationAtId = existingById.get(row.id);
   const idAtRegistration = existingByRegistration.get(row.registration);
   if (registrationAtId && registrationAtId !== row.registration) {

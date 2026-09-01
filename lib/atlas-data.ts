@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { cache } from 'react';
+import excludedProjectIdsSource from '@/data/atlas-excluded-project-ids.json';
 import source from '@/data/atlas-project-data.json';
 import { getSql, hasDatabase } from '@/db';
 import {
@@ -12,6 +13,8 @@ import {
   type InventoryRow,
   type RawProject,
 } from '@/lib/atlas-model';
+
+const excludedProjectIds = new Set<number>(excludedProjectIdsSource);
 
 type AtlasProjectRow = {
   id: number;
@@ -135,17 +138,19 @@ function snapshotProjects() {
       | 'enrichment_source_url'
       | 'enrichment_research_status'
     >[]
-  ).map((project) => ({
-    ...project,
-    named_developer: project.builder,
-    towers: null,
-    floors: null,
-    built_up_sqm: null,
-    construction_progress: project.status,
-    planning_authority: null,
-    enrichment_source_url: null,
-    enrichment_research_status: null,
-  }));
+  )
+    .filter((project) => !excludedProjectIds.has(project.id))
+    .map((project) => ({
+      ...project,
+      named_developer: project.builder,
+      towers: null,
+      floors: null,
+      built_up_sqm: null,
+      construction_progress: project.status,
+      planning_authority: null,
+      enrichment_source_url: null,
+      enrichment_research_status: null,
+    }));
 }
 
 function buildMarkets(filings: Filing[]) {
@@ -236,7 +241,9 @@ export const getAtlasDataset = cache(async (): Promise<AtlasDataset> => {
     return { filings, markets: buildMarkets(filings), source: 'snapshot' };
   }
 
-  const rows = await readDatabaseProjects();
+  const rows = (await readDatabaseProjects()).filter(
+    (row) => !excludedProjectIds.has(row.id),
+  );
   if (!rows.length) throw new Error('The Atlas database table is empty.');
   const filings = rows.map(atlasRowToProject).map(toFiling);
   return { filings, markets: buildMarkets(filings), source: 'database' };
