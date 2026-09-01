@@ -9,9 +9,17 @@ import {
   ProvenanceLine,
   SectionHead,
   StatCell,
-  TimeAxis,
   VerdictStrip,
 } from '@/components/atlas/primitives';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   AnalyticsAnchor,
   AnalyticsEventOnView,
@@ -20,7 +28,6 @@ import { SiteHeader } from '@/components/site-header';
 import {
   indian,
   monthYear,
-  positionOnAxis,
   type Filing,
   type NearbyFiling,
 } from '@/lib/atlas-model';
@@ -99,12 +106,61 @@ function Portfolio({
   project: Filing;
   projects: Filing[];
 }) {
-  const domain: [number, number] = [2017, 2029];
-  const today = positionOnAxis('2026-09', domain) ?? 80;
-  const past = projects.filter(
-    (item) => !!item.targetAt && item.targetAt < '2026-09',
+  const onTime = projects.filter((item) => item.delivery === 'on_time').length;
+  const notOnTime = projects.filter(
+    (item) =>
+      item.delivery === 'delayed' ||
+      item.delivery === 'past_target_no_completion_evidence',
   ).length;
-  const ongoing = projects.length - past;
+  const projectsWithComplaintCount = projects.filter(
+    (item) => item.openComplaints != null,
+  );
+  const complaints = projectsWithComplaintCount.reduce(
+    (sum, item) => sum + (item.openComplaints ?? 0),
+    0,
+  );
+  const complaintInventory = projectsWithComplaintCount.reduce(
+    (sum, item) => sum + (item.units ?? 0),
+    0,
+  );
+  const complaintRate =
+    complaintInventory > 0
+      ? new Intl.NumberFormat('en-IN', {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2,
+        }).format((complaints / complaintInventory) * 100)
+      : null;
+  const withoutOutcome = projects.length - onTime - notOnTime;
+  const rows = [
+    {
+      label: 'Projects on time',
+      value: indian(onTime),
+      explanation: 'Completed on or before the target date filed with RERA.',
+      tone: 'positive',
+    },
+    {
+      label: 'Projects not on time',
+      value: indian(notOnTime),
+      explanation:
+        'Completed after target, or target passed with no completion evidence.',
+      tone: 'warning',
+    },
+    {
+      label: 'RERA complaints against developer',
+      value: projectsWithComplaintCount.length
+        ? indian(complaints)
+        : 'not filed',
+      explanation: 'Complaint counts summed across this developer group.',
+      tone: 'neutral',
+    },
+    {
+      label: 'Complaint rate',
+      value: complaintRate == null ? 'not filed' : `${complaintRate}%`,
+      explanation: 'RERA complaints ÷ declared flats × 100.',
+      tone: 'neutral',
+    },
+  ];
+
   return (
     <>
       <DividerGrid className="identity-grid">
@@ -125,49 +181,51 @@ function Portfolio({
           caption="earliest filed start"
         />
       </DividerGrid>
-      <div className="portfolio-tabs">
-        <span>This project 1</span>
-        <span>Past {indian(past)}</span>
-        <span>Ongoing {indian(ongoing)}</span>
-      </div>
-      <div
-        className="portfolio-chart"
-        aria-label={`${projects.length} developer-group filings on a shared 2017 to 2029 axis`}
+      <section
+        className="developer-performance"
+        aria-labelledby="performance-title"
       >
-        <TimeAxis domain={domain} />
-        <div
-          className="portfolio-bars"
-          style={
-            {
-              '--today': `${today}%`,
-              height: `${Math.max(44, Math.min(360, projects.length * 4))}px`,
-            } as React.CSSProperties
-          }
-        >
-          {projects.map((item) => {
-            const start = positionOnAxis(item.startedAt, domain) ?? 0;
-            const target = positionOnAxis(item.targetAt, domain) ?? start;
-            const isCurrent = item.id === project.id;
-            const pastTarget = !!item.targetAt && item.targetAt < '2026-09';
-            return (
-              <span
-                key={item.id}
-                className={`${isCurrent ? 'current' : ''} ${pastTarget ? 'past-target' : 'ongoing'}`}
-                style={{
-                  left: `${start}%`,
-                  width: `${Math.max(0.4, target - start)}%`,
-                }}
-                title={item.name}
-              />
-            );
-          })}
+        <div className="developer-performance-head">
+          <div>
+            <p>Developer performance</p>
+            <h3 id="performance-title">{project.named_developer}</h3>
+          </div>
+          <span>{indian(projects.length)} projects reviewed</span>
         </div>
-      </div>
+        <Table className="developer-performance-table">
+          <TableCaption className="sr-only">
+            Delivery and complaint record for {project.named_developer}
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">Measure</TableHead>
+              <TableHead scope="col">Result</TableHead>
+              <TableHead scope="col">How it is calculated</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={row.label} data-tone={row.tone}>
+                <TableCell className="performance-measure">
+                  {row.label}
+                </TableCell>
+                <TableCell className="performance-result">
+                  {row.value}
+                </TableCell>
+                <TableCell className="performance-explanation">
+                  {row.explanation}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
       <CaveatSentence>
-        {indian(projects.length)} filings share this cleaned developer group in
-        the Bengaluru inventory extract, capped at 200. Dates are start and
-        target completion as filed; whether a project was delivered is not
-        reported here.
+        {indian(withoutOutcome)} ongoing or date-incomplete projects are
+        excluded from the on-time comparison. Complaint rate uses{' '}
+        {indian(complaintInventory)} declared flats across{' '}
+        {indian(projectsWithComplaintCount.length)} projects with a filed
+        complaint count; private disputes not filed with RERA are absent.
       </CaveatSentence>
     </>
   );

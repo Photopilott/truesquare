@@ -980,56 +980,87 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.portfolio-tabs {
-  min-height: 48px;
+.developer-performance {
+  margin-top: 28px;
+  border: 1px solid var(--hair);
+  background: var(--base);
+}
+.developer-performance-head {
+  min-height: 104px;
   display: flex;
-  align-items: center;
-  gap: 22px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px;
   border-bottom: 1px solid var(--hair);
-  color: var(--ink2);
-  font: 500 10px/1 var(--font-geist-mono);
-  letter-spacing: 0.08em;
+  background: var(--panel);
+}
+.developer-performance-head p,
+.developer-performance-head > span {
+  margin: 0;
+  color: var(--ink3);
+  font: 500 9px/1.4 var(--font-geist-mono);
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
-.portfolio-tabs span:first-child {
+.developer-performance-head h3 {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.developer-performance [data-slot='table-container'] {
+  overflow-x: auto;
+}
+.developer-performance-table {
+  min-width: 700px;
+  border-collapse: collapse;
+}
+.developer-performance-table th {
+  height: auto;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--hair);
+  color: var(--ink3);
+  font: 500 9px/1.4 var(--font-geist-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.developer-performance-table th:nth-child(2),
+.developer-performance-table td:nth-child(2) {
+  width: 150px;
+  text-align: right;
+}
+.developer-performance-table td {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--hair);
+  white-space: normal;
+}
+.developer-performance-table tr:last-child td {
+  border-bottom: 0;
+}
+.performance-measure {
+  width: 36%;
   color: var(--ink);
+  font-size: 15px;
+  font-weight: 550;
 }
-.portfolio-chart {
-  margin-top: 22px;
+.performance-result {
+  color: var(--ink);
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1;
 }
-.portfolio-bars {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  gap: 2px;
-  border-left: 1px solid var(--hair-soft);
-  border-right: 1px solid var(--hair-soft);
+.developer-performance-table tr[data-tone='positive'] .performance-result {
+  color: var(--accent-dim);
 }
-.portfolio-bars::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--today);
-  width: 1px;
-  background: var(--accent);
+.developer-performance-table tr[data-tone='warning'] .performance-result {
+  color: var(--flag);
 }
-.portfolio-bars > span {
-  position: relative;
-  display: block;
-  height: 2px;
-  flex: 0 0 2px;
-  background: var(--hair);
-  z-index: 1;
-}
-.portfolio-bars > span.past-target {
-  background: var(--flag-muted);
-}
-.portfolio-bars > span.current {
-  height: 4px;
-  flex-basis: 4px;
-  background: var(--ink);
+.performance-explanation {
+  color: var(--ink2);
+  font-size: 13px;
+  line-height: 1.5;
 }
 .dna-grid {
   grid-template-columns: repeat(2, 1fr);
@@ -1464,6 +1495,51 @@
   }
   .market-figures > :first-child {
     grid-row: auto;
+  }
+  .developer-performance-head {
+    min-height: 0;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px;
+  }
+  .developer-performance-table {
+    display: block;
+    min-width: 0;
+  }
+  .developer-performance-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .developer-performance-table tbody,
+  .developer-performance-table tr,
+  .developer-performance-table td {
+    display: block;
+  }
+  .developer-performance-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 18px;
+    padding: 18px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .developer-performance-table td {
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+  .developer-performance-table th:nth-child(2),
+  .developer-performance-table td:nth-child(2) {
+    width: auto;
+  }
+  .performance-result {
+    text-align: right;
+  }
+  .performance-explanation {
+    grid-column: 1 / -1;
   }
   .record-row {
     padding-inline: 18px;

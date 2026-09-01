@@ -141,8 +141,7 @@ export function builderPortfolio(filings: Filing[], namedDeveloper: string) {
     .filter((item) => item.named_developer === namedDeveloper)
     .sort((a, b) =>
       (a.startedAt || '9999').localeCompare(b.startedAt || '9999'),
-    )
-    .slice(0, 200);
+    );
 }
 
 function radians(value: number) {
