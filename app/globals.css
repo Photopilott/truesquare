@@ -167,7 +167,7 @@
   margin: 0;
   isolation: isolate;
   overflow: hidden;
-  background: rgba(255, 253, 250, 0.72);
+  background: var(--orb-paper);
 }
 
 .ts-home-drafting-visual::before,
@@ -195,6 +195,7 @@
   position: absolute;
   inset: 34px 14px 22px;
   z-index: 1;
+  background: var(--orb-paper);
   opacity: 0;
   transform: translateY(12px);
   animation: ts-home-drafting-reveal 0.8s 0.08s ease-out forwards;
@@ -322,7 +323,8 @@
   }
 
   .ts-home-drafting-visual {
-    min-height: 140px;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 
   .ts-home-drafting-visual::before {
@@ -330,7 +332,11 @@
   }
 
   .ts-home-drafting-image {
-    inset: 8px 14px 4px;
+    inset: 0;
+  }
+
+  .ts-home-drafting-image img {
+    object-fit: contain;
   }
 
   .ts-home-drafting-copy {
