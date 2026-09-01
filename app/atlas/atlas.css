@@ -1577,3 +1577,115 @@
   }
 }
 }
+
+/* Phone-density pass: preserve every record while reducing empty scroll. */
+@media (max-width: 560px) {
+  .atlas-root .frame {
+    padding-inline: 16px;
+  }
+
+  .atlas-root .market-page {
+    padding-top: 26px;
+  }
+
+  .atlas-root .market-copy h1,
+  .atlas-root .project-masthead h1 {
+    margin-top: 10px;
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  .atlas-root .market-lede,
+  .atlas-root .section-head p,
+  .atlas-root .caveat,
+  .atlas-root .dark-band > div > p:last-child {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.42;
+  }
+
+  .atlas-root .market-masthead {
+    gap: 20px;
+  }
+
+  .atlas-root .market-figures,
+  .atlas-root .paths-grid,
+  .atlas-root .overview-grid,
+  .atlas-root .identity-grid,
+  .atlas-root .location-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .atlas-root .stat-cell {
+    min-height: 94px;
+    padding: 12px;
+  }
+
+  .atlas-root .stat-value,
+  .atlas-root .stat-value-large {
+    margin-top: 7px;
+    font-size: 22px;
+  }
+
+  .atlas-root .paths-section {
+    margin-top: 30px;
+  }
+
+  .atlas-root .records-section {
+    margin-top: 24px;
+  }
+
+  .atlas-root .record-row {
+    gap: 12px;
+    padding: 15px 12px 15px 16px;
+  }
+
+  .atlas-root .record-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .atlas-root .record-metrics div:last-child {
+    grid-column: auto;
+  }
+
+  .atlas-root .dark-band {
+    margin-inline: -16px;
+    margin-top: 38px;
+    padding: 28px 18px;
+    gap: 22px;
+  }
+
+  .atlas-root .dark-band h2,
+  .atlas-root .section-head h2 {
+    margin-top: 8px;
+    font-size: 27px;
+    line-height: 1.02;
+  }
+
+  .atlas-root .project-masthead {
+    padding: 26px 0 18px;
+  }
+
+  .atlas-root .chapter-rail {
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+
+  .atlas-root .project-byline,
+  .atlas-root .verdict-grid,
+  .atlas-root .chapter-links {
+    margin-top: 16px;
+  }
+
+  .atlas-root .project-chapter {
+    padding-top: 36px;
+  }
+
+  .atlas-root .project-chapter + .project-chapter {
+    margin-top: 0;
+  }
+
+  .atlas-root .provenance {
+    margin: 8px 0 14px;
+  }
+}

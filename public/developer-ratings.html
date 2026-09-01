@@ -366,6 +366,68 @@
       .full { grid-column: auto; }
       footer .shell { flex-direction: column; }
     }
+
+    /* Keep navigation available after the announcement row scrolls away. */
+    .site-header { top: -52px; }
+
+    @media (max-width: 640px) {
+      .site-header { top: -59px; }
+      .hero { padding: 34px 0 36px; gap: 22px; }
+      h1,
+      .section h2,
+      .cta h2 {
+        font-size: clamp(27px, 7.8vw, 30px);
+        line-height: .98;
+        letter-spacing: -.03em;
+      }
+      .eyebrow { margin-bottom: 7px; font-size: 7px; }
+      .hero-copy,
+      .section-intro {
+        font-size: 13px;
+        line-height: 1.42;
+      }
+      .hero-actions { gap: 8px; margin-top: 16px; }
+      .hero-note { margin-top: 8px; font-size: 10px; }
+      .trust-card { border-radius: 8px; }
+      .trust-top,
+      .trust-bars { padding: 15px; }
+      .trust-bars { gap: 9px; }
+      .profile-name { margin-bottom: 12px; font-size: 27px; }
+      .score { font-size: 50px; }
+      .evidence-strip div { padding: 11px 5px; }
+      .evidence-strip strong { font-size: 19px; }
+      .section { padding: 36px 0; }
+      .section-head { gap: 10px; margin-bottom: 20px; }
+      .finder { padding: 12px; border-radius: 8px; }
+      .developer-grid { gap: 8px; margin-top: 12px; }
+      .developer-card { min-height: 0; padding: 14px; border-radius: 6px; }
+      .developer-card h3 { font-size: 22px; }
+      .card-bars { margin: 14px 0; gap: 7px; }
+      .profile-layout { gap: 10px; }
+      .profile-summary,
+      .review-panel { border-radius: 7px; }
+      .profile-summary { padding: 16px; }
+      .profile-summary h3 { font-size: 28px; }
+      .score-block { margin: 16px 0; padding: 16px 0; }
+      .score-block .score { font-size: 50px; }
+      .rating-list { gap: 10px; }
+      .profile-action { margin-top: 16px; }
+      .review-list { padding: 4px 16px; }
+      .review { padding: 18px 0; }
+      .review h4 { margin-top: 10px; font-size: 21px; }
+      .review p { font-size: 12px; line-height: 1.45; }
+      .principle-grid { gap: 1px; }
+      .principle { padding: 16px; }
+      .principle h3 { margin: 16px 0 7px; font-size: 22px; }
+      .principle p { font-size: 12px; line-height: 1.45; }
+      .cta { padding: 42px 0; }
+      .cta h2 { margin-bottom: 14px; }
+      .cta p { margin-bottom: 18px; font-size: 13px; line-height: 1.42; }
+      footer { padding: 24px 0 30px; }
+      dialog { border-radius: 8px; }
+      .modal-head,
+      .modal-body { padding: 18px; }
+    }
   </style>
 </head>
 <body>
