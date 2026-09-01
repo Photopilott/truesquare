@@ -1760,11 +1760,14 @@ body {
 
   #home .ts-orb-hero.ts-home-drafting-hero {
     width: 100%;
+    height: calc(100svh - 124px);
+    min-height: calc(100svh - 124px);
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   #home .ts-home-drafting-visual {
-    min-height: clamp(235px, 32svh, 260px);
-    height: clamp(235px, 32svh, 260px);
+    min-height: 0;
+    height: auto;
   }
 
   #home .ts-home-drafting-visual::before,
