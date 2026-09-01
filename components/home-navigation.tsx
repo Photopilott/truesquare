@@ -92,7 +92,7 @@ export function HomeNavigation() {
         >
           <div className="ts-home-drafting-image">
             <Image
-              src="/images/apartment-sketch-reference-style-3-floor-4k.png"
+              src="/images/apartment-sketch-courtyard-portrait.jpg"
               alt="Hand-drawn architectural elevation of a three-floor apartment building"
               fill
               priority

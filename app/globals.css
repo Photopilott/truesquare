@@ -324,7 +324,7 @@
 
   .ts-home-drafting-visual {
     min-height: 0;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 1200 / 1607;
   }
 
   .ts-home-drafting-visual::before {
