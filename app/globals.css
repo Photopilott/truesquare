@@ -205,7 +205,7 @@
   object-fit: cover;
   object-position: center;
   mix-blend-mode: multiply;
-  filter: contrast(1.05);
+  filter: grayscale(1) contrast(1.22) brightness(1.08);
 }
 
 .ts-home-drafting-markers {
@@ -323,12 +323,16 @@
   }
 
   .ts-home-drafting-visual {
-    min-height: 0;
-    aspect-ratio: 1200 / 1607;
+    min-height: 150px;
+    height: 150px;
   }
 
   .ts-home-drafting-visual::before {
-    inset: 10px;
+    display: none;
+  }
+
+  .ts-home-drafting-visual::after {
+    display: none;
   }
 
   .ts-home-drafting-image {
@@ -336,7 +340,22 @@
   }
 
   .ts-home-drafting-image img {
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center 48%;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 12%,
+      #000 78%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 12%,
+      #000 78%,
+      transparent 100%
+    );
   }
 
   .ts-home-drafting-copy {
