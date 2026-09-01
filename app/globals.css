@@ -154,6 +154,7 @@
 
 .ts-home-drafting-hero .ts-orb-hero-title {
   max-width: 720px;
+  line-height: 1.02;
 }
 
 .ts-home-drafting-hero .ts-orb-hero-copy {
@@ -367,7 +368,7 @@
   .ts-home-drafting-hero .ts-orb-hero-title {
     margin-bottom: 10px;
     font-size: clamp(34px, 9.8vw, 38px);
-    line-height: 0.94;
+    line-height: 1.02;
     letter-spacing: -0.03em;
   }
 
