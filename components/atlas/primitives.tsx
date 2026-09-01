@@ -128,6 +128,22 @@ export function StatCell({
 }
 
 export function VerdictStrip({ project }: { project: Filing }) {
+  const descriptionAcres = project.description?.match(
+    /(?:around|about|approximately)?\s*(\d+(?:\.\d+)?)\s*acres?/i,
+  )?.[1];
+  const landArea =
+    project.land_sqm != null
+      ? `${indian(Math.round(project.land_sqm))} sqm`
+      : descriptionAcres
+        ? `${indian(Number(descriptionAcres))} acres`
+        : 'not filed';
+  const landAreaCaption =
+    project.land_sqm != null
+      ? 'declared in filing'
+      : descriptionAcres
+        ? 'from project description'
+        : 'not in filing extract';
+
   return (
     <DividerGrid className="verdict-grid">
       <StatCell
@@ -137,16 +153,9 @@ export function VerdictStrip({ project }: { project: Filing }) {
         flag={!!project.targetAt && new Date(project.targetAt) < new Date()}
       />
       <StatCell
-        label="Escrow"
-        value={
-          project.escrowDeclared == null
-            ? 'not filed'
-            : project.escrowDeclared
-              ? 'declared'
-              : 'not declared'
-        }
-        caption="registration filing"
-        flag={project.escrowDeclared == null || !project.escrowDeclared}
+        label="No. of flats"
+        value={<Field value={project.units} />}
+        caption="declared in filing"
       />
       <StatCell
         label="Complaints"
@@ -159,25 +168,11 @@ export function VerdictStrip({ project }: { project: Filing }) {
         flag={project.openComplaints == null || project.openComplaints > 0}
       />
       <StatCell
-        label="Occupancy certificate"
-        value={
-          project.occupancyCertificateOnRecord
-            ? 'on record'
-            : 'not in this record'
-        }
-        caption="planning authority document"
-        flag={!project.occupancyCertificateOnRecord}
+        label="Microzone"
+        value={<Field value={project.subArea} />}
+        caption="derived from location"
       />
-      <StatCell
-        label="Declared build cost"
-        value={
-          project.declaredCostCr == null
-            ? 'not filed'
-            : `₹${indian(project.declaredCostCr)} Cr`
-        }
-        caption="not a sale price"
-        flag={project.declaredCostCr == null}
-      />
+      <StatCell label="Land area" value={landArea} caption={landAreaCaption} />
     </DividerGrid>
   );
 }
@@ -422,11 +417,11 @@ export function AbsenceRow({ label }: { label: string }) {
   );
 }
 
-export function ChapterRail() {
+export function ChapterRail({ count = 8 }: { count?: number }) {
   return (
     <aside className="chapter-rail" aria-label="Project chapters">
-      <div className="mobile-locator">01/08</div>
-      {Array.from({ length: 8 }, (_, index) =>
+      <div className="mobile-locator">01/{String(count).padStart(2, '0')}</div>
+      {Array.from({ length: count }, (_, index) =>
         String(index + 1).padStart(2, '0'),
       ).map((ordinal) => (
         <a

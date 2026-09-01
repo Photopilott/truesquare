@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Newsreader, Silkscreen } from 'next/font/google';
+
+import { GoogleAnalytics } from '@/components/google-analytics';
 import './globals.css';
 
 const dmSans = DM_Sans({ variable: '--font-dm-sans', subsets: ['latin'] });
@@ -41,12 +43,21 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const configuredMeasurementId =
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
+  const measurementId =
+    configuredMeasurementId && /^G-[A-Z0-9]+$/i.test(configuredMeasurementId)
+      ? configuredMeasurementId
+      : null;
   return (
     <html lang="en">
       <body
         className={`${dmSans.variable} ${newsreader.variable} ${silkscreen.variable} antialiased`}
       >
         {children}
+        {measurementId ? (
+          <GoogleAnalytics measurementId={measurementId} />
+        ) : null}
       </body>
     </html>
   );

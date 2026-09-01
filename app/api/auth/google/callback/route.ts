@@ -33,10 +33,15 @@ function authRedirect(
   returnTo: string,
   status: 'success' | 'error',
   message?: string,
+  mode?: 'sign_up' | 'login',
 ) {
   const target = new URL(returnTo, request.url);
   target.searchParams.set('auth', status);
   if (message) target.searchParams.set('authError', message.slice(0, 160));
+  if (mode) {
+    target.searchParams.set('authMode', mode);
+    target.searchParams.set('authMethod', 'google');
+  }
   return target;
 }
 
@@ -178,7 +183,13 @@ export async function GET(request: Request) {
       `) as Array<{ id: string }>);
     const token = await createUserSession(users[0].id, 'google');
     const response = NextResponse.redirect(
-      authRedirect(request, returnTo, 'success'),
+      authRedirect(
+        request,
+        returnTo,
+        'success',
+        undefined,
+        existingUser ? 'login' : 'sign_up',
+      ),
     );
     response.cookies.set(
       USER_SESSION_COOKIE,
