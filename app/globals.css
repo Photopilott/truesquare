@@ -322,7 +322,7 @@
   }
 
   .ts-home-drafting-visual {
-    min-height: 188px;
+    min-height: 140px;
   }
 
   .ts-home-drafting-visual::before {
@@ -334,7 +334,7 @@
   }
 
   .ts-home-drafting-copy {
-    padding: 30px 20px 34px;
+    padding: 16px 20px;
   }
 
   .ts-home-drafting-copy::before {
@@ -346,15 +346,19 @@
   }
 
   .ts-home-drafting-hero .ts-orb-eyebrow {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
 
   .ts-home-drafting-hero .ts-orb-hero-title {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .ts-home-drafting-hero .ts-orb-hero-actions {
-    margin-top: 24px;
+    margin-top: 18px;
+  }
+
+  .ts-home-drafting-hero .ts-orb-note {
+    margin-top: 10px;
   }
 
   .ts-home-drafting-marker {
