@@ -90,9 +90,42 @@
     .brand { display: inline-flex; align-items: baseline; font-size: 31px; font-weight: 500; line-height: 1; text-decoration: none; }
     .brand-flat { font-family: var(--serif); letter-spacing: -.04em; }
     .brand-data { margin-left: .08em; font-family: var(--pixel); font-size: .7em; font-weight: 400; letter-spacing: -.06em; line-height: 1; }
-    .nav-links { display: flex; align-items: center; gap: 26px; font-size: 14px; }
+    .nav-links { display: flex; align-items: center; gap: 26px; font-size: 13px; font-weight: 500; }
     .nav-links a { text-decoration: none; }
-    .nav-actions { display: flex; gap: 10px; }
+    .mobile-menu { display: none; position: relative; }
+    .mobile-menu summary {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 21px;
+      list-style: none;
+    }
+    .mobile-menu summary::-webkit-details-marker { display: none; }
+    .mobile-menu nav {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      width: min(320px, calc(100vw - 30px));
+      padding: 10px;
+      display: grid;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+    .mobile-menu nav a {
+      min-height: 48px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
 
     .button {
       min-height: 46px;
@@ -295,6 +328,7 @@
 
     @media (max-width: 900px) {
       .nav-links { display: none; }
+      .mobile-menu { display: block; }
       .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 90px; }
       .trust-card { max-width: 650px; }
       .section-head, .profile-layout { grid-template-columns: 1fr; }
@@ -310,8 +344,6 @@
       .announcement { justify-content: flex-start; text-align: left; }
       .nav { top: 6px; margin-top: 10px; min-height: 62px; padding: 9px 10px 9px 15px; }
       .brand { font-size: 25px; }
-      .nav-actions .button:first-child { display: none; }
-      .nav-actions .button { min-height: 40px; padding: 0 12px; font-size: 12px; }
       .hero { padding: 76px 0 70px; gap: 44px; }
       h1 { font-size: clamp(51px, 16vw, 68px); }
       .pixel { font-size: .65em; }
@@ -338,19 +370,30 @@
 </head>
 <body>
   <div class="site-header">
-    <div class="announcement"><strong>NEW MODULE</strong><span>Developer experience, built from owner and buyer feedback loops.</span></div>
+    <div class="announcement"><strong>INDEPENDENT</strong><span>No listings sold. No leads sold. No data sold.</span></div>
 
     <header class="shell nav" aria-label="Primary navigation">
       <a class="brand" href="/" aria-label="FlatData home"><span class="brand-flat" aria-hidden="true">Flat</span><span class="brand-data" aria-hidden="true">Data</span></a>
-      <nav class="nav-links" aria-label="Mockup sections">
-        <a href="#developers">Developers</a>
-        <a href="#profile">Rating profile</a>
-        <a href="#method">Method</a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="/owner">OWNERS</a>
+        <a href="/buyer">BUYERS</a>
+        <a href="/explore">FLAT PRICE VERIFIED</a>
+        <a href="/atlas">NEW FLATS R&amp;D</a>
+        <a href="/developer-ratings.html">DEVELOPER RATINGS</a>
+        <a class="button dark small" href="/#paths">GET STARTED</a>
       </nav>
-      <div class="nav-actions">
-        <a class="button small" href="#developers">Browse</a>
-        <button class="button dark small" type="button" data-open-review>Write a review</button>
-      </div>
+      <details class="mobile-menu">
+        <summary aria-label="Open navigation">☰</summary>
+        <nav aria-label="Mobile navigation">
+          <a href="/">HOME</a>
+          <a href="/owner">OWNERS</a>
+          <a href="/buyer">BUYERS</a>
+          <a href="/explore">FLAT PRICE VERIFIED</a>
+          <a href="/atlas">NEW FLATS R&amp;D</a>
+          <a href="/developer-ratings.html">DEVELOPER RATINGS</a>
+          <a href="/#paths">CHOOSE A PATH</a>
+        </nav>
+      </details>
     </header>
   </div>
 

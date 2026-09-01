@@ -6,15 +6,14 @@ import {
   DarkBand,
   DividerGrid,
   Field,
-  IndependenceBar,
   ProvenanceLine,
   SectionHead,
   StatCell,
   TimeAxis,
   TimeBar,
-  TopNav,
   VerdictStrip,
 } from '@/components/atlas/primitives';
+import { SiteHeader } from '@/components/site-header';
 import {
   builderPortfolio,
   indian,
@@ -208,17 +207,14 @@ export function ProjectRead({ project }: { project: Filing }) {
 
   return (
     <main>
-      <div className="atlas-sticky-header">
-        <IndependenceBar />
-        <div className="utility-row">
-          <div className="frame">
-            <a href="#watch">Watch</a>
-            <a href="#compare">Compare</a>
-            <a href="#share">Share</a>
-            <a href="#report">Report an inaccuracy</a>
-          </div>
+      <SiteHeader />
+      <div className="utility-row">
+        <div className="frame">
+          <a href="#watch">Watch</a>
+          <a href="#compare">Compare</a>
+          <a href="#share">Share</a>
+          <a href="#report">Report an inaccuracy</a>
         </div>
-        <TopNav project />
       </div>
       <div className="project-shell frame">
         <ChapterRail />

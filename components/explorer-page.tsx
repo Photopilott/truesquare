@@ -34,7 +34,7 @@ export function ExplorerPage({ societyCount, transactionCount, ownerContribution
 
   return (
     <main className="ts-orb min-h-screen">
-      <AppHeader active="explore" />
+      <AppHeader />
 
       <section className="ts-orb-shell ts-orb-hero">
         <div>

@@ -5,14 +5,13 @@ import {
   DarkBand,
   DividerGrid,
   EvidenceChips,
-  IndependenceBar,
   NumberedBlock,
   Pagination,
   RecordRow,
   StatCell,
   TimeAxis,
-  TopNav,
 } from '@/components/atlas/primitives';
+import { SiteHeader } from '@/components/site-header';
 import { filings, indian, markets } from '@/lib/atlas-data';
 
 const PAGE_SIZE = 20;
@@ -47,10 +46,7 @@ export function MarketRegister() {
 
   return (
     <main>
-      <div className="atlas-sticky-header">
-        <IndependenceBar />
-        <TopNav />
-      </div>
+      <SiteHeader />
       <div className="frame market-page">
         <header className="market-masthead">
           <div className="market-copy">

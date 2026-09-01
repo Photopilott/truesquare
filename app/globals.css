@@ -214,12 +214,26 @@ body {
   top: 0;
   z-index: 60;
   padding-bottom: 1px;
+  font-family: var(--font-dm-sans), Arial, sans-serif;
+  font-variant-numeric: normal;
 }
 
 .ts-orb-sticky-header .ts-orb-nav {
   position: relative;
   top: auto;
   z-index: auto;
+}
+
+.ts-orb-sticky-header .ts-orb-nav-links > a:not(.ts-orb-button) {
+  color: var(--muted-foreground);
+}
+
+.ts-orb-sticky-header .ts-orb-nav-links > a:not(.ts-orb-button):hover {
+  color: var(--foreground);
+}
+
+.ts-orb-sticky-header a.ts-orb-button-dark {
+  color: #fff;
 }
 
 .ts-orb-shell {

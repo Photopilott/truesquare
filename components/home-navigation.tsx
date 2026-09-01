@@ -1,29 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight, Check, Menu } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import Link from 'next/link';
 
 import { BrandWordmark } from '@/components/brand-wordmark';
 import { EvidenceStack } from '@/components/evidence-stack';
-import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-
-const navigation = [
-  { label: 'HOME', href: '#home' },
-  { label: 'OWNERS', href: '/owner' },
-  { label: 'BUYERS', href: '/buyer' },
-  { label: 'FLAT PRICE VERIFIED', href: '/explore' },
-  { label: 'NEW FLATS R&D', href: '/atlas' },
-  { label: 'DEVELOPER RATINGS', href: '/developer-ratings.html' },
-];
+import { SiteHeader, siteNavigation } from '@/components/site-header';
 
 const paths = [
   {
@@ -43,21 +26,7 @@ const paths = [
   },
 ] as const;
 
-function Mark({ compact = false }: { compact?: boolean }) {
-  return (
-    <span
-      className={`grid shrink-0 place-items-center bg-foreground ${compact ? 'size-8 rounded-[11px]' : 'size-10 rounded-[14px]'}`}
-      aria-hidden="true"
-    >
-      <span
-        className={`rounded-full bg-background ${compact ? 'size-3' : 'size-4'}`}
-      />
-    </span>
-  );
-}
-
 export function HomeNavigation() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPath, setSelectedPath] =
     useState<(typeof paths)[number]['id']>('owner');
   const selectedHref =
@@ -69,100 +38,7 @@ export function HomeNavigation() {
 
   return (
     <main id="home" className="ts-orb min-h-screen overflow-x-clip">
-      <div className="ts-orb-sticky-header">
-        <div className="ts-orb-announcement">
-          <strong>INDEPENDENT</strong>
-          <span>No listings sold. No leads sold. No data sold.</span>
-        </div>
-        <header className="ts-orb-shell ts-orb-nav">
-          <div className="contents">
-            <Link href="/" className="ts-orb-brand" aria-label="FlatData home">
-              <BrandWordmark />
-            </Link>
-
-            <nav className="ts-orb-nav-links" aria-label="Main navigation">
-              {navigation.slice(1).map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {item.label}
-                </a>
-              ))}
-              <a
-                href="#paths"
-                className="ts-orb-button ts-orb-button-dark ts-orb-button-small"
-              >
-                GET STARTED
-              </a>
-            </nav>
-
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-              <SheetTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon-lg"
-                    className="lg:hidden"
-                    aria-label="Open navigation"
-                  />
-                }
-              >
-                <Menu className="size-[18px]" />
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="w-[86%] border-border bg-background p-0 sm:max-w-sm"
-              >
-                <SheetHeader className="border-b border-border px-6 py-6 text-left">
-                  <Link
-                    href="/"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3"
-                    aria-label="FlatData home"
-                  >
-                    <Mark compact />
-                    <SheetTitle className="text-2xl font-normal">
-                      <BrandWordmark />
-                    </SheetTitle>
-                  </Link>
-                  <SheetDescription className="pt-3 leading-relaxed">
-                    Independent Bengaluru property intelligence.
-                  </SheetDescription>
-                </SheetHeader>
-                <nav
-                  className="flex flex-col px-4 py-4"
-                  aria-label="Mobile navigation"
-                >
-                  {navigation.map((item, index) => (
-                    <a
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex min-h-14 items-center justify-between rounded-[8px] px-4 text-[15px] font-medium hover:bg-secondary"
-                    >
-                      <span>{item.label}</span>
-                      <span className="font-mono text-[10px] text-muted-foreground">
-                        0{index + 1}
-                      </span>
-                    </a>
-                  ))}
-                </nav>
-                <div className="mt-auto p-5">
-                  <a
-                    onClick={() => setMenuOpen(false)}
-                    href="#paths"
-                    className="flex h-14 items-center justify-center gap-3 rounded-[9px] bg-foreground text-[13px] font-semibold text-background"
-                  >
-                    CHOOSE A PATH <ArrowRight className="size-4" />
-                  </a>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </header>
-      </div>
+      <SiteHeader />
 
       <section className="ts-orb-shell ts-orb-hero ts-orb-hero-single">
         <div>
@@ -313,7 +189,7 @@ export function HomeNavigation() {
             className="flex flex-wrap gap-x-6 gap-y-3"
             aria-label="Footer navigation"
           >
-            {navigation.map((item) => (
+            {siteNavigation.map((item) => (
               <a
                 key={item.href}
                 href={item.href}

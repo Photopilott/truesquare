@@ -26,7 +26,7 @@ import {
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AccessGate } from '@/components/access-gate';
-import { BrandWordmark } from '@/components/brand-wordmark';
+import { SiteHeader } from '@/components/site-header';
 import { SocietyShare } from '@/components/society-share';
 import { SocietySubscribe } from '@/components/society-subscribe';
 import { Badge } from '@/components/ui/badge';
@@ -235,56 +235,8 @@ function FormField({
   );
 }
 
-export function AppHeader({
-  active,
-}: {
-  active: 'owner' | 'buyer' | 'explore';
-}) {
-  return (
-    <div className="ts-orb-sticky-header">
-      <div className="ts-orb-announcement">
-        <strong>EVIDENCE-FIRST</strong>
-        <span>No listings sold. No leads sold. No data sold.</span>
-      </div>
-      <header className="ts-orb-shell ts-orb-nav">
-        <Link className="ts-orb-brand" href="/" aria-label="FlatData home">
-          <BrandWordmark />
-        </Link>
-        <nav className="ts-orb-nav-links" aria-label="Product navigation">
-          <Link
-            href="/owner"
-            className={active === 'owner' ? 'font-semibold' : ''}
-          >
-            For owners
-          </Link>
-          <Link
-            href="/buyer"
-            className={active === 'buyer' ? 'font-semibold' : ''}
-          >
-            For buyers
-          </Link>
-          <Link
-            href="/explore"
-            className={active === 'explore' ? 'font-semibold' : ''}
-          >
-            Explore
-          </Link>
-          <Link href="/developer-ratings.html">Developer ratings</Link>
-        </nav>
-        <div className="ts-orb-nav-actions">
-          <Link href="/explore" className="ts-orb-button ts-orb-button-small">
-            Browse
-          </Link>
-          <Link
-            href="/developer-ratings.html"
-            className="ts-orb-button ts-orb-button-dark ts-orb-button-small"
-          >
-            Developer ratings
-          </Link>
-        </div>
-      </header>
-    </div>
-  );
+export function AppHeader() {
+  return <SiteHeader />;
 }
 
 export function PropertyIntelligenceApp({
@@ -708,7 +660,7 @@ export function PropertyIntelligenceApp({
 
   return (
     <main className="ts-orb min-h-screen">
-      <AppHeader active={view === 'buyer' ? 'buyer' : 'owner'} />
+      <AppHeader />
       {view === 'home' && (
         <HomeView
           societies={societies.slice(0, 4)}

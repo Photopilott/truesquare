@@ -47,7 +47,7 @@ export function SocietyLanding({
 
   return (
     <main className="ts-orb min-h-screen">
-      <AppHeader active="buyer" />
+      <AppHeader />
       <div className="ts-orb-shell ts-orb-section">
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start">
