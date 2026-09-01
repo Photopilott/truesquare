@@ -9,6 +9,7 @@ import { BrandWordmark } from '@/components/brand-wordmark';
 import { EvidenceStack } from '@/components/evidence-stack';
 import { SiteHeader, siteNavigation } from '@/components/site-header';
 import { trackAnalyticsEvent } from '@/lib/analytics';
+import courtyardSketch from '@/public/images/apartment-sketch-courtyard-portrait.jpg';
 
 const paths = [
   {
@@ -92,10 +93,11 @@ export function HomeNavigation() {
         >
           <div className="ts-home-drafting-image">
             <Image
-              src="/images/apartment-sketch-courtyard-portrait.jpg"
+              src={courtyardSketch}
               alt="Hand-drawn architectural elevation of a three-floor apartment building"
               fill
               priority
+              unoptimized
               sizes="(max-width: 900px) 100vw, 44vw"
             />
           </div>

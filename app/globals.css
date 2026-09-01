@@ -337,6 +337,9 @@
 
   .ts-home-drafting-image {
     inset: 0;
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 
   .ts-home-drafting-image img {
