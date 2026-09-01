@@ -424,7 +424,7 @@ body {
 }
 
 :root {
-  --background: #ffffff;
+  --background: #f7f4ed;
   --foreground: #282828;
   --card: #ffffff;
   --card-foreground: #282828;
@@ -528,8 +528,8 @@ body {
 
 /* Exact visual grammar from the Developer Ratings reference module. */
 .ts-orb {
-  --orb-paper: #ffffff;
-  --orb-paper-2: color-mix(in srgb, #b3b3af 18%, #ffffff);
+  --orb-paper: #f7f4ed;
+  --orb-paper-2: color-mix(in srgb, #b3b3af 18%, #f7f4ed);
   --orb-ink: #282828;
   --orb-muted: color-mix(in srgb, #282828 68%, #ffffff);
   --orb-line: #b3b3af;

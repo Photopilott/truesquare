@@ -1,7 +1,7 @@
 .atlas-root {
-  --base: #ffffff;
-  --panel: color-mix(in srgb, #b3b3af 18%, #ffffff);
-  --deep: color-mix(in srgb, #b3b3af 32%, #ffffff);
+  --base: #f7f4ed;
+  --panel: color-mix(in srgb, #b3b3af 18%, #f7f4ed);
+  --deep: color-mix(in srgb, #b3b3af 32%, #f7f4ed);
   --ink: #282828;
   --ink2: color-mix(in srgb, #282828 68%, #ffffff);
   --ink3: #b3b3af;
