@@ -11,7 +11,6 @@ import {
   SectionHead,
   StatCell,
   TimeAxis,
-  TimeBar,
   TopNav,
   VerdictStrip,
 } from '@/components/atlas/primitives';
@@ -33,53 +32,6 @@ function Chapter({ id, children }: { id: string; children: React.ReactNode }) {
     <section id={`chapter-${id}`} className="project-chapter">
       {children}
     </section>
-  );
-}
-
-function Timeline({ project }: { project: Filing }) {
-  const domain: [number, number] = [2010, 2030];
-  const events = [
-    ['Started', project.startedAt, ''],
-    ['Proposed completion', project.targetAt, 'flag'],
-    ['RERA registered', project.registeredAt, 'flag'],
-    ['Today', '2026-09', 'today'],
-  ] as const;
-  const noticed =
-    !!project.registeredAt &&
-    !!project.targetAt &&
-    project.registeredAt > project.targetAt;
-  return (
-    <div className="filing-timeline">
-      <TimeAxis domain={domain} />
-      <TimeBar
-        start={project.startedAt}
-        target={project.targetAt}
-        domain={domain}
-      />
-      <div className="timeline-annotations">
-        {events.map(([label, value, state]) => (
-          <div
-            key={label}
-            className={state}
-            style={{ left: `${positionOnAxis(value, domain) ?? 0}%` }}
-          >
-            <span>{label}</span>
-            <strong>{monthYear(value)}</strong>
-          </div>
-        ))}
-      </div>
-      {noticed && (
-        <div className="noticed">
-          <strong>⚠ noticed</strong>
-          <p>
-            The filing records target completion as{' '}
-            {monthYear(project.targetAt)} and RERA registration as{' '}
-            {monthYear(project.registeredAt)}. The register carries both dates
-            unreconciled.
-          </p>
-        </div>
-      )}
-    </div>
   );
 }
 
@@ -109,6 +61,35 @@ function InventoryTable({ project }: { project: Filing }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function GoogleMap({ project }: { project: Filing }) {
+  if (project.lat == null || project.lon == null) return null;
+
+  const coordinates = `${project.lat},${project.lon}`;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY;
+  const embedHref = apiKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(coordinates)}&zoom=15`
+    : `https://www.google.com/maps?q=${encodeURIComponent(coordinates)}&z=15&output=embed`;
+  const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates)}`;
+
+  return (
+    <div className="google-map">
+      <iframe
+        title={`${project.name} location on Google Maps`}
+        src={embedHref}
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+      <div>
+        <span>Google Maps · filed coordinates</span>
+        <a href={mapHref} target="_blank" rel="noreferrer">
+          Open in Google Maps →
+        </a>
+      </div>
     </div>
   );
 }
@@ -197,18 +178,10 @@ export function ProjectRead({ project }: { project: Filing }) {
     (item) => item.distance >= 1 && item.distance < 3,
   ).length;
   const beyondThree = nearby.filter((item) => item.distance >= 3).length;
-  const landTotal = portfolio.reduce(
-    (sum, item) => sum + (item.land_sqm || 0),
-    0,
-  );
   const homesTotal = portfolio.reduce(
     (sum, item) => sum + (item.units || 0),
     0,
   );
-  const mapHref =
-    project.lat != null && project.lon != null
-      ? `https://www.openstreetmap.org/?mlat=${project.lat}&mlon=${project.lon}#map=15/${project.lat}/${project.lon}`
-      : null;
 
   return (
     <main>
@@ -218,29 +191,31 @@ export function ProjectRead({ project }: { project: Filing }) {
       />
       <AnalyticsEventOnView
         eventName="atlas_deep_read"
-        eventParams={{ item_id: project.slug, chapter: 'authority' }}
-        targetId="chapter-04"
+        eventParams={{ item_id: project.slug, chapter: 'location' }}
+        targetId="chapter-02"
       />
-      <IndependenceBar />
-      <div className="utility-row">
-        <div className="frame">
-          {['watch', 'compare', 'share', 'report'].map((action) => (
-            <AnalyticsAnchor
-              key={action}
-              href={`#${action}`}
-              eventName="atlas_secondary_action"
-              eventParams={{ action, item_id: project.slug }}
-            >
-              {action === 'report'
-                ? 'Report an inaccuracy'
-                : `${action[0].toUpperCase()}${action.slice(1)}`}
-            </AnalyticsAnchor>
-          ))}
+      <div className="atlas-sticky-header">
+        <IndependenceBar />
+        <div className="utility-row">
+          <div className="frame">
+            {['watch', 'compare', 'share', 'report'].map((action) => (
+              <AnalyticsAnchor
+                key={action}
+                href={`#${action}`}
+                eventName="atlas_secondary_action"
+                eventParams={{ action, item_id: project.slug }}
+              >
+                {action === 'report'
+                  ? 'Report an inaccuracy'
+                  : `${action[0].toUpperCase()}${action.slice(1)}`}
+              </AnalyticsAnchor>
+            ))}
+          </div>
         </div>
+        <TopNav project />
       </div>
-      <TopNav project />
       <div className="project-shell frame">
-        <ChapterRail />
+        <ChapterRail count={7} />
         <div className="project-content">
           <header className="project-masthead">
             <p className="eyebrow">
@@ -255,12 +230,11 @@ export function ProjectRead({ project }: { project: Filing }) {
             <VerdictStrip project={project} />
             <nav className="chapter-links" aria-label="Jump to chapter">
               <a href="#chapter-01">Overview</a>
-              <a href="#chapter-02">Builder record</a>
-              <a href="#chapter-03">Location</a>
-              <a href="#chapter-04">Authority</a>
-              <a href="#chapter-05">Complaints</a>
-              <a href="#chapter-06">Unknowns</a>
-              <a href="#chapter-07">Nearby</a>
+              <a href="#chapter-02">Location</a>
+              <a href="#chapter-03">Builder record</a>
+              <a href="#chapter-04">Complaints</a>
+              <a href="#chapter-05">Unknowns</a>
+              <a href="#chapter-06">Nearby</a>
             </nav>
           </header>
 
@@ -280,22 +254,21 @@ export function ProjectRead({ project }: { project: Filing }) {
                 caption="as filed"
               />
               <StatCell
-                label="Land"
-                value={<Field value={project.land_sqm} unit="sqm" />}
-                caption="declared"
+                label="Started"
+                value={monthYear(project.startedAt)}
+                caption="declared in filing"
               />
               <StatCell
-                label="Covered"
-                value={<Field value={project.covered_sqm} unit="sqm" />}
-                caption="declared"
+                label="Target completion"
+                value={monthYear(project.targetAt)}
+                caption="declared in filing"
               />
               <StatCell
-                label="Open"
-                value={<Field value={project.open_sqm} unit="sqm" />}
-                caption="declared"
+                label="Projects by this developer"
+                value={indian(portfolio.length)}
+                caption="same builder name in this extract"
               />
             </DividerGrid>
-            <Timeline project={project} />
             <div className="subsection-title">
               <p>Flat inventory</p>
               <h3>Configurations and counts as filed.</h3>
@@ -309,102 +282,29 @@ export function ProjectRead({ project }: { project: Filing }) {
           <Chapter id="02">
             <SectionHead
               ordinal="02"
-              eyebrow="Builder's track record"
-              headline="One builder name across the register."
-              lede="This comparison follows the builder name exactly as filed. Similar names are not merged."
-            />
-            <ProvenanceLine>
-              RERA Karnataka · Bengaluru inventory extract · derived grouping
-            </ProvenanceLine>
-            <div id="builder">
-              <Portfolio project={project} />
-            </div>
-            <div className="subsection-title">
-              <p>Builder DNA</p>
-              <h3>Portfolio totals, with their limits beside them.</h3>
-            </div>
-            <DividerGrid className="dna-grid">
-              <StatCell
-                label="Homes on record"
-                value={indian(homesTotal)}
-                caption="units declared"
-                large
-              />
-              <StatCell
-                label="Land declared"
-                value={`${indian(Math.round(landTotal))} sqm`}
-                caption="sum across named filings"
-                large
-              />
-              <StatCell
-                label="Declared build cost"
-                value="not filed"
-                caption="not a sale price"
-                large
-              />
-            </DividerGrid>
-            <CaveatSentence>
-              Portfolio totals are derived from records sharing this exact
-              builder name. They are a footprint, not a ranking, and do not
-              prove delivery.
-            </CaveatSentence>
-            <ConfidenceLine
-              sample={portfolio.length}
-              filled={Math.min(5, Math.max(1, Math.ceil(portfolio.length / 5)))}
-            />
-            <div className="subsection-title">
-              <p>Planning authorities</p>
-              <h3>Which bodies appear in these filings.</h3>
-            </div>
-            <div className="authority-row">
-              <span>{project.authority || 'not filed'}</span>
-              <strong>
-                {project.authority
-                  ? `${portfolio.length} / ${portfolio.length}`
-                  : `not filed / ${portfolio.length}`}
-              </strong>
-            </div>
-            <CaveatSentence>
-              Authority volume is context about the builder&apos;s filed
-              footprint, not a ranking.
-            </CaveatSentence>
-          </Chapter>
-
-          <Chapter id="03">
-            <SectionHead
-              ordinal="03"
-              eyebrow="Location and declared cost"
+              eyebrow="Location"
               headline="Where the filing places this project."
             />
             <ProvenanceLine>
               RERA Karnataka · address and geocode in filing
             </ProvenanceLine>
             <DividerGrid className="location-grid">
+              <StatCell
+                label="Microzone"
+                value={<Field value={project.subArea} />}
+              />
               <StatCell label="Taluk" value={<Field value={project.taluk} />} />
               <StatCell label="District" value="Bengaluru Urban" />
               <StatCell
                 label="Pincode"
                 value={<Field value={project.pincode} />}
               />
-              <StatCell
-                label="Geocode"
-                value={
-                  project.lat == null
-                    ? 'not filed'
-                    : `${project.lat.toFixed(5)}, ${project.lon?.toFixed(5)}`
-                }
-                caption="filed coordinates"
-              />
             </DividerGrid>
             <div className="address-block">
               <span>Address as filed</span>
               <p>{project.address || 'not filed'}</p>
-              {mapHref && (
-                <a href={mapHref} target="_blank" rel="noreferrer">
-                  Open filed point in OpenStreetMap →
-                </a>
-              )}
             </div>
+            <GoogleMap project={project} />
             <div className="subsection-title">
               <p>The neighbourhood</p>
               <h3>Distances from the filed coordinates.</h3>
@@ -445,58 +345,53 @@ export function ProjectRead({ project }: { project: Filing }) {
               mapped features within 2 km; distances only, not a flood
               assessment or travel-time estimate.
             </CaveatSentence>
-            <div className="cost-statement">
-              <strong>
-                {project.declaredCostCr == null
-                  ? 'not filed'
-                  : `₹${indian(project.declaredCostCr)} Cr`}
-              </strong>
-              <p>
-                This is declared build cost, land plus construction at
-                registration, not a sale price. Where absent, the record stays
-                absent.
-              </p>
+          </Chapter>
+
+          <Chapter id="03">
+            <SectionHead
+              ordinal="03"
+              eyebrow="Builder's track record"
+              headline="One builder name across the register."
+              lede="This comparison follows the builder name exactly as filed. Similar names are not merged."
+            />
+            <ProvenanceLine>
+              RERA Karnataka · Bengaluru inventory extract · derived grouping
+            </ProvenanceLine>
+            <div id="builder">
+              <Portfolio project={project} />
             </div>
+            <div className="subsection-title">
+              <p>Builder summary</p>
+              <h3>Scale in the records carrying this builder name.</h3>
+            </div>
+            <DividerGrid className="dna-grid">
+              <StatCell
+                label="Projects on record"
+                value={indian(portfolio.length)}
+                caption="exact builder name"
+                large
+              />
+              <StatCell
+                label="Homes on record"
+                value={indian(homesTotal)}
+                caption="units declared"
+                large
+              />
+            </DividerGrid>
+            <CaveatSentence>
+              Portfolio totals are derived from records sharing this exact
+              builder name. They are a footprint, not a ranking, and do not
+              prove delivery.
+            </CaveatSentence>
+            <ConfidenceLine
+              sample={portfolio.length}
+              filled={Math.min(5, Math.max(1, Math.ceil(portfolio.length / 5)))}
+            />
           </Chapter>
 
           <Chapter id="04">
             <SectionHead
               ordinal="04"
-              eyebrow="Planning authority"
-              headline="Permission to build is not proof of completion."
-            />
-            <ProvenanceLine>
-              RERA Karnataka · registration filing
-            </ProvenanceLine>
-            <DividerGrid className="authority-grid">
-              <StatCell
-                label="Approving body"
-                value={<Field value={project.authority} />}
-              />
-              <StatCell label="Building permit" value="not filed" />
-              <StatCell label="Approved plan" value="not filed" />
-            </DividerGrid>
-            <div className="oc-panel">
-              <strong>⚠ Occupancy Certificate not in this record</strong>
-              <p>
-                An approved plan is permission to build, not proof it was built
-                to plan. That sign-off is the Occupancy Certificate, issued by
-                the planning authority and not by RERA. It is not in this
-                record. Ask the builder or the authority. Without one, banks may
-                decline home loans, and a deviation can carry penalty or
-                demolition risk.
-              </p>
-            </div>
-            <AbsenceRow label="Authority volume" />
-            <CaveatSentence>
-              The filing extract does not carry enough structured authority data
-              for a reliable local or statewide comparison.
-            </CaveatSentence>
-          </Chapter>
-
-          <Chapter id="05">
-            <SectionHead
-              ordinal="05"
               eyebrow="Complaints register"
               headline={
                 project.openComplaints === 0
@@ -514,9 +409,9 @@ export function ProjectRead({ project }: { project: Filing }) {
             </p>
           </Chapter>
 
-          <Chapter id="06">
+          <Chapter id="05">
             <SectionHead
-              ordinal="06"
+              ordinal="05"
               eyebrow="What this record cannot tell you"
               headline="The filing stops here."
             />
@@ -538,10 +433,10 @@ export function ProjectRead({ project }: { project: Filing }) {
             </div>
           </Chapter>
 
-          <Chapter id="07">
+          <Chapter id="06">
             <div id="nearby">
               <SectionHead
-                ordinal="07"
+                ordinal="06"
                 eyebrow="Nearby on the record"
                 headline="Other filings around this coordinate."
               />
@@ -583,8 +478,8 @@ export function ProjectRead({ project }: { project: Filing }) {
                       <dd>{monthYear(filing.targetAt)} · declared</dd>
                     </div>
                     <div>
-                      <dt>Declared cost</dt>
-                      <dd>not filed</dd>
+                      <dt>Microzone</dt>
+                      <dd>{filing.subArea}</dd>
                     </div>
                     <div>
                       <dt>Scale</dt>
@@ -608,9 +503,9 @@ export function ProjectRead({ project }: { project: Filing }) {
             </CaveatSentence>
           </Chapter>
 
-          <Chapter id="08">
+          <Chapter id="07">
             <DarkBand
-              eyebrow="08 · Colophon"
+              eyebrow="07 · Colophon"
               headline="The record, read honestly. Nothing guessed."
               body={`Read 1 Sep 2026 · ${project.lat == null ? 'geocode not filed' : `${project.lat.toFixed(5)}, ${project.lon?.toFixed(5)}`} · sources: Karnataka RERA filing and OpenStreetMap. Put this record on your page, or read another.`}
             />
