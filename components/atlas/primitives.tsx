@@ -1,6 +1,7 @@
 /* oxlint-disable next/no-html-link-for-pages -- Vinext client Link currently throws during RSC prefetch setup. */
 import type { ReactNode } from 'react';
 import {
+  formatAcres,
   indian,
   monthYear,
   positionOnAxis,
@@ -132,14 +133,14 @@ export function VerdictStrip({ project }: { project: Filing }) {
     /(?:around|about|approximately)?\s*(\d+(?:\.\d+)?)\s*acres?/i,
   )?.[1];
   const landArea =
-    project.land_sqm != null
-      ? `${indian(Math.round(project.land_sqm))} sqm`
+    project.land_acres != null
+      ? `${formatAcres(project.land_acres)} acres`
       : descriptionAcres
         ? `${indian(Number(descriptionAcres))} acres`
         : 'not filed';
   const landAreaCaption =
-    project.land_sqm != null
-      ? 'declared in filing'
+    project.land_acres != null
+      ? `${indian(Math.round(project.land_sqm!))} sqm · declared in filing`
       : descriptionAcres
         ? 'from project description'
         : 'not in filing extract';
@@ -347,10 +348,17 @@ export function RecordRow({
           </dd>
         </div>
         <div>
-          <dt>Land · covered · open</dt>
+          <dt>Land (acres) · covered/open (sqm)</dt>
           <dd>
-            <Field value={project.land_sqm} unit="sqm" /> ·{' '}
-            <Field value={project.covered_sqm} unit="sqm" /> ·{' '}
+            <Field
+              value={
+                project.land_acres == null
+                  ? null
+                  : formatAcres(project.land_acres)
+              }
+              unit="acres"
+            />{' '}
+            · <Field value={project.covered_sqm} unit="sqm" /> ·{' '}
             <Field value={project.open_sqm} unit="sqm" />
           </dd>
         </div>

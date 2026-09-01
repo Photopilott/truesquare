@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   bigint,
@@ -398,6 +399,10 @@ export const atlasProjects = pgTable(
     units: integer('units'),
     complaints: integer('complaints'),
     landSqm: numeric('land_sqm', { precision: 18, scale: 2 }),
+    landAcres: numeric('land_acres', {
+      precision: 18,
+      scale: 4,
+    }).generatedAlwaysAs(sql`round("land_sqm" / 4046.8564224, 4)`),
     coveredSqm: numeric('covered_sqm', { precision: 18, scale: 2 }),
     openSqm: numeric('open_sqm', { precision: 18, scale: 2 }),
     towers: integer('towers'),

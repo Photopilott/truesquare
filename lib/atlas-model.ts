@@ -35,6 +35,7 @@ export type RawProject = {
   units: number | null;
   complaints: number | null;
   land_sqm: number | null;
+  land_acres: number | null;
   covered_sqm: number | null;
   open_sqm: number | null;
   towers: number | null;
@@ -57,6 +58,20 @@ export type RawProject = {
   metro_km: number | null;
   inventory: InventoryRow[];
 };
+
+export const SQM_PER_ACRE = 4046.8564224;
+
+export function sqmToAcres(value: number | null) {
+  if (value == null) return null;
+  return Math.round((value / SQM_PER_ACRE) * 10_000) / 10_000;
+}
+
+export function formatAcres(value: number | null) {
+  if (value == null) return 'not filed';
+  return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(
+    value,
+  );
+}
 
 export type Filing = RawProject & {
   slug: string;

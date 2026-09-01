@@ -1,0 +1,1 @@
+ALTER TABLE "atlas_projects" ADD COLUMN "land_acres" numeric(18, 4) GENERATED ALWAYS AS (round("land_sqm" / 4046.8564224, 4)) STORED;

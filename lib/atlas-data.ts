@@ -7,6 +7,7 @@ import { getSql, hasDatabase } from '@/db';
 import {
   builderPortfolio,
   nearbyFilings,
+  sqmToAcres,
   toFiling,
   type AtlasMarket,
   type Filing,
@@ -38,6 +39,7 @@ type AtlasProjectRow = {
   units: number | null;
   complaints: number | null;
   land_sqm: string | number | null;
+  land_acres: string | number | null;
   covered_sqm: string | number | null;
   open_sqm: string | number | null;
   towers: number | null;
@@ -101,6 +103,7 @@ export function atlasRowToProject(row: AtlasProjectRow): RawProject {
     units: row.units,
     complaints: row.complaints,
     land_sqm: numberOrNull(row.land_sqm),
+    land_acres: numberOrNull(row.land_acres),
     covered_sqm: numberOrNull(row.covered_sqm),
     open_sqm: numberOrNull(row.open_sqm),
     towers: row.towers,
@@ -129,6 +132,7 @@ function snapshotProjects() {
   return (
     source.projects as Omit<
       RawProject,
+      | 'land_acres'
       | 'named_developer'
       | 'towers'
       | 'floors'
@@ -142,6 +146,7 @@ function snapshotProjects() {
     .filter((project) => !excludedProjectIds.has(project.id))
     .map((project) => ({
       ...project,
+      land_acres: sqmToAcres(project.land_sqm),
       named_developer: project.builder,
       towers: null,
       floors: null,
@@ -209,6 +214,7 @@ async function readDatabaseProjects() {
       units,
       complaints,
       land_sqm,
+      land_acres,
       covered_sqm,
       open_sqm,
       towers,

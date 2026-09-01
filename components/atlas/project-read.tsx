@@ -26,6 +26,7 @@ import {
 } from '@/components/analytics-controls';
 import { SiteHeader } from '@/components/site-header';
 import {
+  formatAcres,
   indian,
   monthYear,
   type Filing,
@@ -71,14 +72,17 @@ function InventoryTable({ project }: { project: Filing }) {
 }
 
 function GoogleMap({ project }: { project: Filing }) {
-  if (project.lat == null || project.lon == null) return null;
-
-  const coordinates = `${project.lat},${project.lon}`;
+  const hasCoordinates = project.lat != null && project.lon != null;
+  const locationQuery = hasCoordinates
+    ? `${project.lat},${project.lon}`
+    : [project.name, project.address, project.taluk, 'Karnataka', 'India']
+        .filter(Boolean)
+        .join(', ');
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY;
   const embedHref = apiKey
-    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(coordinates)}&zoom=15`
-    : `https://www.google.com/maps?q=${encodeURIComponent(coordinates)}&z=15&output=embed`;
-  const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates)}`;
+    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(locationQuery)}&zoom=15`
+    : `https://www.google.com/maps?q=${encodeURIComponent(locationQuery)}&z=15&output=embed`;
+  const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationQuery)}`;
 
   return (
     <div className="google-map">
@@ -90,7 +94,10 @@ function GoogleMap({ project }: { project: Filing }) {
         referrerPolicy="no-referrer-when-downgrade"
       />
       <div>
-        <span>Google Maps · filed coordinates</span>
+        <span>
+          Google Maps ·{' '}
+          {hasCoordinates ? 'project coordinates' : 'project-name search'}
+        </span>
         <a href={mapHref} target="_blank" rel="noreferrer">
           Open in Google Maps →
         </a>
@@ -341,8 +348,21 @@ export function ProjectRead({
               />
               <StatCell
                 label="Land"
-                value={<Field value={project.land_sqm} unit="sqm" />}
-                caption="declared"
+                value={
+                  <Field
+                    value={
+                      project.land_acres == null
+                        ? null
+                        : formatAcres(project.land_acres)
+                    }
+                    unit="acres"
+                  />
+                }
+                caption={
+                  project.land_sqm == null
+                    ? 'declared'
+                    : `${indian(Math.round(project.land_sqm))} sqm · declared`
+                }
               />
               <StatCell
                 label="Built up"
