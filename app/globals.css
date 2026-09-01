@@ -48,6 +48,332 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Homepage-only architectural drafting treatment. Typography is inherited. */
+.ts-home-drafting-header {
+  border-bottom: 1px solid var(--orb-line);
+  background: var(--orb-paper);
+}
+
+.ts-home-drafting-header .ts-orb-announcement {
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.ts-home-drafting-header .ts-orb-announcement::before,
+.ts-home-drafting-header .ts-orb-announcement::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  content: '';
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ts-home-drafting-header .ts-orb-announcement::before {
+  left: max(18px, calc((100% - 1160px) / 2));
+}
+
+.ts-home-drafting-header .ts-orb-announcement::after {
+  right: max(18px, calc((100% - 1160px) / 2));
+}
+
+.ts-home-drafting-header .ts-orb-nav {
+  top: 0;
+  min-height: 74px;
+  margin-top: 0;
+  border: 0;
+  border-right: 1px solid var(--orb-line);
+  border-left: 1px solid var(--orb-line);
+  border-radius: 0;
+  box-shadow: none;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 72%,
+      rgba(217, 211, 202, 0.3) 72% 72.08%,
+      transparent 72.08%
+    ),
+    rgba(247, 244, 237, 0.96);
+}
+
+.ts-home-drafting-header .ts-orb-button {
+  border-radius: 0;
+}
+
+.ts-orb-hero.ts-home-drafting-hero {
+  position: relative;
+  min-height: calc(100svh - 127px);
+  padding: 0;
+  grid-template-columns: minmax(0, 1.12fr) minmax(420px, 0.88fr);
+  gap: 0;
+  align-items: stretch;
+  border-right: 1px solid var(--orb-line);
+  border-bottom: 1px solid var(--orb-line);
+  border-left: 1px solid var(--orb-line);
+  background-color: var(--orb-paper);
+  background-image:
+    linear-gradient(rgba(217, 211, 202, 0.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 211, 202, 0.42) 1px, transparent 1px);
+  background-size: 40px 40px;
+  overflow: hidden;
+}
+
+.ts-home-drafting-copy {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  padding: clamp(46px, 6vh, 74px) clamp(36px, 4vw, 66px) 46px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--orb-line);
+  background: rgba(247, 244, 237, 0.9);
+}
+
+.ts-home-drafting-copy::before,
+.ts-home-drafting-copy::after {
+  position: absolute;
+  left: 0;
+  height: 1px;
+  content: '';
+  background: var(--orb-line);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: ts-home-drafting-line 0.9s 0.12s ease-out forwards;
+}
+
+.ts-home-drafting-copy::before {
+  top: 40px;
+  width: 64px;
+}
+
+.ts-home-drafting-copy::after {
+  bottom: 40px;
+  width: 120px;
+}
+
+.ts-home-drafting-hero .ts-orb-hero-title {
+  max-width: 720px;
+}
+
+.ts-home-drafting-hero .ts-orb-hero-copy {
+  max-width: 610px;
+}
+
+.ts-home-drafting-visual {
+  position: relative;
+  min-width: 0;
+  min-height: 590px;
+  margin: 0;
+  isolation: isolate;
+  overflow: hidden;
+  background: rgba(255, 253, 250, 0.72);
+}
+
+.ts-home-drafting-visual::before,
+.ts-home-drafting-visual::after {
+  position: absolute;
+  z-index: 3;
+  content: '';
+  pointer-events: none;
+}
+
+.ts-home-drafting-visual::before {
+  inset: 20px;
+  border: 1px solid rgba(21, 17, 13, 0.2);
+}
+
+.ts-home-drafting-visual::after {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(21, 17, 13, 0.14);
+}
+
+.ts-home-drafting-image {
+  position: absolute;
+  inset: 34px 14px 22px;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: ts-home-drafting-reveal 0.8s 0.08s ease-out forwards;
+}
+
+.ts-home-drafting-image img {
+  object-fit: cover;
+  object-position: center;
+  mix-blend-mode: multiply;
+  filter: contrast(1.05);
+}
+
+.ts-home-drafting-markers {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.ts-home-drafting-marker {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--orb-orange);
+  background: var(--orb-paper);
+  color: var(--orb-ink);
+  font-family: var(--font-silkscreen), monospace;
+  font-size: 8px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  animation: ts-home-drafting-marker 3.6s ease-in-out infinite;
+}
+
+.ts-home-drafting-marker::after {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 46px;
+  height: 1px;
+  content: '';
+  background: var(--orb-orange);
+}
+
+.ts-home-drafting-marker-a {
+  top: 16%;
+  left: 7%;
+}
+
+.ts-home-drafting-marker-b {
+  top: 48%;
+  right: 9%;
+  animation-delay: 0.6s;
+}
+
+.ts-home-drafting-marker-b::after {
+  right: 100%;
+  left: auto;
+}
+
+.ts-home-drafting-marker-c {
+  bottom: 10%;
+  left: 13%;
+  animation-delay: 1.2s;
+}
+
+@keyframes ts-home-drafting-reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ts-home-drafting-line {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes ts-home-drafting-marker {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (max-width: 900px) {
+  .ts-home-drafting-header .ts-orb-nav {
+    background: rgba(247, 244, 237, 0.96);
+  }
+
+  .ts-orb-hero.ts-home-drafting-hero {
+    min-height: auto;
+    padding: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .ts-home-drafting-visual {
+    order: 1;
+    min-height: 280px;
+    border-bottom: 1px solid var(--orb-line);
+  }
+
+  .ts-home-drafting-copy {
+    order: 2;
+    padding: 52px 42px 48px;
+    border-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .ts-home-drafting-header .ts-orb-nav {
+    top: 0;
+    min-height: 62px;
+    margin-top: 0;
+  }
+
+  .ts-orb-hero.ts-home-drafting-hero {
+    width: 100%;
+  }
+
+  .ts-home-drafting-visual {
+    min-height: 188px;
+  }
+
+  .ts-home-drafting-visual::before {
+    inset: 10px;
+  }
+
+  .ts-home-drafting-image {
+    inset: 8px 14px 4px;
+  }
+
+  .ts-home-drafting-copy {
+    padding: 30px 20px 34px;
+  }
+
+  .ts-home-drafting-copy::before {
+    top: 16px;
+  }
+
+  .ts-home-drafting-copy::after {
+    bottom: 16px;
+  }
+
+  .ts-home-drafting-hero .ts-orb-eyebrow {
+    margin-bottom: 14px;
+  }
+
+  .ts-home-drafting-hero .ts-orb-hero-title {
+    margin-bottom: 20px;
+  }
+
+  .ts-home-drafting-hero .ts-orb-hero-actions {
+    margin-top: 24px;
+  }
+
+  .ts-home-drafting-marker {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-home-drafting-copy::before,
+  .ts-home-drafting-copy::after,
+  .ts-home-drafting-image,
+  .ts-home-drafting-marker {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

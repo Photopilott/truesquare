@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { BrandWordmark } from '@/components/brand-wordmark';
@@ -39,10 +40,10 @@ export function HomeNavigation() {
 
   return (
     <main id="home" className="ts-orb min-h-screen overflow-x-clip">
-      <SiteHeader />
+      <SiteHeader variant="homepage" />
 
-      <section className="ts-orb-shell ts-orb-hero ts-orb-hero-single">
-        <div>
+      <section className="ts-orb-shell ts-orb-hero ts-orb-hero-single ts-home-drafting-hero">
+        <div className="ts-home-drafting-copy">
           <p className="ts-orb-eyebrow">BENGALURU · REGISTERED TRANSACTIONS</p>
           <h1 className="ts-orb-hero-title">
             Make your next property decision with evidence.
@@ -84,6 +85,32 @@ export function HomeNavigation() {
             your numbers.
           </p>
         </div>
+
+        <figure
+          className="ts-home-drafting-visual"
+          aria-label="Architectural elevation sketch of a Bengaluru apartment building"
+        >
+          <div className="ts-home-drafting-image">
+            <Image
+              src="/images/apartment-sketch-reference-style-3-floor-4k.png"
+              alt="Hand-drawn architectural elevation of a three-floor apartment building"
+              fill
+              priority
+              sizes="(max-width: 900px) 100vw, 44vw"
+            />
+          </div>
+          <div className="ts-home-drafting-markers" aria-hidden="true">
+            <span className="ts-home-drafting-marker ts-home-drafting-marker-a">
+              01
+            </span>
+            <span className="ts-home-drafting-marker ts-home-drafting-marker-b">
+              02
+            </span>
+            <span className="ts-home-drafting-marker ts-home-drafting-marker-c">
+              03
+            </span>
+          </div>
+        </figure>
       </section>
 
       <EvidenceStack />

@@ -35,11 +35,17 @@ function Mark() {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({
+  variant = 'default',
+}: {
+  variant?: 'default' | 'homepage';
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="ts-orb ts-orb-sticky-header">
+    <div
+      className={`ts-orb ts-orb-sticky-header${variant === 'homepage' ? ' ts-home-drafting-header' : ''}`}
+    >
       <div className="ts-orb-announcement">
         <strong>INDEPENDENT</strong>
         <span>No listings sold. No leads sold. No data sold.</span>
