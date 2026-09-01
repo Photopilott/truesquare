@@ -15,6 +15,13 @@ const rows = JSON.parse(
     'utf8',
   ),
 );
+const coordinates = JSON.parse(
+  await readFile(
+    new URL('../data/atlas-project-coordinates.json', import.meta.url),
+    'utf8',
+  ),
+);
+const coordinatesById = new Map(coordinates.map((row) => [row.id, row]));
 const excludedProjectIds = new Set(
   JSON.parse(
     await readFile(
@@ -83,8 +90,9 @@ for (const row of rows.filter((row) => !excludedProjectIds.has(row.id))) {
   if (!registrationAtId && !idAtRegistration) pending.push(row);
 }
 
-const queries = pending.map(
-  (row) => sql`
+const queries = pending.map((row) => {
+  const coordinate = coordinatesById.get(row.id);
+  return sql`
   insert into public.atlas_projects (
     id,
     registration,
@@ -140,8 +148,8 @@ const queries = pending.map(
     ${row.status},
     ${row.taluk},
     ${row.address},
-    ${row.latitude},
-    ${row.longitude},
+    ${coordinate?.latitude ?? row.latitude},
+    ${coordinate?.longitude ?? row.longitude},
     ${row.market},
     ${row.marketConfidence},
     ${row.targetDate},
@@ -178,8 +186,8 @@ const queries = pending.map(
     now(),
     now()
   )
-`,
-);
+`;
+});
 
 for (let index = 0; index < queries.length; index += 25) {
   await sql.transaction(queries.slice(index, index + 25));

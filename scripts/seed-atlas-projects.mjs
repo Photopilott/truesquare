@@ -21,6 +21,12 @@ const enrichment = JSON.parse(
     'utf8',
   ),
 );
+const coordinates = JSON.parse(
+  await readFile(
+    new URL('../data/atlas-project-coordinates.json', import.meta.url),
+    'utf8',
+  ),
+);
 const excludedProjectIds = new Set(
   JSON.parse(
     await readFile(
@@ -30,6 +36,7 @@ const excludedProjectIds = new Set(
   ),
 );
 const enrichmentById = new Map(enrichment.map((row) => [row.atlasId, row]));
+const coordinatesById = new Map(coordinates.map((row) => [row.id, row]));
 
 if (atlas.projects.length !== 2369) {
   throw new Error(
@@ -93,6 +100,7 @@ const includedProjects = atlas.projects.filter(
 );
 const queries = includedProjects.map((project) => {
   const added = enrichmentById.get(project.id);
+  const coordinate = coordinatesById.get(project.id);
   return sql`
     insert into public.atlas_projects (
       id,
@@ -149,8 +157,8 @@ const queries = includedProjects.map((project) => {
       ${added?.constructionProgress ?? project.status},
       ${project.taluk},
       ${project.address},
-      ${project.lat},
-      ${project.lon},
+      ${coordinate?.latitude ?? project.lat},
+      ${coordinate?.longitude ?? project.lon},
       ${project.market},
       ${project.market_confidence},
       ${project.target},
