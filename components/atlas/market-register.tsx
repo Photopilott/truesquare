@@ -47,8 +47,10 @@ export function MarketRegister() {
 
   return (
     <main>
-      <IndependenceBar />
-      <TopNav />
+      <div className="atlas-sticky-header">
+        <IndependenceBar />
+        <TopNav />
+      </div>
       <div className="frame market-page">
         <header className="market-masthead">
           <div className="market-copy">

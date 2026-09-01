@@ -44,19 +44,21 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <main className="ts-orb min-h-screen">
-      <div className="ts-orb-announcement">
-        <strong>PRIVACY</strong>
-        <span>No listings sold. No leads sold. No data sold.</span>
-      </div>
+      <div className="ts-orb-sticky-header">
+        <div className="ts-orb-announcement">
+          <strong>PRIVACY</strong>
+          <span>No listings sold. No leads sold. No data sold.</span>
+        </div>
 
-      <header className="ts-orb-shell ts-orb-nav">
-        <Link href="/" className="ts-orb-brand" aria-label="FlatData home">
-          <BrandWordmark />
-        </Link>
-        <Link href="/" className="ts-orb-button ts-orb-button-small">
-          BACK HOME
-        </Link>
-      </header>
+        <header className="ts-orb-shell ts-orb-nav">
+          <Link href="/" className="ts-orb-brand" aria-label="FlatData home">
+            <BrandWordmark />
+          </Link>
+          <Link href="/" className="ts-orb-button ts-orb-button-small">
+            BACK HOME
+          </Link>
+        </header>
+      </div>
 
       <section className="ts-orb-shell py-16 sm:py-24">
         <p className="ts-orb-eyebrow">

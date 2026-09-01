@@ -209,6 +209,19 @@ body {
   font-weight: 400;
 }
 
+.ts-orb-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding-bottom: 1px;
+}
+
+.ts-orb-sticky-header .ts-orb-nav {
+  position: relative;
+  top: auto;
+  z-index: auto;
+}
+
 .ts-orb-shell {
   width: min(1160px, calc(100% - 32px));
   margin-inline: auto;

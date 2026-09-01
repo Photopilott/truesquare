@@ -208,16 +208,18 @@ export function ProjectRead({ project }: { project: Filing }) {
 
   return (
     <main>
-      <IndependenceBar />
-      <div className="utility-row">
-        <div className="frame">
-          <a href="#watch">Watch</a>
-          <a href="#compare">Compare</a>
-          <a href="#share">Share</a>
-          <a href="#report">Report an inaccuracy</a>
+      <div className="atlas-sticky-header">
+        <IndependenceBar />
+        <div className="utility-row">
+          <div className="frame">
+            <a href="#watch">Watch</a>
+            <a href="#compare">Compare</a>
+            <a href="#share">Share</a>
+            <a href="#report">Report an inaccuracy</a>
+          </div>
         </div>
+        <TopNav project />
       </div>
-      <TopNav project />
       <div className="project-shell frame">
         <ChapterRail />
         <div className="project-content">

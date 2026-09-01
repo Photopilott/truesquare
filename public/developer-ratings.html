@@ -63,10 +63,16 @@
       font-weight: 400;
     }
 
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding-bottom: 1px;
+    }
+
     .shell { width: min(1160px, calc(100% - 32px)); margin: 0 auto; }
     .nav {
-      position: sticky;
-      top: 12px;
+      position: relative;
       z-index: 20;
       min-height: 74px;
       margin-top: 24px;
@@ -331,20 +337,22 @@
   </style>
 </head>
 <body>
-  <div class="announcement"><strong>NEW MODULE</strong><span>Developer experience, built from owner and buyer feedback loops.</span></div>
+  <div class="site-header">
+    <div class="announcement"><strong>NEW MODULE</strong><span>Developer experience, built from owner and buyer feedback loops.</span></div>
 
-  <header class="shell nav" aria-label="Primary navigation">
-    <a class="brand" href="#top" aria-label="FlatData home"><span class="brand-flat" aria-hidden="true">Flat</span><span class="brand-data" aria-hidden="true">Data</span></a>
-    <nav class="nav-links" aria-label="Mockup sections">
-      <a href="#developers">Developers</a>
-      <a href="#profile">Rating profile</a>
-      <a href="#method">Method</a>
-    </nav>
-    <div class="nav-actions">
-      <a class="button small" href="#developers">Browse</a>
-      <button class="button dark small" type="button" data-open-review>Write a review</button>
-    </div>
-  </header>
+    <header class="shell nav" aria-label="Primary navigation">
+      <a class="brand" href="/" aria-label="FlatData home"><span class="brand-flat" aria-hidden="true">Flat</span><span class="brand-data" aria-hidden="true">Data</span></a>
+      <nav class="nav-links" aria-label="Mockup sections">
+        <a href="#developers">Developers</a>
+        <a href="#profile">Rating profile</a>
+        <a href="#method">Method</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="button small" href="#developers">Browse</a>
+        <button class="button dark small" type="button" data-open-review>Write a review</button>
+      </div>
+    </header>
+  </div>
 
   <main id="top">
     <section class="shell hero">

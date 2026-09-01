@@ -181,14 +181,19 @@ function AuthPanel({ adminEmail }: { adminEmail: string }) {
 
   return (
     <main className="ts-orb min-h-screen">
-      <header className="ts-orb-shell ts-orb-nav">
-        <Link className="ts-orb-brand" href="/" aria-label="FlatData home">
-          <BrandWordmark />
-        </Link>
-        <Link href="/" className="flex items-center gap-2 text-sm font-medium">
-          <ArrowLeft className="size-4" /> Back to site
-        </Link>
-      </header>
+      <div className="ts-orb-sticky-header">
+        <header className="ts-orb-shell ts-orb-nav">
+          <Link className="ts-orb-brand" href="/" aria-label="FlatData home">
+            <BrandWordmark />
+          </Link>
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm font-medium"
+          >
+            <ArrowLeft className="size-4" /> Back to site
+          </Link>
+        </header>
+      </div>
       <section className="ts-orb-shell grid min-h-[calc(100vh-88px)] place-items-center py-12">
         <Card className="w-full max-w-[480px] overflow-hidden">
           <CardHeader className="border-b border-border bg-secondary p-7 sm:p-9">
@@ -730,25 +735,27 @@ function Dashboard({
 
   return (
     <main className="ts-orb min-h-screen">
-      <div className="ts-orb-announcement">
-        <strong>ADMIN ONLY</strong>
-        <span>
-          Raw owner contributions are private and never shown publicly.
-        </span>
-      </div>
-      <header className="ts-orb-shell ts-orb-nav">
-        <Link className="ts-orb-brand" href="/" aria-label="FlatData home">
-          <BrandWordmark />
-        </Link>
-        <div className="flex items-center gap-3">
-          <span className="hidden text-xs text-muted-foreground sm:inline">
-            {adminEmail}
+      <div className="ts-orb-sticky-header">
+        <div className="ts-orb-announcement">
+          <strong>ADMIN ONLY</strong>
+          <span>
+            Raw owner contributions are private and never shown publicly.
           </span>
-          <Button variant="outline" size="sm" onClick={() => void signOut()}>
-            <LogOut /> Sign out
-          </Button>
         </div>
-      </header>
+        <header className="ts-orb-shell ts-orb-nav">
+          <Link className="ts-orb-brand" href="/" aria-label="FlatData home">
+            <BrandWordmark />
+          </Link>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-xs text-muted-foreground sm:inline">
+              {adminEmail}
+            </span>
+            <Button variant="outline" size="sm" onClick={() => void signOut()}>
+              <LogOut /> Sign out
+            </Button>
+          </div>
+        </header>
+      </div>
       <section className="ts-orb-shell ts-orb-section">
         <OperationsPanel />
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">

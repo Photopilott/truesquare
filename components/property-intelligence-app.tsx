@@ -241,7 +241,7 @@ export function AppHeader({
   active: 'owner' | 'buyer' | 'explore';
 }) {
   return (
-    <>
+    <div className="ts-orb-sticky-header">
       <div className="ts-orb-announcement">
         <strong>EVIDENCE-FIRST</strong>
         <span>No listings sold. No leads sold. No data sold.</span>
@@ -283,7 +283,7 @@ export function AppHeader({
           </Link>
         </div>
       </header>
-    </>
+    </div>
   );
 }
 
