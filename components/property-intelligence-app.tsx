@@ -821,7 +821,7 @@ export function PropertyIntelligenceApp({
                   </NativeSelect>
                 </FormField>
               </div>
-              <Alert className="mt-4 rounded-[12px] border-[#A9DCB8] bg-accent">
+              <Alert className="mt-4 rounded-[12px] border-border bg-accent">
                 <Info />
                 <AlertTitle>Workbook data boundary</AlertTitle>
                 <AlertDescription>
@@ -894,7 +894,7 @@ export function PropertyIntelligenceApp({
                         });
                       }}
                     >
-                      <Card className="cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(34,27,19,.10)]">
+                      <Card className="cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(40,40,40,.10)]">
                         <CardHeader>
                           <div className="flex items-center justify-between gap-3">
                             <Badge
@@ -1005,7 +1005,7 @@ export function PropertyIntelligenceApp({
               <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
                 <a
                   href="#property-form"
-                  className="flex min-h-12 items-center justify-center rounded-[9px] border border-foreground bg-foreground px-5 text-sm font-semibold text-background"
+                  className="flex min-h-12 items-center justify-center rounded-[9px] border border-primary bg-primary px-5 text-sm font-semibold text-primary-foreground"
                 >
                   Track my property
                 </a>
@@ -1028,7 +1028,7 @@ export function PropertyIntelligenceApp({
                   </div>
                 ))}
               </div>
-              <Alert className="mt-7 rounded-[12px] border-[#A9DCB8] bg-accent">
+              <Alert className="mt-7 rounded-[12px] border-border bg-accent">
                 <LockKeyhole />
                 <AlertTitle>How it works</AlertTitle>
                 <AlertDescription>
@@ -1053,7 +1053,7 @@ export function PropertyIntelligenceApp({
               className="ts-orb-form-panel min-w-0"
             >
               {isWhatsAppReferral && ownerForm.society && (
-                <Alert className="mb-6 rounded-[12px] border-[#A9DCB8] bg-accent">
+                <Alert className="mb-6 rounded-[12px] border-border bg-accent">
                   <LockKeyhole />
                   <AlertTitle>
                     {ownerForm.society} is already selected
@@ -1458,7 +1458,7 @@ function BuyerEditorialSections() {
         </h2>
         <a
           href="#buyer-catalogue"
-          className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-[9px] bg-foreground px-6 text-center text-sm font-semibold text-background"
+          className="mx-auto mt-6 flex min-h-14 w-full max-w-xl items-center justify-center rounded-[9px] bg-primary px-6 text-center text-sm font-semibold text-primary-foreground"
         >
           Browse societies in Sarjapur Road, Bellandur, Marathahalli, and
           Haralur
@@ -1507,13 +1507,13 @@ function HomeView({
           </div>
         </div>
         <div className="grid gap-4">
-          <Card className="border-0 bg-primary text-primary-foreground ring-0 shadow-[0_24px_70px_-30px_rgba(34,27,19,.75)]">
+          <Card className="border-0 bg-foreground text-background ring-0 shadow-[0_24px_70px_-30px_rgba(40,40,40,.75)]">
             <CardHeader>
               <div className="mb-5 grid size-11 place-items-center rounded-2xl bg-white/12">
                 <Home className="size-5" />
               </div>
               <CardTitle className="text-2xl">I own a property</CardTitle>
-              <p className="max-w-md text-sm leading-6 text-primary-foreground/72">
+              <p className="max-w-md text-sm leading-6 text-background/72">
                 Privately contribute what you paid to unlock an evidence-based
                 estimate and acquisition return.
               </p>
@@ -1521,14 +1521,14 @@ function HomeView({
             <CardContent>
               <Button
                 size="lg"
-                className="h-11 w-full bg-white text-primary hover:bg-white/90"
+                className="h-11 w-full"
                 onClick={onOwner}
               >
                 Track my apartment <ArrowRight />
               </Button>
             </CardContent>
           </Card>
-          <Card className="border-0 bg-card ring-1 ring-border shadow-[0_18px_60px_-36px_rgba(34,27,19,.45)]">
+          <Card className="border-0 bg-card ring-1 ring-border shadow-[0_18px_60px_-36px_rgba(40,40,40,.45)]">
             <CardHeader>
               <div className="mb-5 grid size-11 place-items-center rounded-2xl bg-accent text-accent-foreground">
                 <Search className="size-5" />
@@ -1728,7 +1728,7 @@ function OwnerResult({
         </Badge>
       </div>
       {result.snapshotCreatedAt && (
-        <Alert className="mb-6 border-[#A9DCB8] bg-accent">
+        <Alert className="mb-6 border-border bg-accent">
           <CheckCircle2 />
           <AlertTitle>Valuation snapshot saved</AlertTitle>
           <AlertDescription>
@@ -1839,7 +1839,7 @@ function OwnerResult({
         </Alert>
       )}
       {result.ownerAggregate && (
-        <Alert className="mt-6 rounded-[12px] border-[#A9DCB8] bg-accent">
+        <Alert className="mt-6 rounded-[12px] border-border bg-accent">
           <CheckCircle2 />
           <AlertTitle>
             Anonymous owner pool · {result.ownerAggregate.approvedCount}{' '}
@@ -1857,7 +1857,7 @@ function OwnerResult({
         </Alert>
       )}
       {publicEvidence && (
-        <Card className="mt-7 border-[#A9DCB8] bg-accent">
+        <Card className="mt-7 border-border bg-accent">
           <CardHeader>
             <p className="font-mono text-[10px] tracking-[0.12em] text-accent-foreground">
               SHARE WITHOUT REVEALING YOUR RESULT
@@ -2070,7 +2070,7 @@ function SocietyDetail({
           }
         />
       </div>
-      <div className="rounded-xl border border-[#A9DCB8] bg-accent p-4">
+      <div className="rounded-xl border border-border bg-accent p-4">
         <p className="text-sm leading-6 text-muted-foreground">
           Share the public {society.name} benchmark with your society group.
           Your own flat price is never part of the link.
@@ -2130,19 +2130,16 @@ function SocietyDetail({
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-border bg-primary p-5 text-primary-foreground">
+        <div className="rounded-xl border border-border bg-foreground p-5 text-background">
           <LockKeyhole className="size-5" />
           <h3 className="mt-3 font-heading text-xl font-semibold">
             Detailed evidence is sign-in gated
           </h3>
-          <p className="mt-2 text-sm leading-6 text-primary-foreground/70">
+          <p className="mt-2 text-sm leading-6 text-background/70">
             Explore freely, then sign in only when revealing transaction-level
             intelligence. Use Google or verify an email with a one-time code.
           </p>
-          <Button
-            className="mt-4 bg-white text-primary hover:bg-white/90"
-            onClick={onUnlock}
-          >
+          <Button className="mt-4" onClick={onUnlock}>
             Unlock detailed evidence
           </Button>
         </div>

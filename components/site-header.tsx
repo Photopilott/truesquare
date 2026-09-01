@@ -128,7 +128,7 @@ export function SiteHeader({
               <Link
                 onClick={() => setMenuOpen(false)}
                 href="/#paths"
-                className="flex h-14 items-center justify-center gap-3 rounded-[9px] bg-foreground text-[13px] font-semibold text-background"
+                className="flex h-14 items-center justify-center gap-3 rounded-[9px] bg-primary text-[13px] font-semibold text-primary-foreground"
               >
                 CHOOSE A PATH <ArrowRight className="size-4" />
               </Link>

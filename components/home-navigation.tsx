@@ -218,7 +218,7 @@ export function HomeNavigation() {
       <section id="evidence" className="ts-orb-blue scroll-mt-24">
         <div className="ts-orb-shell">
           <h2>Evidence when it exists. Honesty when it doesn’t.</h2>
-          <div className="mx-auto max-w-2xl space-y-4 text-center text-[#DCE3FF]">
+          <div className="mx-auto max-w-2xl space-y-4 text-center text-white/85">
             <p>
               Owners privately share what they paid. FlatData is designed to
               pool those contributions anonymously with registered transactions.

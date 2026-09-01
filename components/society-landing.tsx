@@ -128,7 +128,7 @@ export function SocietyLanding({
               </div>
             </section>
 
-            <aside className="rounded-[14px] border border-[#A9DCB8] bg-accent p-6 sm:p-7">
+            <aside className="rounded-[14px] border border-border bg-accent p-6 sm:p-7">
               <p className="font-mono text-[10px] tracking-[0.12em] text-accent-foreground">
                 OWN A FLAT HERE?
               </p>

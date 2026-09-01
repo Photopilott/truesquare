@@ -181,7 +181,7 @@ export function SocietyShare({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-xl border border-[#A9DCB8] bg-accent p-5">
+          <div className="rounded-xl border border-border bg-accent p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-foreground">
               Shared society benchmark
             </p>

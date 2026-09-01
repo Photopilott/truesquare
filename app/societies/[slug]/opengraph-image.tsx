@@ -25,20 +25,20 @@ export default async function Image({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        background: '#f7f1e8',
-        color: '#221b13',
+        background: '#ffffff',
+        color: '#282828',
         padding: '64px 72px',
         fontFamily: 'Arial, sans-serif',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div style={{ fontSize: 28, fontWeight: 700 }}>FlatData</div>
-        <div style={{ fontSize: 20, color: '#5e554c' }}>
+        <div style={{ fontSize: 20, color: '#b3b3af' }}>
           {evidence.society.location}
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ fontSize: 22, color: '#5e554c', letterSpacing: 2 }}>
+        <div style={{ fontSize: 22, color: '#b3b3af', letterSpacing: 2 }}>
           12-MONTH REGISTERED SOCIETY BENCHMARK
         </div>
         <div style={{ marginTop: 18, fontSize: 64, fontWeight: 700 }}>
@@ -55,7 +55,7 @@ export default async function Image({
           <div style={{ fontSize: 76, fontWeight: 700 }}>
             {compactInr(evidence.registeredMedianPrice)}
           </div>
-          <div style={{ paddingBottom: 12, fontSize: 28, color: '#5e554c' }}>
+          <div style={{ paddingBottom: 12, fontSize: 28, color: '#b3b3af' }}>
             Latest {wholeInr(evidence.latestRegisteredPricePerSqFt)} / sq ft
           </div>
         </div>
@@ -71,7 +71,7 @@ export default async function Image({
           {evidence.registeredCount} supporting sales · {evidence.confidence}{' '}
           confidence
         </div>
-        <div style={{ color: '#27633a', fontWeight: 700 }}>
+        <div style={{ color: '#fa3600', fontWeight: 700 }}>
           Personal flat prices stay private
         </div>
       </div>

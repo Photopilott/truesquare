@@ -312,7 +312,7 @@ export function TransactionImportConsole() {
       </div>
 
       {message && (
-        <Alert className="mt-6 border-[#A9DCB8] bg-accent">
+        <Alert className="mt-6 border-border bg-accent">
           <CheckCircle2 />
           <AlertTitle>Saved</AlertTitle>
           <AlertDescription>{message}</AlertDescription>

@@ -275,7 +275,7 @@ export function AccessGate({
         </DialogHeader>
 
         {context === 'subscription' ? (
-          <div className="space-y-2 rounded-[10px] border border-[#A9DCB8] bg-accent p-4 text-sm">
+          <div className="space-y-2 rounded-[10px] border border-border bg-accent p-4 text-sm">
             <p className="flex items-start gap-2">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
               New anonymous owner benchmark and latest pricing
@@ -297,7 +297,7 @@ export function AccessGate({
           </div>
         ) : session?.authenticated && session.user ? (
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3 rounded-[10px] border border-[#A9DCB8] bg-accent p-4">
+            <div className="flex items-center justify-between gap-3 rounded-[10px] border border-border bg-accent p-4">
               <div className="min-w-0">
                 <p className="flex items-center gap-2 text-sm font-medium">
                   <CheckCircle2 className="size-4" /> Verified account

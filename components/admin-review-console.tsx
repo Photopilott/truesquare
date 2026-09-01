@@ -222,7 +222,7 @@ function AuthPanel({ adminEmail }: { adminEmail: string }) {
               </div>
             ) : (
               <div className="space-y-5">
-                <Alert className="border-[#A9DCB8] bg-accent">
+                <Alert className="border-border bg-accent">
                   <Mail />
                   <AlertTitle>Code sent</AlertTitle>
                   <AlertDescription>
@@ -529,7 +529,7 @@ function OperationsPanel() {
         </Alert>
       )}
       {message && (
-        <Alert className="mt-5 border-[#A9DCB8] bg-accent">
+        <Alert className="mt-5 border-border bg-accent">
           <CheckCircle2 />
           <AlertTitle>Saved</AlertTitle>
           <AlertDescription>{message}</AlertDescription>
@@ -778,7 +778,7 @@ function Dashboard({
           </p>
         )}
         {message && (
-          <Alert className="mb-5 border-[#A9DCB8] bg-accent">
+          <Alert className="mb-5 border-border bg-accent">
             <CheckCircle2 />
             <AlertTitle>Saved</AlertTitle>
             <AlertDescription>{message}</AlertDescription>

@@ -171,7 +171,7 @@ export function ExplorerPage({
               </CardContent>
             </Card>
           </div>
-          <p className="mx-auto mt-7 max-w-3xl text-sm leading-7 text-[#DCE3FF]">
+          <p className="mx-auto mt-7 max-w-3xl text-sm leading-7 text-white/85">
             Society-level registered pricing and confidence are visible as you
             browse. You will only be asked to sign in when opening the full
             evidence for a specific society.

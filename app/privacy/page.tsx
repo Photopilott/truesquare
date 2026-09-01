@@ -75,14 +75,14 @@ export default function PrivacyPage() {
           ))}
         </div>
 
-        <section className="mt-5 border border-border bg-[#2f50d2] p-7 text-white shadow-[8px_8px_0_#15110d] sm:p-10">
-          <p className="font-mono text-[10px] text-[#dce3ff]">
+        <section className="mt-5 border border-border bg-primary p-7 text-white shadow-[8px_8px_0_#282828] sm:p-10">
+          <p className="font-mono text-[10px] text-white/85">
             QUESTIONS OR REQUESTS
           </p>
           <h2 className="mt-4 font-heading text-3xl sm:text-4xl">
             Contact FlatData
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-[#dce3ff]">
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-white/85">
             Email{' '}
             <a
               className="underline underline-offset-4"
