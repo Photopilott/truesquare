@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   compactInr,
-  societyShareMessage,
+  societyWhatsAppText,
   wholeInr,
   type PublicSocietyEvidence,
 } from '@/lib/society-evidence';
@@ -93,7 +93,7 @@ export function SocietyShare({
       contentId: evidence.society.slug,
       sourceScreen,
     });
-    const text = `${societyShareMessage(evidence)}\n\nSee the evidence: ${url}`;
+    const text = societyWhatsAppText(evidence, url);
     window.open(
       `https://wa.me/?text=${encodeURIComponent(text)}`,
       '_blank',

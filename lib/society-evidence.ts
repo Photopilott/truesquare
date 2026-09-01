@@ -122,8 +122,15 @@ export function evidenceDate(value: string | null) {
 }
 
 export function societyShareMessage(evidence: PublicSocietyEvidence) {
-  const benchmark = evidence.registeredMedianPrice
-    ? `${compactInr(evidence.registeredMedianPrice)} (${wholeInr(evidence.registeredMedianPricePerSqFt)}/sq ft)`
-    : 'still being built';
-  return `I checked ${evidence.society.name} on FlatData. The registered society benchmark is ${benchmark}, based on ${evidence.registeredCount} supporting ${evidence.registeredCount === 1 ? 'sale' : 'sales'}. Confidence: ${evidence.confidence}. This shares only the public society benchmark—my flat price is not disclosed.`;
+  const benchmarkPricePerSqFt =
+    evidence.registeredMedianPricePerSqFt ??
+    evidence.society.medianPricePerSqFt;
+  return `Found a site that shows what your flat is worth today and how much it's gone up since you bought it. Uses actual registration data, not broker listings.\n${evidence.society.name} is at ${wholeInr(benchmarkPricePerSqFt)}/sq ft right now.`;
+}
+
+export function societyWhatsAppText(
+  evidence: PublicSocietyEvidence,
+  url: string,
+) {
+  return `${societyShareMessage(evidence)}\n${url}`;
 }

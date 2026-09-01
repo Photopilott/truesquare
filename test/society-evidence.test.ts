@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   buildPublicSocietyEvidence,
   societyShareMessage,
+  societyWhatsAppText,
   type SocietySummary,
 } from '../lib/society-evidence.ts';
 import type { OwnerPriceAggregate } from '../lib/owner-aggregates.ts';
@@ -78,7 +79,7 @@ test('builds one public society benchmark from eligible evidence', () => {
   assert.equal(evidence.publicOwnerContributionCount, 3);
 });
 
-test('share copy discloses only the society benchmark', () => {
+test('uses the approved three-line WhatsApp copy', () => {
   const evidence = buildPublicSocietyEvidence(
     society,
     [record('one', 15_000_000, 10_000, '2026-01-01')],
@@ -86,7 +87,13 @@ test('share copy discloses only the society benchmark', () => {
   );
   const message = societyShareMessage(evidence);
 
-  assert.match(message, /Test Society/);
-  assert.match(message, /my flat price is not disclosed/i);
-  assert.doesNotMatch(message, /tower|floor|email|return/i);
+  assert.equal(
+    message,
+    "Found a site that shows what your flat is worth today and how much it's gone up since you bought it. Uses actual registration data, not broker listings.\nTest Society is at ₹10,000/sq ft right now.",
+  );
+  assert.doesNotMatch(message, /tower|floor|email/i);
+  assert.equal(
+    societyWhatsAppText(evidence, 'https://www.flatdata.in/societies/test'),
+    "Found a site that shows what your flat is worth today and how much it's gone up since you bought it. Uses actual registration data, not broker listings.\nTest Society is at ₹10,000/sq ft right now.\nhttps://www.flatdata.in/societies/test",
+  );
 });
