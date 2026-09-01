@@ -72,17 +72,14 @@ function InventoryTable({ project }: { project: Filing }) {
 }
 
 function GoogleMap({ project }: { project: Filing }) {
-  const hasCoordinates = project.lat != null && project.lon != null;
-  const locationQuery = hasCoordinates
-    ? `${project.lat},${project.lon}`
-    : [project.name, project.address, project.taluk, 'Karnataka', 'India']
-        .filter(Boolean)
-        .join(', ');
+  if (project.lat == null || project.lon == null) return null;
+
+  const coordinates = `${project.lat},${project.lon}`;
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY;
   const embedHref = apiKey
-    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(locationQuery)}&zoom=15`
-    : `https://www.google.com/maps?q=${encodeURIComponent(locationQuery)}&z=15&output=embed`;
-  const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationQuery)}`;
+    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(coordinates)}&zoom=15`
+    : `https://www.google.com/maps?q=${encodeURIComponent(coordinates)}&z=15&output=embed`;
+  const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coordinates)}`;
 
   return (
     <div className="google-map">
@@ -94,10 +91,7 @@ function GoogleMap({ project }: { project: Filing }) {
         referrerPolicy="no-referrer-when-downgrade"
       />
       <div>
-        <span>
-          Google Maps ·{' '}
-          {hasCoordinates ? 'project coordinates' : 'project-name search'}
-        </span>
+        <span>Google Maps · filed coordinates</span>
         <a href={mapHref} target="_blank" rel="noreferrer">
           Open in Google Maps →
         </a>
