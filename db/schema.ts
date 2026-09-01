@@ -371,6 +371,82 @@ export const registeredTransactions = pgTable(
   ],
 );
 
+export const atlasProjects = pgTable(
+  'atlas_projects',
+  {
+    id: integer('id').primaryKey(),
+    registration: text('registration').notNull(),
+    name: text('name').notNull(),
+    builder: text('builder').notNull(),
+    status: text('status').notNull(),
+    taluk: text('taluk').notNull(),
+    address: text('address'),
+    latitude: numeric('latitude', { precision: 12, scale: 8 }),
+    longitude: numeric('longitude', { precision: 12, scale: 8 }),
+    market: text('market').notNull(),
+    marketConfidence: numeric('market_confidence', {
+      precision: 6,
+      scale: 4,
+    }).notNull(),
+    targetDate: date('target_date'),
+    actualCompletionDate: date('actual_completion_date'),
+    startDate: date('start_date'),
+    description: text('description'),
+    delivery: text('delivery').notNull(),
+    deliveryVarianceDays: integer('delivery_variance_days'),
+    units: integer('units'),
+    complaints: integer('complaints'),
+    landSqm: numeric('land_sqm', { precision: 18, scale: 2 }),
+    coveredSqm: numeric('covered_sqm', { precision: 18, scale: 2 }),
+    openSqm: numeric('open_sqm', { precision: 18, scale: 2 }),
+    towers: integer('towers'),
+    floors: integer('floors'),
+    builtUpSqm: numeric('built_up_sqm', { precision: 18, scale: 2 }),
+    constructionProgress: text('construction_progress'),
+    planningAuthority: text('planning_authority'),
+    enrichmentSourceUrl: text('enrichment_source_url'),
+    enrichmentMatchMethod: text('enrichment_match_method'),
+    enrichmentResearchStatus: text('enrichment_research_status'),
+    airportKm: numeric('airport_km', { precision: 10, scale: 2 }),
+    nearbyCount: integer('nearby_count'),
+    nearbyNames: jsonb('nearby_names').$type<string[]>().notNull(),
+    builderProjects: integer('builder_projects').notNull(),
+    builderOnTimeRate: numeric('builder_on_time_rate', {
+      precision: 7,
+      scale: 2,
+    }),
+    builderComplaints: integer('builder_complaints'),
+    schools: integer('schools'),
+    hospitals: integer('hospitals'),
+    malls: integer('malls'),
+    metro: text('metro'),
+    metroKm: numeric('metro_km', { precision: 10, scale: 2 }),
+    inventory: jsonb('inventory')
+      .$type<
+        Array<{
+          type: string;
+          count: number;
+          min_carpet_sqm: number | null;
+          max_carpet_sqm: number | null;
+        }>
+      >()
+      .notNull(),
+    importedAt: timestamp('imported_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('atlas_projects_registration_unique').on(table.registration),
+    index('atlas_projects_builder_idx').on(table.builder),
+    index('atlas_projects_market_idx').on(table.market),
+    index('atlas_projects_status_idx').on(table.status),
+    index('atlas_projects_authority_idx').on(table.planningAuthority),
+  ],
+);
+
 export const transactionImportBatchStatus = pgEnum(
   'transaction_import_batch_status',
   ['staged', 'applied'],

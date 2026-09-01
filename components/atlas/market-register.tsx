@@ -12,14 +12,20 @@ import {
   TimeAxis,
 } from '@/components/atlas/primitives';
 import { SiteHeader } from '@/components/site-header';
-import { filings, indian, markets } from '@/lib/atlas-data';
+import { indian, type AtlasMarket, type Filing } from '@/lib/atlas-model';
 
 const PAGE_SIZE = 20;
-const paths = markets
-  .filter((item) => item.name !== 'Needs review')
-  .slice(0, 4);
 
-export function MarketRegister() {
+export function MarketRegister({
+  filings,
+  markets,
+}: {
+  filings: Filing[];
+  markets: AtlasMarket[];
+}) {
+  const paths = markets
+    .filter((item) => item.name !== 'Needs review')
+    .slice(0, 4);
   const [page, setPage] = useState(1);
   const [area, setArea] = useState('All Bengaluru');
   const [filter, setFilter] = useState<
@@ -30,7 +36,7 @@ export function MarketRegister() {
       area === 'All Bengaluru'
         ? filings
         : filings.filter((item) => item.market === area),
-    [area],
+    [area, filings],
   );
   const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
   const visible = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

@@ -7,6 +7,7 @@ import { neon } from '@neondatabase/serverless';
 const databaseUrl =
   process.env.truesquaresql_DATABASE_URL ?? process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error('DATABASE_URL is required.');
+const dryRun = process.argv.includes('--dry-run');
 
 const migrationDirectory = new URL('../drizzle/', import.meta.url);
 const journal = JSON.parse(
@@ -28,6 +29,11 @@ for (const entry of journal.entries) {
   const source = await readFile(filePath, 'utf8');
   const hash = createHash('sha256').update(source).digest('hex');
   if (appliedHashes.has(hash)) continue;
+
+  if (dryRun) {
+    console.log(`Pending ${entry.tag}.`);
+    continue;
+  }
 
   const statements = source
     .split('--> statement-breakpoint')

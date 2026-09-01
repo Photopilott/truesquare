@@ -15,6 +15,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:remote": "node --env-file=.env.local scripts/apply-pending-migrations.mjs",
     "db:seed": "node scripts/seed-registered-transactions.mjs",
+    "db:seed:atlas": "node scripts/seed-atlas-projects.mjs",
+    "db:seed:atlas:workbook-only": "node scripts/seed-atlas-workbook-only-projects.mjs",
     "test:transaction-import": "node --experimental-strip-types --test test/transaction-import.test.ts",
     "test:evidence-stack": "node --experimental-strip-types --test test/evidence-stack.test.ts",
     "test:valuation": "node --experimental-strip-types --test test/valuation-engine.test.ts",

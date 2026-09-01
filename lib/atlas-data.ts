@@ -1,184 +1,251 @@
+import 'server-only';
+
+import { cache } from 'react';
 import source from '@/data/atlas-project-data.json';
+import { getSql, hasDatabase } from '@/db';
+import {
+  builderPortfolio,
+  nearbyFilings,
+  toFiling,
+  type AtlasMarket,
+  type Filing,
+  type InventoryRow,
+  type RawProject,
+} from '@/lib/atlas-model';
 
-export type InventoryRow = {
-  type: string;
-  count: number;
-  min_carpet_sqm: number | null;
-  max_carpet_sqm: number | null;
-};
-
-export type RawProject = {
+type AtlasProjectRow = {
   id: number;
-  registration: string | null;
+  registration: string;
   name: string;
   builder: string;
   status: string | null;
   taluk: string | null;
   address: string | null;
-  lat: number | null;
-  lon: number | null;
+  latitude: string | number | null;
+  longitude: string | number | null;
   market: string;
-  market_confidence: number;
-  target: string | null;
-  actual_completion: string | null;
-  start: string | null;
+  market_confidence: string | number;
+  target_date: string | Date | null;
+  actual_completion_date: string | Date | null;
+  start_date: string | Date | null;
   description: string | null;
   delivery: string;
   delivery_variance_days: number | null;
   units: number | null;
-  complaints: number;
-  land_sqm: number | null;
-  covered_sqm: number | null;
-  open_sqm: number | null;
-  airport_km: number | null;
-  nearby_count: number;
-  nearby_names: string[];
+  complaints: number | null;
+  land_sqm: string | number | null;
+  covered_sqm: string | number | null;
+  open_sqm: string | number | null;
+  towers: number | null;
+  floors: number | null;
+  built_up_sqm: string | number | null;
+  construction_progress: string | null;
+  planning_authority: string | null;
+  enrichment_source_url: string | null;
+  enrichment_research_status: string | null;
+  airport_km: string | number | null;
+  nearby_count: number | null;
+  nearby_names: string[] | null;
   builder_projects: number;
-  builder_on_time_rate: number | null;
-  builder_complaints: number;
-  schools: number;
-  hospitals: number;
-  malls: number;
+  builder_on_time_rate: string | number | null;
+  builder_complaints: number | null;
+  schools: number | null;
+  hospitals: number | null;
+  malls: number | null;
   metro: string | null;
-  metro_km: number | null;
-  inventory: InventoryRow[];
+  metro_km: string | number | null;
+  inventory: InventoryRow[] | null;
 };
 
-export type Filing = RawProject & {
-  slug: string;
-  assetClass: 'Residential/Group Housing';
-  subArea: string;
-  startedAt: string | null;
-  targetAt: string | null;
-  registeredAt: string | null;
-  declaredDurationMonths: number | null;
-  declaredCostCr: number | null;
-  escrowDeclared: boolean | null;
-  openComplaints: number;
-  occupancyCertificateOnRecord: boolean;
-  reraNumber: string;
-  authority: string | null;
-  pincode: string | null;
+export type AtlasDataset = {
+  filings: Filing[];
+  markets: AtlasMarket[];
+  source: 'database' | 'snapshot';
 };
 
-export const markets = source.markets;
-export const rawProjects = source.projects as RawProject[];
-
-export function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 72);
+function numberOrNull(value: string | number | null) {
+  return value == null ? null : Number(value);
 }
 
-function month(value: string | null) {
-  return value ? value.slice(0, 7) : null;
+function dateOrNull(value: string | Date | null) {
+  if (value == null) return null;
+  return value instanceof Date
+    ? value.toISOString().slice(0, 10)
+    : String(value).slice(0, 10);
 }
 
-function registrationDate(registration: string | null) {
-  const compact = registration?.match(/\/PR\/(\d{6})\//)?.[1];
-  if (!compact) return null;
-  const year = Number(compact.slice(0, 2));
-  const monthValue = Number(compact.slice(2, 4));
-  if (monthValue < 1 || monthValue > 12) return null;
-  return `${year >= 10 ? 2000 + year : 2010 + year}-${String(monthValue).padStart(2, '0')}`;
-}
-
-function monthsBetween(start: string | null, target: string | null) {
-  if (!start || !target) return null;
-  const a = new Date(start);
-  const b = new Date(target);
-  if (Number.isNaN(a.valueOf()) || Number.isNaN(b.valueOf())) return null;
-  return Math.max(0, Math.round((b.valueOf() - a.valueOf()) / 2_629_746_000));
-}
-
-function pincode(address: string | null) {
-  return address?.match(/\b[1-9][0-9]{5}\b/)?.[0] ?? null;
-}
-
-export function toFiling(project: RawProject): Filing {
+export function atlasRowToProject(row: AtlasProjectRow): RawProject {
   return {
-    ...project,
-    slug: `${project.id}-${slugify(project.name)}`,
-    assetClass: 'Residential/Group Housing',
-    subArea: project.market === 'Needs review' ? project.taluk || 'Bengaluru Urban' : project.market,
-    startedAt: month(project.start),
-    targetAt: month(project.target),
-    registeredAt: registrationDate(project.registration),
-    declaredDurationMonths: monthsBetween(project.start, project.target),
-    declaredCostCr: null,
-    escrowDeclared: null,
-    openComplaints: project.complaints,
-    occupancyCertificateOnRecord: false,
-    reraNumber: project.registration || 'not filed',
-    authority: null,
-    pincode: pincode(project.address),
+    id: row.id,
+    registration: row.registration,
+    name: row.name,
+    builder: row.builder,
+    status: row.status,
+    taluk: row.taluk,
+    address: row.address,
+    lat: numberOrNull(row.latitude),
+    lon: numberOrNull(row.longitude),
+    market: row.market,
+    market_confidence: Number(row.market_confidence),
+    target: dateOrNull(row.target_date),
+    actual_completion: dateOrNull(row.actual_completion_date),
+    start: dateOrNull(row.start_date),
+    description: row.description,
+    delivery: row.delivery,
+    delivery_variance_days: row.delivery_variance_days,
+    units: row.units,
+    complaints: row.complaints,
+    land_sqm: numberOrNull(row.land_sqm),
+    covered_sqm: numberOrNull(row.covered_sqm),
+    open_sqm: numberOrNull(row.open_sqm),
+    towers: row.towers,
+    floors: row.floors,
+    built_up_sqm: numberOrNull(row.built_up_sqm),
+    construction_progress: row.construction_progress,
+    planning_authority: row.planning_authority,
+    enrichment_source_url: row.enrichment_source_url,
+    enrichment_research_status: row.enrichment_research_status,
+    airport_km: numberOrNull(row.airport_km),
+    nearby_count: row.nearby_count,
+    nearby_names: row.nearby_names ?? [],
+    builder_projects: row.builder_projects,
+    builder_on_time_rate: numberOrNull(row.builder_on_time_rate),
+    builder_complaints: row.builder_complaints,
+    schools: row.schools,
+    hospitals: row.hospitals,
+    malls: row.malls,
+    metro: row.metro,
+    metro_km: numberOrNull(row.metro_km),
+    inventory: row.inventory ?? [],
   };
 }
 
-export const filings = rawProjects.map(toFiling);
+function snapshotProjects() {
+  return (
+    source.projects as Omit<
+      RawProject,
+      | 'towers'
+      | 'floors'
+      | 'built_up_sqm'
+      | 'construction_progress'
+      | 'planning_authority'
+      | 'enrichment_source_url'
+      | 'enrichment_research_status'
+    >[]
+  ).map((project) => ({
+    ...project,
+    towers: null,
+    floors: null,
+    built_up_sqm: null,
+    construction_progress: project.status,
+    planning_authority: null,
+    enrichment_source_url: null,
+    enrichment_research_status: null,
+  }));
+}
 
-export function getFiling(slug: string) {
+function buildMarkets(filings: Filing[]) {
+  const counts = new Map<string, { projects: number; units: number }>();
+  for (const filing of filings) {
+    const current = counts.get(filing.market) ?? { projects: 0, units: 0 };
+    current.projects += 1;
+    current.units += filing.units ?? 0;
+    counts.set(filing.market, current);
+  }
+
+  const known = (source.markets as AtlasMarket[]).map((market) => {
+    const current = counts.get(market.name) ?? { projects: 0, units: 0 };
+    counts.delete(market.name);
+    return {
+      ...market,
+      project_count: current.projects,
+      inventory_units: current.units,
+    };
+  });
+
+  const additional = [...counts.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, count]) => ({
+      name,
+      center_lat: null,
+      center_lon: null,
+      project_count: count.projects,
+      inventory_units: count.units,
+    }));
+  return [...known, ...additional];
+}
+
+async function readDatabaseProjects() {
+  const sql = getSql();
+  return (await sql`
+    SELECT
+      id,
+      registration,
+      name,
+      builder,
+      status,
+      taluk,
+      address,
+      latitude,
+      longitude,
+      market,
+      market_confidence,
+      target_date,
+      actual_completion_date,
+      start_date,
+      description,
+      delivery,
+      delivery_variance_days,
+      units,
+      complaints,
+      land_sqm,
+      covered_sqm,
+      open_sqm,
+      towers,
+      floors,
+      built_up_sqm,
+      construction_progress,
+      planning_authority,
+      enrichment_source_url,
+      enrichment_research_status,
+      airport_km,
+      nearby_count,
+      nearby_names,
+      builder_projects,
+      builder_on_time_rate,
+      builder_complaints,
+      schools,
+      hospitals,
+      malls,
+      metro,
+      metro_km,
+      inventory
+    FROM atlas_projects
+    ORDER BY id
+  `) as AtlasProjectRow[];
+}
+
+export const getAtlasDataset = cache(async (): Promise<AtlasDataset> => {
+  if (!hasDatabase()) {
+    const filings = snapshotProjects().map(toFiling);
+    return { filings, markets: buildMarkets(filings), source: 'snapshot' };
+  }
+
+  const rows = await readDatabaseProjects();
+  if (!rows.length) throw new Error('The Atlas database table is empty.');
+  const filings = rows.map(atlasRowToProject).map(toFiling);
+  return { filings, markets: buildMarkets(filings), source: 'database' };
+});
+
+export const getAtlasProjectRead = cache(async (slug: string) => {
   const id = Number(slug.split('-')[0]);
-  return filings.find((item) => item.id === id);
-}
-
-export function builderPortfolio(builder: string) {
-  return filings
-    .filter((item) => item.builder === builder)
-    .sort((a, b) => (a.startedAt || '9999').localeCompare(b.startedAt || '9999'))
-    .slice(0, 200);
-}
-
-function radians(value: number) {
-  return (value * Math.PI) / 180;
-}
-
-export function distanceKm(a: Filing, b: Filing) {
-  if (a.lat == null || a.lon == null || b.lat == null || b.lon == null) return null;
-  const radius = 6371;
-  const dLat = radians(b.lat - a.lat);
-  const dLon = radians(b.lon - a.lon);
-  const c =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(radians(a.lat)) * Math.cos(radians(b.lat)) * Math.sin(dLon / 2) ** 2;
-  return radius * 2 * Math.atan2(Math.sqrt(c), Math.sqrt(1 - c));
-}
-
-export function nearbyFilings(project: Filing) {
-  return filings
-    .filter((item) => item.id !== project.id)
-    .map((item) => ({ filing: item, distance: distanceKm(project, item) }))
-    .filter((item): item is { filing: Filing; distance: number } => item.distance != null)
-    .sort((a, b) => a.distance - b.distance);
-}
-
-export function indian(value: number | null) {
-  if (value == null) return 'not filed';
-  const [whole, decimal] = String(value).split('.');
-  const lastThree = whole.slice(-3);
-  const lead = whole.slice(0, -3);
-  const grouped = lead ? `${lead.replace(/\B(?=(\d{2})+(?!\d))/g, ',')},${lastThree}` : lastThree;
-  return decimal ? `${grouped}.${decimal}` : grouped;
-}
-
-export function monthYear(value: string | null) {
-  if (!value) return 'not filed';
-  const [year, monthValue] = value.split('-').map(Number);
-  return new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(
-    new Date(Date.UTC(year, monthValue - 1, 1)),
-  );
-}
-
-export function yearFraction(value: string | null) {
-  if (!value) return null;
-  const [year, monthValue = 1] = value.split('-').map(Number);
-  return year + (monthValue - 1) / 12;
-}
-
-export function positionOnAxis(value: string | null, domain: [number, number]) {
-  const year = yearFraction(value);
-  if (year == null) return null;
-  return Math.max(0, Math.min(100, ((year - domain[0]) / (domain[1] - domain[0])) * 100));
-}
+  if (!Number.isInteger(id)) return null;
+  const { filings } = await getAtlasDataset();
+  const project = filings.find((item) => item.id === id);
+  if (!project) return null;
+  return {
+    project,
+    portfolio: builderPortfolio(filings, project.builder),
+    nearby: nearbyFilings(filings, project),
+  };
+});

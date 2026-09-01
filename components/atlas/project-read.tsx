@@ -15,13 +15,12 @@ import {
 } from '@/components/atlas/primitives';
 import { SiteHeader } from '@/components/site-header';
 import {
-  builderPortfolio,
   indian,
   monthYear,
-  nearbyFilings,
   positionOnAxis,
   type Filing,
-} from '@/lib/atlas-data';
+  type NearbyFiling,
+} from '@/lib/atlas-model';
 
 function Chapter({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -108,8 +107,13 @@ function InventoryTable({ project }: { project: Filing }) {
   );
 }
 
-function Portfolio({ project }: { project: Filing }) {
-  const projects = builderPortfolio(project.builder);
+function Portfolio({
+  project,
+  projects,
+}: {
+  project: Filing;
+  projects: Filing[];
+}) {
   const domain: [number, number] = [2017, 2029];
   const today = positionOnAxis('2026-09', domain) ?? 80;
   const past = projects.filter(
@@ -184,9 +188,15 @@ function Portfolio({ project }: { project: Filing }) {
   );
 }
 
-export function ProjectRead({ project }: { project: Filing }) {
-  const portfolio = builderPortfolio(project.builder);
-  const nearby = nearbyFilings(project);
+export function ProjectRead({
+  project,
+  portfolio,
+  nearby,
+}: {
+  project: Filing;
+  portfolio: Filing[];
+  nearby: NearbyFiling[];
+}) {
   const withinOne = nearby.filter((item) => item.distance < 1).length;
   const withinThree = nearby.filter(
     (item) => item.distance >= 1 && item.distance < 3,
@@ -253,12 +263,36 @@ export function ProjectRead({ project }: { project: Filing }) {
             <DividerGrid className="overview-grid">
               <StatCell
                 label="Status"
-                value={<Field value={project.status} />}
+                value={
+                  <Field
+                    value={project.construction_progress || project.status}
+                  />
+                }
                 caption="as filed"
+              />
+              <StatCell
+                label="Towers"
+                value={<Field value={project.towers} />}
+                caption="declared"
+              />
+              <StatCell
+                label="Floors"
+                value={<Field value={project.floors} />}
+                caption="declared"
+              />
+              <StatCell
+                label="Flats"
+                value={<Field value={project.units} />}
+                caption="declared"
               />
               <StatCell
                 label="Land"
                 value={<Field value={project.land_sqm} unit="sqm" />}
+                caption="declared"
+              />
+              <StatCell
+                label="Built up"
+                value={<Field value={project.built_up_sqm} unit="sqm" />}
                 caption="declared"
               />
               <StatCell
@@ -294,7 +328,7 @@ export function ProjectRead({ project }: { project: Filing }) {
               RERA Karnataka · Bengaluru inventory extract · derived grouping
             </ProvenanceLine>
             <div id="builder">
-              <Portfolio project={project} />
+              <Portfolio project={project} projects={portfolio} />
             </div>
             <div className="subsection-title">
               <p>Builder DNA</p>
@@ -418,7 +452,11 @@ export function ProjectRead({ project }: { project: Filing }) {
               </div>
             </div>
             <CaveatSentence>
-              {indian(project.schools + project.hospitals + project.malls)}{' '}
+              {indian(
+                (project.schools ?? 0) +
+                  (project.hospitals ?? 0) +
+                  (project.malls ?? 0),
+              )}{' '}
               mapped features within 2 km; distances only, not a flood
               assessment or travel-time estimate.
             </CaveatSentence>
@@ -476,9 +514,11 @@ export function ProjectRead({ project }: { project: Filing }) {
               ordinal="05"
               eyebrow="Complaints register"
               headline={
-                project.openComplaints === 0
-                  ? 'None on record.'
-                  : `${indian(project.openComplaints)} open complaints on record.`
+                project.openComplaints == null
+                  ? 'Complaint count not filed.'
+                  : project.openComplaints === 0
+                    ? 'None on record.'
+                    : `${indian(project.openComplaints)} open complaints on record.`
               }
             />
             <ProvenanceLine>
@@ -497,9 +537,7 @@ export function ProjectRead({ project }: { project: Filing }) {
               eyebrow="What this record cannot tell you"
               headline="The filing stops here."
             />
-            <ProvenanceLine>
-              Atlas · limits of the public record
-            </ProvenanceLine>
+            <ProvenanceLine>Atlas · limits of the public record</ProvenanceLine>
             <div className="unknowns">
               <p>
                 <strong>Build quality.</strong> A registration filing does not
@@ -573,7 +611,9 @@ export function ProjectRead({ project }: { project: Filing }) {
                     </div>
                   </dl>
                   <div>
-                    <a href={`/atlas/projects/${filing.slug}`}>Open the read →</a>
+                    <a href={`/atlas/projects/${filing.slug}`}>
+                      Open the read →
+                    </a>
                     <a href="#compare">Compare</a>
                   </div>
                 </article>

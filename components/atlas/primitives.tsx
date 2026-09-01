@@ -5,7 +5,7 @@ import {
   monthYear,
   positionOnAxis,
   type Filing,
-} from '@/lib/atlas-data';
+} from '@/lib/atlas-model';
 
 export function IndependenceBar() {
   return (
@@ -150,9 +150,13 @@ export function VerdictStrip({ project }: { project: Filing }) {
       />
       <StatCell
         label="Complaints"
-        value={`${indian(project.openComplaints)} open`}
+        value={
+          project.openComplaints == null
+            ? 'not filed'
+            : `${indian(project.openComplaints)} open`
+        }
         caption="public authority count"
-        flag={project.openComplaints > 0}
+        flag={project.openComplaints == null || project.openComplaints > 0}
       />
       <StatCell
         label="Occupancy certificate"
@@ -301,7 +305,7 @@ export function RecordRow({
       )
     : 0;
   const flag =
-    project.openComplaints > 0
+    (project.openComplaints ?? 0) > 0
       ? `⚠ ${indian(project.openComplaints)} open complaints`
       : disclosureMissing
         ? '⚠ no escrow declared'
@@ -311,7 +315,7 @@ export function RecordRow({
   return (
     <article className="record-row">
       <span
-        className={`truth-ribbon ${project.openComplaints > 0 ? 'solid' : disclosureMissing ? 'missing' : ''}`}
+        className={`truth-ribbon ${(project.openComplaints ?? 0) > 0 ? 'solid' : disclosureMissing ? 'missing' : ''}`}
         aria-hidden="true"
       />
       <div className="record-main">

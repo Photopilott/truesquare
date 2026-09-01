@@ -1,0 +1,52 @@
+CREATE TABLE "atlas_projects" (
+	"id" integer PRIMARY KEY NOT NULL,
+	"registration" text NOT NULL,
+	"name" text NOT NULL,
+	"builder" text NOT NULL,
+	"status" text NOT NULL,
+	"taluk" text NOT NULL,
+	"address" text,
+	"latitude" numeric(12, 8),
+	"longitude" numeric(12, 8),
+	"market" text NOT NULL,
+	"market_confidence" numeric(6, 4) NOT NULL,
+	"target_date" date,
+	"actual_completion_date" date,
+	"start_date" date,
+	"description" text,
+	"delivery" text NOT NULL,
+	"delivery_variance_days" integer,
+	"units" integer NOT NULL,
+	"complaints" integer NOT NULL,
+	"land_sqm" numeric(18, 2),
+	"covered_sqm" numeric(18, 2),
+	"open_sqm" numeric(18, 2),
+	"towers" integer,
+	"floors" integer,
+	"built_up_sqm" numeric(18, 2),
+	"construction_progress" text,
+	"planning_authority" text,
+	"enrichment_source_url" text,
+	"enrichment_match_method" text,
+	"enrichment_research_status" text,
+	"airport_km" numeric(10, 2),
+	"nearby_count" integer NOT NULL,
+	"nearby_names" jsonb NOT NULL,
+	"builder_projects" integer NOT NULL,
+	"builder_on_time_rate" numeric(7, 2),
+	"builder_complaints" integer NOT NULL,
+	"schools" integer,
+	"hospitals" integer,
+	"malls" integer,
+	"metro" text,
+	"metro_km" numeric(10, 2),
+	"inventory" jsonb NOT NULL,
+	"imported_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX "atlas_projects_registration_unique" ON "atlas_projects" USING btree ("registration");--> statement-breakpoint
+CREATE INDEX "atlas_projects_builder_idx" ON "atlas_projects" USING btree ("builder");--> statement-breakpoint
+CREATE INDEX "atlas_projects_market_idx" ON "atlas_projects" USING btree ("market");--> statement-breakpoint
+CREATE INDEX "atlas_projects_status_idx" ON "atlas_projects" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "atlas_projects_authority_idx" ON "atlas_projects" USING btree ("planning_authority");
