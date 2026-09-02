@@ -8,6 +8,7 @@ import {
   SyntheticEvent,
   useEffect,
   useId,
+  useMemo,
   useState,
 } from 'react';
 import Link from 'next/link';
@@ -26,11 +27,20 @@ import {
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AccessGate } from '@/components/access-gate';
+import { BugReport } from '@/components/bug-report';
 import { SiteHeader } from '@/components/site-header';
 import { SocietyShare } from '@/components/society-share';
 import { SocietySubscribe } from '@/components/society-subscribe';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
 import {
   Card,
   CardContent,
@@ -53,6 +63,7 @@ import {
 } from '@/components/ui/native-select';
 import { Separator } from '@/components/ui/separator';
 import type { OwnerPriceAggregate } from '@/lib/owner-aggregates';
+import type { OwnerSocietyOption } from '@/lib/owner-society-search';
 import {
   buildPublicSocietyEvidence,
   type PublicSocietyEvidence,
@@ -81,16 +92,15 @@ type SocietySummary = {
 };
 
 type OwnerForm = {
+  societyOptionId: string;
   society: string;
   tower: string;
   floor: string;
   bhk: string;
   area: string;
   areaType: 'superBuiltUp' | 'carpet';
-  carParks: string;
   purchaseDate: string;
   purchasePrice: string;
-  stampDuty: string;
   loanAmount: string;
   loanTenure: string;
   loanRate: string;
@@ -101,16 +111,15 @@ type BuyerEvidence = ComparableMatch & {
 };
 
 const EMPTY_FORM: OwnerForm = {
+  societyOptionId: '',
   society: '',
   tower: '',
   floor: '',
   bhk: '',
   area: '',
   areaType: 'superBuiltUp',
-  carParks: '1',
   purchaseDate: '',
   purchasePrice: '',
-  stampDuty: '',
   loanAmount: '',
   loanTenure: '',
   loanRate: '',
@@ -241,11 +250,13 @@ export function AppHeader() {
 
 export function PropertyIntelligenceApp({
   societies,
+  ownerSocieties,
   records,
   ownerAggregates,
   initialView,
 }: {
   societies: SocietySummary[];
+  ownerSocieties?: OwnerSocietyOption[];
   records: TransactionRecord[];
   ownerAggregates: OwnerPriceAggregate[];
   initialView: 'owner' | 'buyer';
@@ -254,6 +265,8 @@ export function PropertyIntelligenceApp({
   const [ownerForm, setOwnerForm] = useState<OwnerForm>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [valuation, setValuation] = useState<ValuationResult | null>(null);
+  const [unvaluedSubmission, setUnvaluedSubmission] =
+    useState<OwnerSocietyOption | null>(null);
   const [showGate, setShowGate] = useState(false);
   const [gateContext, setGateContext] = useState<'owner' | 'buyer'>('owner');
   const [gateError, setGateError] = useState('');
@@ -272,12 +285,33 @@ export function PropertyIntelligenceApp({
   const [visibleSocieties, setVisibleSocieties] = useState(18);
   const [referralShareId, setReferralShareId] = useState<string | null>(null);
   const [isWhatsAppReferral, setIsWhatsAppReferral] = useState(false);
+  const searchableOwnerSocieties = useMemo<OwnerSocietyOption[]>(
+    () =>
+      ownerSocieties ??
+      societies.map((society) => ({
+        id: `fallback:${society.slug}`,
+        flatInventoryId: null,
+        name: society.name,
+        location: society.location,
+        builder: null,
+        hasValuation: society.transactionCount > 0,
+        source: 'final_value' as const,
+      })),
+    [ownerSocieties, societies],
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const referredSociety = societies.find(
       (society) => society.slug === params.get('society'),
     );
+    const referredOwnerSociety = referredSociety
+      ? searchableOwnerSocieties.find(
+          (option) =>
+            option.name === referredSociety.name &&
+            option.location === referredSociety.location,
+        )
+      : null;
     const suppliedReferral = params.get('ref');
     const cameFromWhatsApp = params.get('source') === 'whatsapp';
     const stored = window.localStorage.getItem('truesquare-owner-draft');
@@ -302,6 +336,12 @@ export function PropertyIntelligenceApp({
             : (savedDraft ?? EMPTY_FORM);
         setOwnerForm({
           ...draftForSociety,
+          societyOptionId:
+            referredOwnerSociety?.id ??
+            searchableOwnerSocieties.find(
+              (option) => option.name === draftForSociety.society,
+            )?.id ??
+            '',
           ...(referredSociety
             ? {
                 society: referredSociety.name,
@@ -319,7 +359,7 @@ export function PropertyIntelligenceApp({
       setIsWhatsAppReferral(cameFromWhatsApp);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [societies]);
+  }, [societies, searchableOwnerSocieties]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -418,8 +458,13 @@ export function PropertyIntelligenceApp({
     ? getBuyerEvidence(selectedSociety, bhkFilter)
     : null;
   const buyerSocietyRecords = buyerSocietyEvidence?.records ?? [];
+  const selectedOwnerSociety = searchableOwnerSocieties.find(
+    (society) => society.id === ownerForm.societyOptionId,
+  );
   const ownerSociety = societies.find(
-    (society) => society.name === ownerForm.society,
+    (society) =>
+      society.name === ownerForm.society &&
+      society.location === selectedOwnerSociety?.location,
   );
   const ownerPublicEvidence = ownerSociety
     ? buildPublicSocietyEvidence(ownerSociety, records, ownerAggregates)
@@ -450,34 +495,38 @@ export function PropertyIntelligenceApp({
   function updateOwner<K extends keyof OwnerForm>(key: K, value: OwnerForm[K]) {
     setOwnerForm((current) => ({ ...current, [key]: value }));
     setErrors((current) => ({ ...current, [key]: '' }));
-    if (key === 'society')
-      setOwnerForm((current) => ({
-        ...current,
-        society: value as string,
-        tower: '',
-      }));
+  }
+
+  function selectOwnerSociety(option: OwnerSocietyOption | null) {
+    setOwnerForm((current) => ({
+      ...current,
+      societyOptionId: option?.id ?? '',
+      society: option?.name ?? '',
+      tower: current.society === option?.name ? current.tower : '',
+    }));
+    setErrors((current) => ({ ...current, society: '' }));
+    setPlausibilityReviewed(false);
+    setPlausibilityMessage('');
   }
 
   function eligibleComparables(form: OwnerForm) {
-    const society = societies.find((item) => item.name === form.society);
     return findComparableMatch(records, {
       society: form.society,
       bhk: form.bhk,
-      location: society?.location ?? '',
+      location: selectedOwnerSociety?.location ?? '',
     });
   }
 
   function buildValuation(form: OwnerForm): ValuationResult {
-    const society = societies.find((item) => item.name === form.society);
     return calculateValuation(
       {
         society: form.society,
-        location: society?.location ?? '',
+        location: selectedOwnerSociety?.location ?? '',
         bhk: form.bhk,
         areaSqFt: Number(form.area),
         purchaseDate: `${form.purchaseDate}-01`,
         purchasePrice: parseIndianCurrency(form.purchasePrice),
-        stampDuty: parseIndianCurrency(form.stampDuty),
+        stampDuty: 0,
         registrationCost: 0,
         interiors: 0,
         brokerage: 0,
@@ -501,9 +550,7 @@ export function PropertyIntelligenceApp({
       bhk: 'Select the apartment configuration.',
       area: 'Enter the area in square feet.',
       purchaseDate: 'Enter the purchase month in YYYY-MM format.',
-      purchasePrice: 'Enter the purchase price.',
-      stampDuty:
-        'Enter the total stamp duty and registration cost (use 0 if none).',
+      purchasePrice: 'Enter the all-inclusive purchase price.',
     };
     Object.entries(requiredMessages).forEach(([key, message]) => {
       if (!ownerForm[key as keyof OwnerForm]) next[key] = message;
@@ -517,7 +564,7 @@ export function PropertyIntelligenceApp({
       next.purchaseDate = 'Use a valid month in YYYY-MM format.';
     if (purchaseDate && purchaseDate > new Date())
       next.purchaseDate = 'Purchase date cannot be in the future.';
-    ['purchasePrice', 'stampDuty', 'loanAmount'].forEach((key) => {
+    ['purchasePrice', 'loanAmount'].forEach((key) => {
       const value = ownerForm[key as keyof OwnerForm] as string;
       if (value && Number.isNaN(parseIndianCurrency(value)))
         next[key] = 'Use a value such as 1.25 crore, 85 lakh, or 12500000.';
@@ -536,7 +583,9 @@ export function PropertyIntelligenceApp({
   function beginOwnerReveal(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!validateOwner()) return;
-    const comps = eligibleComparables(ownerForm).records;
+    const comps = selectedOwnerSociety?.hasValuation
+      ? eligibleComparables(ownerForm).records
+      : [];
     const compMedian = median(comps.map((record) => record.pricePerSqFt ?? 0));
     const submittedPpsf =
       parseIndianCurrency(ownerForm.purchasePrice) / Number(ownerForm.area);
@@ -562,11 +611,13 @@ export function PropertyIntelligenceApp({
       return;
     }
 
-    const selected = societies.find(
-      (society) => society.name === ownerForm.society,
+    const selected = searchableOwnerSocieties.find(
+      (society) => society.id === ownerForm.societyOptionId,
     );
     if (!selected) {
-      setGateError('Select a supported society before continuing.');
+      setGateError(
+        'Select a society from the search results before continuing.',
+      );
       return;
     }
 
@@ -586,6 +637,7 @@ export function PropertyIntelligenceApp({
           requestId,
           referralShareId,
           property: {
+            flatInventoryId: selected.flatInventoryId,
             society: ownerForm.society,
             location: selected.location,
             tower: ownerForm.tower,
@@ -593,12 +645,12 @@ export function PropertyIntelligenceApp({
             bhk: ownerForm.bhk,
             areaSqFt: Number(ownerForm.area),
             areaType: ownerForm.areaType,
-            carParks: Number(ownerForm.carParks),
+            carParks: 0,
             purchaseDate: ownerForm.purchaseDate,
           },
           costs: {
             purchasePrice: parseIndianCurrency(ownerForm.purchasePrice),
-            stampDuty: parseIndianCurrency(ownerForm.stampDuty),
+            stampDuty: 0,
             registrationCost: 0,
             interiors: 0,
             brokerage: 0,
@@ -614,19 +666,29 @@ export function PropertyIntelligenceApp({
       });
       const result = (await response.json()) as {
         error?: string;
+        hasValuation?: boolean;
         snapshot?: { id: string; createdAt: string } | null;
       };
       if (!response.ok) {
         throw new Error(result.error || 'We could not save your contribution.');
       }
 
-      const savedValuation = buildValuation(ownerForm);
-      if (result.snapshot) {
-        savedValuation.snapshotId = result.snapshot.id;
-        savedValuation.snapshotCreatedAt = result.snapshot.createdAt;
+      if (result.hasValuation === false) {
+        setUnvaluedSubmission(selected);
+      } else {
+        const savedValuation = buildValuation(ownerForm);
+        if (result.snapshot) {
+          savedValuation.snapshotId = result.snapshot.id;
+          savedValuation.snapshotCreatedAt = result.snapshot.createdAt;
+        }
+        setValuation(savedValuation);
       }
-      setValuation(savedValuation);
-      if (referralShareId) {
+      const referredPublicSociety = societies.find(
+        (society) =>
+          society.name === selected.name &&
+          society.location === selected.location,
+      );
+      if (referralShareId && referredPublicSociety) {
         void fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -634,7 +696,7 @@ export function PropertyIntelligenceApp({
             eventName: 'referred_valuation_completed',
             shareId: referralShareId,
             contentType: 'society',
-            contentId: selected.slug,
+            contentId: referredPublicSociety.slug,
             sourceScreen: 'owner_result',
           }),
           keepalive: true,
@@ -924,7 +986,7 @@ export function PropertyIntelligenceApp({
         </div>
       )}
 
-      {view === 'owner' && !valuation && (
+      {view === 'owner' && !valuation && !unvaluedSubmission && (
         <div className="ts-orb-shell ts-orb-section">
           <Button variant="ghost" className="mb-5 -ml-3" onClick={resetHome}>
             <ArrowLeft /> Home
@@ -939,8 +1001,8 @@ export function PropertyIntelligenceApp({
               </h1>
               <p className="mt-5 text-[15px] leading-7 text-muted-foreground">
                 Track your apartment&apos;s value and returns the way you track
-                everything else you own. Currently live for gated societies in
-                Sarjapur Road, Bellandur, Marathahalli, and Haralur.
+                everything else you own. Search gated societies across our
+                Bangalore flat inventory.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
                 <a
@@ -972,9 +1034,9 @@ export function PropertyIntelligenceApp({
                 <LockKeyhole />
                 <AlertTitle>How it works</AlertTitle>
                 <AlertDescription>
-                  Add what you paid → unlock your valuation and returns → see
-                  registered trades in your society. Trade notifications are
-                  planned for a later release and are not active in V1.
+                  Add what you paid → see a private valuation when reviewed
+                  evidence exists → otherwise, your submission enters the
+                  private admin review queue.
                 </AlertDescription>
               </Alert>
               <p className="mt-5 text-sm leading-6 text-muted-foreground">
@@ -1017,28 +1079,72 @@ export function PropertyIntelligenceApp({
                 </p>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
-                <FormField label="Society">
-                  <NativeSelect
-                    className="w-full"
-                    value={ownerForm.society}
-                    onChange={(event) =>
-                      updateOwner('society', event.target.value)
+                <div className="min-w-0">
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <Label htmlFor="owner-society-search">Society</Label>
+                  </div>
+                  <Combobox
+                    items={searchableOwnerSocieties}
+                    value={selectedOwnerSociety ?? null}
+                    onValueChange={selectOwnerSociety}
+                    itemToStringLabel={(option: OwnerSocietyOption) =>
+                      option.name
                     }
+                    isItemEqualToValue={(
+                      option: OwnerSocietyOption,
+                      value: OwnerSocietyOption,
+                    ) => option.id === value.id}
+                    filter={(option: OwnerSocietyOption, query: string) => {
+                      const searchable = [
+                        option.name,
+                        option.location,
+                        option.builder ?? '',
+                      ]
+                        .join(' ')
+                        .toLowerCase();
+                      return searchable.includes(query.trim().toLowerCase());
+                    }}
+                    limit={15}
+                    autoHighlight
                   >
-                    <NativeSelectOption value="">
-                      Select society
-                    </NativeSelectOption>
-                    {societies.map((society) => (
-                      <NativeSelectOption
-                        key={society.slug}
-                        value={society.name}
-                      >
-                        {society.name} — {society.location}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
+                    <ComboboxInput
+                      id="owner-society-search"
+                      className="w-full"
+                      placeholder="Type a society, area, or builder"
+                      showClear
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>
+                        No matching Bangalore society found.
+                      </ComboboxEmpty>
+                      <ComboboxList>
+                        {(option: OwnerSocietyOption) => (
+                          <ComboboxItem
+                            key={option.id}
+                            value={option}
+                            className="items-start px-2 py-2.5"
+                          >
+                            <div className="min-w-0 pr-5">
+                              <p className="truncate font-medium">
+                                {option.name}
+                              </p>
+                              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                                {option.location}
+                                {option.builder ? ` · ${option.builder}` : ''}
+                              </p>
+                              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-foreground">
+                                {option.hasValuation
+                                  ? 'Valuation available'
+                                  : 'No valuation yet'}
+                              </p>
+                            </div>
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                   {fieldError(errors, 'society')}
-                </FormField>
+                </div>
                 <FormField label="Tower / block">
                   <Input
                     value={ownerForm.tower}
@@ -1105,23 +1211,7 @@ export function PropertyIntelligenceApp({
                     </NativeSelectOption>
                   </NativeSelect>
                 </FormField>
-                <FormField label="Car parks">
-                  <NativeSelect
-                    className="w-full"
-                    value={ownerForm.carParks}
-                    onChange={(event) =>
-                      updateOwner('carParks', event.target.value)
-                    }
-                  >
-                    <NativeSelectOption value="1">
-                      1 car park
-                    </NativeSelectOption>
-                    <NativeSelectOption value="2">
-                      2 car parks
-                    </NativeSelectOption>
-                  </NativeSelect>
-                </FormField>
-                <FormField label="Purchase month">
+                <FormField label="Purchase Year & Month">
                   <Input
                     inputMode="numeric"
                     autoComplete="off"
@@ -1155,21 +1245,22 @@ export function PropertyIntelligenceApp({
                   private. Always. It is never included in a shared link.
                 </p>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div>
                 <CurrencyField
-                  label="Purchase price"
+                  label="All-inclusive purchase price"
                   name="purchasePrice"
                   value={ownerForm.purchasePrice}
                   onChange={(value) => updateOwner('purchasePrice', value)}
                   errors={errors}
                 />
-                <CurrencyField
-                  label="Stamp duty + registration cost"
-                  name="stampDuty"
-                  value={ownerForm.stampDuty}
-                  onChange={(value) => updateOwner('stampDuty', value)}
-                  errors={errors}
-                />
+                <Alert className="mt-3 rounded-[10px] border-[#A9DCB8] bg-accent">
+                  <Info />
+                  <AlertTitle>Enter one complete amount</AlertTitle>
+                  <AlertDescription>
+                    Include the flat price, stamp duty, and registration cost in
+                    this single figure.
+                  </AlertDescription>
+                </Alert>
               </div>
               <details className="mt-7 rounded-[10px] border border-border bg-secondary p-5">
                 <summary className="cursor-pointer font-medium">
@@ -1245,6 +1336,7 @@ export function PropertyIntelligenceApp({
                   : 'TRACK MY PROPERTY'}{' '}
                 <ArrowRight />
               </Button>
+              <BugReport />
               <p className="mt-3 text-center text-xs font-medium text-muted-foreground">
                 Your flat price and personal result are visible only to you. Any
                 later share contains only the society benchmark.
@@ -1260,6 +1352,13 @@ export function PropertyIntelligenceApp({
           result={valuation}
           publicEvidence={ownerPublicEvidence}
           onBack={() => setValuation(null)}
+        />
+      )}
+
+      {view === 'owner' && unvaluedSubmission && (
+        <OwnerSubmissionReceived
+          society={unvaluedSubmission}
+          onBack={() => setUnvaluedSubmission(null)}
         />
       )}
 
@@ -1586,6 +1685,55 @@ function Metric({ label, value }: { label: string; value: string }) {
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 font-medium">{value}</p>
+    </div>
+  );
+}
+
+function OwnerSubmissionReceived({
+  society,
+  onBack,
+}: {
+  society: OwnerSocietyOption;
+  onBack: () => void;
+}) {
+  return (
+    <div className="ts-orb-shell ts-orb-section">
+      <Button variant="ghost" className="mb-5 -ml-3" onClick={onBack}>
+        <ArrowLeft /> Review inputs
+      </Button>
+      <Card className="mx-auto max-w-2xl overflow-hidden">
+        <CardHeader className="border-b border-border bg-secondary p-7 sm:p-10">
+          <div className="grid size-12 place-items-center rounded-[10px] border border-[#A9DCB8] bg-accent text-accent-foreground">
+            <CheckCircle2 className="size-6" />
+          </div>
+          <p className="mt-6 font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
+            PRIVATE SUBMISSION RECEIVED
+          </p>
+          <CardTitle className="mt-2 font-heading text-4xl font-normal sm:text-5xl">
+            Your flat is now under consideration
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5 p-7 sm:p-10">
+          <p className="text-base leading-7">
+            We did not have a transaction value for {society.name},{' '}
+            {society.location}. Your submission has now been added to our
+            private review queue.
+          </p>
+          <p className="text-sm leading-6 text-muted-foreground">
+            Thank you for contributing this data point. As promised, your flat
+            details and purchase price remain private. We will not show an
+            estimate until there is reviewed evidence to support it.
+          </p>
+          <Alert className="border-[#A9DCB8] bg-accent">
+            <LockKeyhole />
+            <AlertTitle>What happens next</AlertTitle>
+            <AlertDescription>
+              An admin will review the submission. Only an approved value can
+              enter the master valuation table.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -57,6 +57,13 @@
       "when": 1788256693321,
       "tag": "0007_stiff_ted_forrester",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788381535946,
+      "tag": "0008_glamorous_the_initiative",
+      "breakpoints": true
     }
   ]
 }

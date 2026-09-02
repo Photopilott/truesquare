@@ -90,8 +90,9 @@ export async function POST(request: Request) {
   const submittedReferralShareId = optionalText(body.referralShareId);
   const property = body.property ?? {};
   const costs = body.costs ?? {};
-  const society = requiredText(property.society);
-  const location = requiredText(property.location);
+  const submittedFlatInventoryId = optionalText(property.flatInventoryId);
+  let society = requiredText(property.society);
+  let location = requiredText(property.location);
   const tower = requiredText(property.tower);
   const floor = requiredText(property.floor);
   const bhk = requiredText(property.bhk);
@@ -114,9 +115,6 @@ export async function POST(request: Request) {
   const loanTenureYears = optionalNumber(costs.loanTenureYears, 1);
   const loanRate = optionalNumber(costs.loanRate, 0);
 
-  const knownSociety = propertyData.societies.find(
-    (item) => item.name === society && item.location === location,
-  );
   const loanFields = [loanAmount, loanTenureYears, loanRate];
   const loanIsComplete = loanFields.every((value) => value != null);
   const loanIsEmpty = loanFields.every((value) => value == null);
@@ -126,7 +124,10 @@ export async function POST(request: Request) {
     !UUID_PATTERN.test(requestId) ||
     (submittedReferralShareId != null &&
       !UUID_PATTERN.test(submittedReferralShareId)) ||
-    !knownSociety ||
+    !society ||
+    !location ||
+    (submittedFlatInventoryId != null &&
+      submittedFlatInventoryId.length > 200) ||
     !tower ||
     !floor ||
     !bhk ||
@@ -150,8 +151,65 @@ export async function POST(request: Request) {
 
   try {
     const sql = getSql();
+    const selectedRows = submittedFlatInventoryId
+      ? ((await sql`
+          SELECT
+            inventory.id AS flat_inventory_id,
+            inventory.name AS society,
+            inventory.area AS location,
+            EXISTS (
+              SELECT 1
+              FROM final_flat_values final_values
+              WHERE
+                final_values.flat_inventory_id = inventory.id
+                OR (
+                  LOWER(BTRIM(final_values.society)) = LOWER(BTRIM(inventory.name))
+                  AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(inventory.area))
+                )
+            ) AS has_valuation
+          FROM bangalore_flat_inventory inventory
+          WHERE inventory.id = ${submittedFlatInventoryId}
+            AND inventory.active = TRUE
+          LIMIT 1
+        `) as Array<{
+          flat_inventory_id: string;
+          society: string;
+          location: string;
+          has_valuation: boolean;
+        }>)
+      : ((await sql`
+          SELECT
+            final_values.flat_inventory_id,
+            BTRIM(final_values.society) AS society,
+            BTRIM(final_values.location) AS location,
+            TRUE AS has_valuation
+          FROM final_flat_values final_values
+          WHERE LOWER(BTRIM(final_values.society)) = LOWER(BTRIM(${society}))
+            AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(${location}))
+          ORDER BY final_values.value_date DESC NULLS LAST, final_values.created_at DESC
+          LIMIT 1
+        `) as Array<{
+          flat_inventory_id: string | null;
+          society: string;
+          location: string;
+          has_valuation: boolean;
+        }>);
+    const selectedFlat = selectedRows[0];
+    if (!selectedFlat) {
+      return NextResponse.json(
+        { error: 'Select a society from the current search results.' },
+        { status: 400 },
+      );
+    }
+    society = selectedFlat.society;
+    location = selectedFlat.location;
+    const flatInventoryId = selectedFlat.flat_inventory_id;
+    const hasValuation = Boolean(selectedFlat.has_valuation);
+    const knownSociety = propertyData.societies.find(
+      (item) => item.name === society && item.location === location,
+    );
     let referralShareId: string | null = null;
-    if (submittedReferralShareId) {
+    if (submittedReferralShareId && knownSociety) {
       const referralRows = (await sql`
         SELECT id
         FROM share_records
@@ -212,12 +270,12 @@ export async function POST(request: Request) {
         RETURNING id
       ), property_row AS (
         INSERT INTO owner_properties (
-          contributor_id, society, location, tower, floor, bhk, area_sq_ft,
-          area_type, car_parks, purchase_date, facing
+          contributor_id, flat_inventory_id, society, location, tower, floor,
+          bhk, area_sq_ft, area_type, car_parks, purchase_date, facing
         )
         SELECT
-          id, ${society}, ${location}, ${tower}, ${floor}, ${bhk}, ${areaSqFt},
-          ${areaType}, ${carParks}, ${purchaseDate}, ${facing}
+          id, ${flatInventoryId}, ${society}, ${location}, ${tower}, ${floor},
+          ${bhk}, ${areaSqFt}, ${areaType}, ${carParks}, ${purchaseDate}, ${facing}
         FROM contributor
         RETURNING id
       ), inserted AS (
@@ -247,15 +305,53 @@ export async function POST(request: Request) {
     const saved = rows[0];
     if (!saved) throw new Error('Contribution was not persisted.');
 
-    const existingSnapshots = (await sql`
-      SELECT id, created_at
-      FROM valuation_snapshots
-      WHERE contribution_id = ${saved.id}
-      LIMIT 1
-    `) as Array<{ id: string; created_at: string | Date }>;
+    await sql`
+      INSERT INTO owner_input_transactions (
+        contribution_id,
+        flat_inventory_id,
+        purchase_price,
+        effective_area,
+        price_per_sq_ft,
+        bhk,
+        purchase_date,
+        status,
+        submitted_at,
+        society,
+        location
+      )
+      SELECT
+        contributions.id,
+        properties.flat_inventory_id,
+        contributions.purchase_price + contributions.stamp_duty + contributions.registration_cost,
+        properties.area_sq_ft,
+        (
+          contributions.purchase_price
+          + contributions.stamp_duty
+          + contributions.registration_cost
+        )::numeric / NULLIF(properties.area_sq_ft, 0),
+        properties.bhk,
+        properties.purchase_date,
+        contributions.status,
+        contributions.submitted_at,
+        properties.society,
+        properties.location
+      FROM purchase_contributions contributions
+      JOIN owner_properties properties ON properties.id = contributions.property_id
+      WHERE contributions.id = ${saved.id}
+      ON CONFLICT (contribution_id) DO NOTHING
+    `;
 
-    let snapshot = existingSnapshots[0];
-    if (!snapshot) {
+    let snapshot: { id: string; created_at: string | Date } | undefined;
+    if (hasValuation) {
+      const existingSnapshots = (await sql`
+        SELECT id, created_at
+        FROM valuation_snapshots
+        WHERE contribution_id = ${saved.id}
+        LIMIT 1
+      `) as Array<{ id: string; created_at: string | Date }>;
+      snapshot = existingSnapshots[0];
+    }
+    if (hasValuation && !snapshot) {
       const transactionRows = (await sql`
         SELECT
           id,
@@ -450,6 +546,7 @@ export async function POST(request: Request) {
             }
           : null,
         message: 'Saved privately and queued for admin review.',
+        hasValuation,
       },
       { status: 201 },
     );

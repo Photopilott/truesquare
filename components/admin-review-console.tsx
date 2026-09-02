@@ -5,6 +5,7 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import {
   Check,
   CheckCircle2,
+  Bug,
   Clock3,
   LoaderCircle,
   LockKeyhole,
@@ -83,6 +84,16 @@ type OperationsSummary = {
   staged_imports: number;
   import_rows_needing_review: number;
   failed_notifications: number;
+  open_bug_reports: number;
+};
+
+type BugReport = {
+  id: string;
+  reporter_email: string | null;
+  page_path: string;
+  message: string;
+  status: 'open';
+  created_at: string;
 };
 
 function formatInr(value: number | string | null, compact = false) {
@@ -424,8 +435,10 @@ function ReviewCard({
 function OperationsPanel() {
   const [summary, setSummary] = useState<OperationsSummary | null>(null);
   const [deliveries, setDeliveries] = useState<NotificationDelivery[]>([]);
+  const [bugReports, setBugReports] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [retryingId, setRetryingId] = useState<string | null>(null);
+  const [resolvingBugId, setResolvingBugId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
@@ -443,6 +456,7 @@ function OperationsPanel() {
       const payload = (await response.json()) as {
         summary?: OperationsSummary;
         deliveries?: NotificationDelivery[];
+        bugReports?: BugReport[];
         error?: string;
       };
       if (!response.ok || !payload.summary) {
@@ -450,6 +464,7 @@ function OperationsPanel() {
       }
       setSummary(payload.summary);
       setDeliveries(payload.deliveries ?? []);
+      setBugReports(payload.bugReports ?? []);
     } catch (loadError) {
       setError(
         loadError instanceof Error
@@ -491,11 +506,37 @@ function OperationsPanel() {
     }
   }
 
+  async function resolveBug(id: string) {
+    setResolvingBugId(id);
+    setError('');
+    setMessage('');
+    try {
+      const response = await fetch(`/api/admin/bugs/${id}`, {
+        method: 'PATCH',
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to resolve the bug report.');
+      }
+      setMessage('Bug report marked as resolved.');
+      await loadOperations();
+    } catch (resolveError) {
+      setError(
+        resolveError instanceof Error
+          ? resolveError.message
+          : 'Unable to resolve the bug report.',
+      );
+    } finally {
+      setResolvingBugId(null);
+    }
+  }
+
   const summaryCards = [
     ['Owner reviews waiting', summary?.pending_contributions ?? 0],
     ['Staged workbooks', summary?.staged_imports ?? 0],
     ['Import rows to check', summary?.import_rows_needing_review ?? 0],
     ['Emails to retry', summary?.failed_notifications ?? 0],
+    ['Open bug reports', summary?.open_bug_reports ?? 0],
   ];
 
   return (
@@ -536,9 +577,12 @@ function OperationsPanel() {
         </Alert>
       )}
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {summaryCards.map(([label, count]) => (
-          <div key={String(label)} className="rounded-[10px] border border-border bg-card p-4">
+          <div
+            key={String(label)}
+            className="rounded-[10px] border border-border bg-card p-4"
+          >
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
               {label}
             </p>
@@ -547,6 +591,54 @@ function OperationsPanel() {
             </strong>
           </div>
         ))}
+      </div>
+
+      <div className="mt-7">
+        <h3 className="font-medium">Open bug reports</h3>
+        {loading ? (
+          <div className="grid min-h-28 place-items-center">
+            <LoaderCircle className="size-5 animate-spin" />
+          </div>
+        ) : bugReports.length ? (
+          <div className="mt-3 space-y-2">
+            {bugReports.slice(0, 8).map((report) => (
+              <div
+                key={report.id}
+                className="flex flex-wrap items-start justify-between gap-3 rounded-[9px] border border-border bg-card p-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-2 text-sm font-medium">
+                    <Bug className="size-4" /> {report.page_path}
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
+                    {report.message}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {report.reporter_email || 'Anonymous visitor'} ·{' '}
+                    {formatDate(report.created_at)}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={resolvingBugId === report.id}
+                  onClick={() => void resolveBug(report.id)}
+                >
+                  {resolvingBugId === report.id ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    <Check />
+                  )}
+                  Mark resolved
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-muted-foreground">
+            No open bug reports.
+          </p>
+        )}
       </div>
 
       <div className="mt-7">
@@ -592,7 +684,9 @@ function OperationsPanel() {
                   </Button>
                 ) : (
                   <Badge
-                    variant={delivery.status === 'sent' ? 'secondary' : 'outline'}
+                    variant={
+                      delivery.status === 'sent' ? 'secondary' : 'outline'
+                    }
                   >
                     {delivery.status}
                   </Badge>

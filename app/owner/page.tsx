@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import propertyData from '@/data/property-data.json';
 import { PropertyIntelligenceApp } from '@/components/property-intelligence-app';
 import { getPublicOwnerAggregates } from '@/lib/owner-aggregates';
+import { getOwnerSocietyOptions } from '@/lib/owner-society-search';
 import { getRegisteredTransactions } from '@/lib/registered-transactions';
 
 export const dynamic = 'force-dynamic';
@@ -14,13 +15,15 @@ export const metadata: Metadata = {
 };
 
 export default async function OwnerPage() {
-  const [ownerAggregates, records] = await Promise.all([
+  const [ownerAggregates, ownerSocieties, records] = await Promise.all([
     getPublicOwnerAggregates(),
+    getOwnerSocietyOptions(propertyData.societies),
     getRegisteredTransactions(),
   ]);
   return (
     <PropertyIntelligenceApp
       societies={propertyData.societies}
+      ownerSocieties={ownerSocieties}
       records={records}
       ownerAggregates={ownerAggregates}
       initialView="owner"

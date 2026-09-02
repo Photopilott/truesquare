@@ -95,6 +95,41 @@ export async function PATCH(
 
     const results = await sql.transaction([
       sql`
+        INSERT INTO owner_input_transactions (
+          contribution_id,
+          flat_inventory_id,
+          purchase_price,
+          effective_area,
+          price_per_sq_ft,
+          bhk,
+          purchase_date,
+          status,
+          submitted_at,
+          society,
+          location
+        )
+        SELECT
+          contributions.id,
+          properties.flat_inventory_id,
+          contributions.purchase_price + contributions.stamp_duty + contributions.registration_cost,
+          properties.area_sq_ft,
+          (
+            contributions.purchase_price
+            + contributions.stamp_duty
+            + contributions.registration_cost
+          )::numeric / NULLIF(properties.area_sq_ft, 0),
+          properties.bhk,
+          properties.purchase_date,
+          contributions.status,
+          contributions.submitted_at,
+          properties.society,
+          properties.location
+        FROM purchase_contributions contributions
+        JOIN owner_properties properties ON properties.id = contributions.property_id
+        WHERE contributions.id = ${id}
+        ON CONFLICT (contribution_id) DO NOTHING
+      `,
+      sql`
         UPDATE purchase_contributions
         SET
           status = ${status},
@@ -104,8 +139,50 @@ export async function PATCH(
         WHERE id = ${id}
       `,
       sql`
+        UPDATE owner_input_transactions
+        SET
+          status = ${status},
+          reviewed_at = NOW(),
+          reviewed_by = ${session.email},
+          review_notes = ${notes}
+        WHERE contribution_id = ${id}
+      `,
+      sql`
         DELETE FROM owner_price_aggregates
         WHERE society = ${target.society} AND bhk = ${target.bhk}
+      `,
+      sql`
+        INSERT INTO final_flat_values (
+          flat_inventory_id,
+          source_type,
+          owner_input_transaction_id,
+          price,
+          effective_area,
+          price_per_sq_ft,
+          bhk,
+          value_date,
+          society,
+          location,
+          approved_by,
+          approved_at
+        )
+        SELECT
+          owner_input.flat_inventory_id,
+          'owner_input',
+          owner_input.id,
+          owner_input.purchase_price,
+          owner_input.effective_area,
+          owner_input.price_per_sq_ft,
+          owner_input.bhk,
+          owner_input.purchase_date,
+          owner_input.society,
+          owner_input.location,
+          ${session.email},
+          NOW()
+        FROM owner_input_transactions owner_input
+        WHERE owner_input.contribution_id = ${id}
+          AND ${status} = 'approved'
+        ON CONFLICT (owner_input_transaction_id) DO NOTHING
       `,
       sql`
         INSERT INTO owner_price_aggregates (
@@ -167,7 +244,7 @@ export async function PATCH(
       `,
     ]);
 
-    const delivery = results[3]?.[0] as { id: string } | undefined;
+    const delivery = results[6]?.[0] as { id: string } | undefined;
     if (!delivery) throw new Error('Notification record was not created.');
 
     let notificationStatus: 'sent' | 'failed' = 'sent';
