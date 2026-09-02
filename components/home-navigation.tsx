@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -11,53 +10,43 @@ import { SiteHeader, siteNavigation } from '@/components/site-header';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 import courtyardSketch from '@/public/images/apartment-sketch-courtyard-portrait.jpg';
 
-const paths = [
-  {
-    id: 'owner',
-    title: 'I own a property',
-    description: "Find what it's worth today.",
-  },
-  {
-    id: 'buyer',
-    title: "I'm buying",
-    description: 'See what societies actually sell for.',
-  },
-  {
-    id: 'browse',
-    title: 'Just exploring',
-    description: 'Explore the market freely without an account.',
-  },
-] as const;
-
 export function HomeNavigation() {
-  const [selectedPath, setSelectedPath] =
-    useState<(typeof paths)[number]['id']>('owner');
-  const selectedHref =
-    selectedPath === 'owner'
-      ? '/owner'
-      : selectedPath === 'buyer'
-        ? '/buyer'
-        : '/explore';
-
   return (
     <main id="home" className="ts-orb min-h-screen overflow-x-clip">
       <SiteHeader variant="homepage" />
 
       <section className="ts-orb-shell ts-orb-hero ts-orb-hero-single ts-home-drafting-hero">
         <div className="ts-home-drafting-copy">
-          <p className="ts-orb-eyebrow">BENGALURU · REGISTERED TRANSACTIONS</p>
+          <p className="ts-orb-eyebrow">
+            FOR FIRST-TIME BUYERS · POWERED BY CURRENT OWNERS
+          </p>
           <h1 className="ts-orb-hero-title">
-            Make your next property decision with evidence.
+            Make your first property decision with evidence.
           </h1>
           <p className="ts-orb-hero-copy">
-            Whether you own a flat, are buying one, or are checking a developer
-            or project, FlatData helps you see what the market and the public
-            record actually say.
+            <strong className="ts-home-hero-highlight">
+              FlatData is real-estate intelligence for buyers &amp; owners
+            </strong>
+            . We provide registered public records and deep project research—so
+            you see the full story before you take a decision
           </p>
           <div className="ts-orb-hero-actions">
             <Link
-              href="/owner"
+              href="/buyer"
               className="ts-orb-button ts-orb-button-dark"
+              onClick={() =>
+                trackAnalyticsEvent('primary_cta_click', {
+                  button_id: 'home_check_society_price',
+                  destination: '/buyer',
+                })
+              }
+            >
+              CHECK A SOCIETY&apos;S REAL PRICE{' '}
+              <ArrowRight className="size-4 shrink-0" />
+            </Link>
+            <Link
+              href="/owner"
+              className="ts-orb-button"
               onClick={() =>
                 trackAnalyticsEvent('primary_cta_click', {
                   button_id: 'home_find_flat_worth',
@@ -65,26 +54,10 @@ export function HomeNavigation() {
                 })
               }
             >
-              FIND MY FLAT&apos;S WORTH{' '}
+              FIND WHAT MY FLAT IS WORTH{' '}
               <ArrowRight className="size-4 shrink-0" />
             </Link>
-            <Link
-              href="/explore"
-              className="ts-orb-button"
-              onClick={() =>
-                trackAnalyticsEvent('primary_cta_click', {
-                  button_id: 'home_explore_property_data',
-                  destination: '/explore',
-                })
-              }
-            >
-              EXPLORE PROPERTY DATA
-            </Link>
           </div>
-          <p className="ts-orb-note">
-            Look around freely. You&apos;ll only need to sign in when you want
-            your numbers.
-          </p>
         </div>
 
         <figure
@@ -115,121 +88,153 @@ export function HomeNavigation() {
         </figure>
       </section>
 
-      <EvidenceStack />
-
-      <section id="paths" className="ts-orb-section scroll-mt-24">
+      <section className="ts-home-problem">
         <div className="ts-orb-shell">
-          <div className="ts-orb-section-head">
-            <div>
-              <p className="ts-orb-eyebrow">CHOOSE YOUR PATH</p>
-              <h2 className="ts-orb-section-title">
-                Where would you like to start?
+          <div className="ts-home-problem-layout">
+            <div className="ts-home-problem-heading">
+              <p className="ts-orb-eyebrow">THE PROBLEM</p>
+              <h2>
+                Your biggest purchase begins with somebody else&apos;s number.
               </h2>
             </div>
-            <p className="ts-orb-section-copy">
-              Look around freely. You&apos;ll only need to sign in when you want
-              your numbers.
-            </p>
+            <div className="ts-home-problem-story">
+              <p>A developer gives you a quote.</p>
+              <p>A portal gives you an asking price.</p>
+              <p>A broker gives you an opinion.</p>
+              <p className="ts-home-problem-callout">
+                But none of them has to show you what comparable flats actually
+                sold for.
+              </p>
+            </div>
           </div>
 
-          <div className="ts-orb-grid">
-            {paths.map((path, index) => {
-              const selected = selectedPath === path.id;
-              return (
-                <button
-                  key={path.id}
-                  type="button"
-                  aria-pressed={selected}
-                  data-active={selected}
-                  onClick={() => setSelectedPath(path.id)}
-                  className="ts-orb-choice"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="font-mono text-[10px] tracking-[0.1em] text-muted-foreground">
-                      0{index + 1}
-                    </span>
-                    <span
-                      className={`grid size-6 place-items-center rounded-full border ${selected ? 'border-foreground bg-foreground text-background' : 'border-border'}`}
-                    >
-                      {selected && <Check className="size-3.5" />}
-                    </span>
-                  </div>
-                  <h3>{path.title}</h3>
-                  <p className="mt-2 text-[13px] leading-[1.5] text-muted-foreground">
-                    {path.description}
-                  </p>
-                </button>
-              );
-            })}
+          <div className="ts-home-problem-cards">
+            <article>
+              <p className="ts-home-fold-label">01 · DEVELOPER</p>
+              <blockquote>“This price is only valid today.”</blockquote>
+              <p>Urgency is not evidence.</p>
+            </article>
+            <article>
+              <p className="ts-home-fold-label">02 · PORTAL</p>
+              <blockquote>“Similar homes start at…”</blockquote>
+              <p>An asking price is not a sale price.</p>
+            </article>
+            <article>
+              <p className="ts-home-fold-label">03 · BROKER</p>
+              <blockquote>“Trust me. This is the market rate.”</blockquote>
+              <p>Good advice should survive a fact-check.</p>
+            </article>
           </div>
+        </div>
+      </section>
 
-          <div className="mx-auto mt-6 flex max-w-4xl justify-center">
+      <section id="evidence" className="ts-home-record scroll-mt-24">
+        <span id="paths" className="ts-home-anchor scroll-mt-24" />
+        <div className="ts-orb-shell">
+          <p className="ts-orb-eyebrow">WHAT FLATDATA GIVES YOU</p>
+          <h2>
+            The missing second opinion: <em>the public record.</em>
+          </h2>
+
+          <div className="ts-home-record-grid">
+            <article>
+              <p className="ts-home-fold-label">FOR BUYERS</p>
+              <h3>Know the sale price before you negotiate.</h3>
+              <p>
+                Search by society, location, BHK or budget. See registered
+                prices, price per square foot and the transactions behind the
+                number.
+              </p>
+              <Link
+                href="/buyer"
+                onClick={() =>
+                  trackAnalyticsEvent('primary_cta_click', {
+                    button_id: 'home_record_buyers',
+                    destination: '/buyer',
+                  })
+                }
+              >
+                RESEARCH A SOCIETY <ArrowRight className="size-3" />
+              </Link>
+            </article>
+            <article>
+              <p className="ts-home-fold-label">FOR OWNERS</p>
+              <h3>Know what your flat may be worth today.</h3>
+              <p>
+                Add your private purchase details to see an estimated value,
+                gain or loss, returns and the comparable registered sales used.
+              </p>
+              <Link
+                href="/owner"
+                onClick={() =>
+                  trackAnalyticsEvent('primary_cta_click', {
+                    button_id: 'home_record_owners',
+                    destination: '/owner',
+                  })
+                }
+              >
+                VALUE MY FLAT <ArrowRight className="size-3" />
+              </Link>
+            </article>
+            <article>
+              <p className="ts-home-fold-label">FOR THE CURIOUS</p>
+              <h3>See the market without being sold to.</h3>
+              <p>
+                Browse 56 supported societies across four Bengaluru
+                micro-markets. No brokers, developer ads, paid rankings or
+                sponsored placement.
+              </p>
+              <Link
+                href="/explore"
+                onClick={() =>
+                  trackAnalyticsEvent('primary_cta_click', {
+                    button_id: 'home_record_explore',
+                    destination: '/explore',
+                  })
+                }
+              >
+                EXPLORE FREELY <ArrowRight className="size-3" />
+              </Link>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <EvidenceStack />
+
+      <section className="ts-home-closing">
+        <div className="ts-orb-shell">
+          <p className="ts-orb-eyebrow">ONE LAST THING</p>
+          <h2>A home is emotional. The data shouldn&apos;t be.</h2>
+          <p className="ts-home-closing-copy">
+            Before you buy, sell or simply wonder, look at the evidence. It may
+            be the most valuable five minutes of your property decision.
+          </p>
+          <div className="ts-home-closing-actions">
             <Link
-              href={selectedHref}
-              className="ts-orb-button ts-orb-button-dark w-full max-w-md"
+              href="/buyer"
+              className="ts-home-closing-button ts-home-closing-button-dark"
               onClick={() =>
                 trackAnalyticsEvent('primary_cta_click', {
-                  button_id: `home_path_${selectedPath}`,
-                  destination: selectedHref,
+                  button_id: 'home_closing_check_society',
+                  destination: '/buyer',
                 })
               }
             >
-              {selectedPath === 'owner'
-                ? 'TRACK MY PROPERTY'
-                : selectedPath === 'buyer'
-                  ? 'RESEARCH A SOCIETY'
-                  : 'EXPLORE THE MARKET'}{' '}
-              <ArrowRight className="size-4" />
+              CHECK A SOCIETY&apos;S PRICE <ArrowRight className="size-3.5" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="coverage"
-        className="ts-orb-section ts-orb-mint scroll-mt-24"
-      >
-        <div className="ts-orb-shell">
-          <div className="ts-orb-section-head">
-            <div>
-              <p className="ts-orb-eyebrow">LAUNCH COVERAGE</p>
-              <h2 className="ts-orb-section-title">Focused before broad</h2>
-            </div>
-            <p className="ts-orb-section-copy">
-              The first release stays within the four Bengaluru markets
-              supported by the current property database.
-            </p>
-          </div>
-          <div className="ts-orb-markets">
-            {['Sarjapur Road', 'Bellandur', 'Marathahalli', 'Haralur'].map(
-              (area, index) => (
-                <div key={area} className="ts-orb-principle">
-                  <span className="font-mono text-[10px] text-muted-foreground">
-                    0{index + 1}
-                  </span>
-                  <h3>{area}</h3>
-                </div>
-              ),
-            )}
-          </div>
-        </div>
-      </section>
-
-      <section id="evidence" className="ts-orb-blue scroll-mt-24">
-        <div className="ts-orb-shell">
-          <h2>Evidence when it exists. Honesty when it doesn’t.</h2>
-          <div className="mx-auto max-w-2xl space-y-4 text-center text-white/85">
-            <p>
-              Owners privately share what they paid. FlatData is designed to
-              pool those contributions anonymously with registered transactions.
-              Everyone gets a price they can check.
-            </p>
-            <p>
-              Registered transactions and private owner contributions now use
-              secure production storage. Owner prices appear publicly only as
-              anonymous ranges after admin approval and the privacy threshold is
-              met.
-            </p>
+            <Link
+              href="/owner"
+              className="ts-home-closing-button"
+              onClick={() =>
+                trackAnalyticsEvent('primary_cta_click', {
+                  button_id: 'home_closing_track_property',
+                  destination: '/owner',
+                })
+              }
+            >
+              TRACK MY PROPERTY <ArrowRight className="size-3.5" />
+            </Link>
           </div>
         </div>
       </section>

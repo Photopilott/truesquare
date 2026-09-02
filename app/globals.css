@@ -2206,3 +2206,488 @@ body {
     padding: 24px 0 30px;
   }
 }
+
+/* Homepage narrative folds. Kept here so these rules stay homepage-only. */
+#home .ts-home-hero-highlight {
+  color: #fa3600;
+  font-weight: 600;
+}
+
+#home .ts-home-drafting-hero .ts-orb-hero-actions .ts-orb-button {
+  flex: 1 1 0;
+  min-height: 56px;
+  padding-inline: 12px;
+  border-color: #282828;
+  border-radius: 0;
+  background: #f7f4ed;
+  color: #282828;
+  font-size: 12px;
+}
+
+#home .ts-home-drafting-hero .ts-orb-hero-actions .ts-orb-button-dark {
+  background: #282828;
+  color: #f7f4ed;
+}
+
+#home .ts-home-problem,
+#home .ts-home-closing {
+  border-top: 1px solid #b3b3af;
+  background: #f7f4ed;
+}
+
+#home .ts-home-problem > .ts-orb-shell,
+#home .ts-home-record > .ts-orb-shell,
+#home .ts-home-closing > .ts-orb-shell {
+  padding-right: clamp(20px, 3vw, 48px);
+  padding-left: clamp(20px, 3vw, 48px);
+}
+
+#home .ts-home-problem {
+  padding: 92px 0 0;
+}
+
+#home .ts-home-problem-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(54px, 7vw, 104px);
+}
+
+#home .ts-home-problem-heading h2,
+#home .ts-home-record h2,
+#home .ts-home-closing h2 {
+  margin: 0;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+#home .ts-home-problem-heading h2 {
+  max-width: 500px;
+  font-size: clamp(54px, 5.3vw, 76px);
+  line-height: 0.96;
+}
+
+#home .ts-home-problem-story {
+  padding-top: 14px;
+}
+
+#home .ts-home-problem-story > p:not(.ts-home-problem-callout) {
+  margin: 0 0 32px;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.05;
+}
+
+#home .ts-home-problem-callout {
+  margin: 48px 0 0;
+  padding: 28px 20px 10px 30px;
+  border-top: 1px solid #b3b3af;
+  border-left: 4px solid #fa3600;
+  color: #fa3600;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: clamp(29px, 3vw, 42px);
+  line-height: 1.08;
+}
+
+#home .ts-home-problem-cards {
+  margin-top: 76px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid #b3b3af;
+  border-bottom: 0;
+}
+
+#home .ts-home-problem-cards article {
+  min-height: 260px;
+  padding: 28px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #b3b3af;
+}
+
+#home .ts-home-problem-cards article:last-child {
+  border-right: 0;
+}
+
+#home .ts-home-fold-label {
+  margin: 0;
+  color: #fa3600;
+  font-family: var(--font-silkscreen), monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+#home .ts-home-problem-cards blockquote {
+  margin: auto 0 0;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: clamp(25px, 2.2vw, 33px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+#home .ts-home-problem-cards blockquote + p {
+  margin: 18px 0 0;
+  color: var(--orb-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+#home .ts-home-record {
+  position: relative;
+  padding: 88px 0 0;
+  border-top: 1px solid #282828;
+  background: #fa3600;
+  color: #f7f4ed;
+}
+
+#home .ts-home-anchor {
+  position: absolute;
+  top: 0;
+}
+
+#home .ts-home-record > .ts-orb-shell > .ts-orb-eyebrow {
+  color: #f7f4ed;
+}
+
+#home .ts-home-record h2 {
+  max-width: 1030px;
+  color: #f7f4ed;
+  font-size: clamp(58px, 6.3vw, 88px);
+  line-height: 0.94;
+}
+
+#home .ts-home-record h2 em {
+  display: block;
+  color: #282828;
+  font-weight: 400;
+}
+
+#home .ts-home-record-grid {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #282828;
+  border-bottom: 1px solid #282828;
+}
+
+#home .ts-home-record-grid article {
+  min-height: 330px;
+  padding: 30px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #282828;
+}
+
+#home .ts-home-record-grid article:last-child {
+  border-right: 0;
+}
+
+#home .ts-home-record .ts-home-fold-label {
+  color: #282828;
+}
+
+#home .ts-home-record-grid h3 {
+  margin: 46px 0 22px;
+  color: #f7f4ed;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: clamp(31px, 3vw, 42px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+#home .ts-home-record-grid article > p:not(.ts-home-fold-label) {
+  margin: 0;
+  color: #282828;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+#home .ts-home-record-grid a {
+  margin-top: auto;
+  padding-top: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #282828;
+  font-family: var(--font-silkscreen), monospace;
+  font-size: 9px;
+  text-decoration: none;
+}
+
+#home .ts-home-closing {
+  padding: 116px 0 120px;
+  text-align: center;
+  background-image:
+    linear-gradient(rgba(179, 179, 175, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(179, 179, 175, 0.22) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+#home .ts-home-closing .ts-orb-eyebrow {
+  margin-bottom: 28px;
+}
+
+#home .ts-home-closing h2 {
+  max-width: 980px;
+  margin-inline: auto;
+  font-size: clamp(58px, 6.5vw, 92px);
+  line-height: 0.94;
+}
+
+#home .ts-home-closing-copy {
+  max-width: 720px;
+  margin: 34px auto 0;
+  color: var(--orb-muted);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+#home .ts-home-closing-actions {
+  margin-top: 42px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#home .ts-home-closing-button {
+  min-width: 270px;
+  min-height: 64px;
+  padding: 14px 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid #282828;
+  background: #f7f4ed;
+  color: #282828;
+  font-family: var(--font-silkscreen), monospace;
+  font-size: 10px;
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+#home .ts-home-closing-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(40, 40, 40, 0.14);
+}
+
+#home .ts-home-closing-button-dark {
+  background: #282828;
+  color: #f7f4ed;
+}
+
+@media (max-width: 900px) {
+  #home .ts-home-problem {
+    padding-top: 62px;
+  }
+
+  #home .ts-home-problem-layout {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  #home .ts-home-problem-story {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  #home .ts-home-drafting-copy {
+    padding-top: 5px;
+    padding-bottom: 6px;
+  }
+
+  #home .ts-home-drafting-hero .ts-orb-eyebrow {
+    max-width: 310px;
+    white-space: nowrap;
+  }
+
+  #home .ts-home-drafting-hero .ts-orb-hero-copy {
+    font-size: 10.8px;
+    line-height: 1.25;
+  }
+
+  #home .ts-home-drafting-hero .ts-orb-hero-actions {
+    grid-template-columns: 1fr 1fr;
+    display: grid;
+  }
+
+  #home .ts-home-drafting-hero .ts-orb-hero-actions .ts-orb-button {
+    min-height: 34px;
+    padding: 4px 7px;
+    gap: 5px;
+    font-size: 8px;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  #home .ts-home-problem {
+    padding: 34px 0 0;
+  }
+
+  #home .ts-home-problem > .ts-orb-shell,
+  #home .ts-home-record > .ts-orb-shell,
+  #home .ts-home-closing > .ts-orb-shell {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  #home .ts-home-problem-layout {
+    gap: 22px;
+  }
+
+  #home .ts-home-problem-heading .ts-orb-eyebrow,
+  #home .ts-home-record .ts-orb-eyebrow,
+  #home .ts-home-closing .ts-orb-eyebrow {
+    margin-bottom: 7px;
+    font-size: 7px;
+  }
+
+  #home .ts-home-problem-heading h2,
+  #home .ts-home-record h2,
+  #home .ts-home-closing h2 {
+    font-size: clamp(27px, 7.8vw, 30px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  #home .ts-home-problem-story > p:not(.ts-home-problem-callout) {
+    margin-bottom: 9px;
+    font-size: 18px;
+    line-height: 1.05;
+  }
+
+  #home .ts-home-problem-callout {
+    margin-top: 18px;
+    padding: 12px 8px 4px 14px;
+    border-left-width: 2px;
+    font-size: 19px;
+    line-height: 1.08;
+  }
+
+  #home .ts-home-problem-cards {
+    margin-top: 24px;
+    grid-template-columns: 1fr;
+  }
+
+  #home .ts-home-problem-cards article {
+    min-height: 0;
+    padding: 13px 14px;
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    column-gap: 10px;
+    border-right: 0;
+    border-bottom: 1px solid #b3b3af;
+  }
+
+  #home .ts-home-problem-cards article:last-child {
+    border-bottom: 0;
+  }
+
+  #home .ts-home-fold-label {
+    font-size: 7px;
+  }
+
+  #home .ts-home-problem-cards blockquote {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.04;
+  }
+
+  #home .ts-home-problem-cards blockquote + p {
+    grid-column: 1;
+    margin: 8px 0 0;
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  #home .ts-home-record {
+    padding: 38px 0 0;
+  }
+
+  #home .ts-home-record h2 em {
+    display: inline;
+  }
+
+  #home .ts-home-record-grid {
+    margin-top: 24px;
+    grid-template-columns: 1fr;
+  }
+
+  #home .ts-home-record-grid article {
+    min-height: 0;
+    padding: 15px 0 14px;
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    column-gap: 10px;
+    border-right: 0;
+    border-bottom: 1px solid #282828;
+  }
+
+  #home .ts-home-record-grid article:last-child {
+    border-bottom: 0;
+  }
+
+  #home .ts-home-record-grid h3 {
+    grid-column: 2;
+    margin: 0 0 8px;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  #home .ts-home-record-grid article > p:not(.ts-home-fold-label) {
+    grid-column: 2;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  #home .ts-home-record-grid a {
+    grid-column: 2;
+    margin-top: 12px;
+    padding-top: 0;
+    font-size: 7px;
+  }
+
+  #home .ts-home-closing {
+    padding: 52px 0 54px;
+    background-size: 32px 32px;
+  }
+
+  #home .ts-home-closing .ts-orb-eyebrow {
+    margin-bottom: 12px;
+  }
+
+  #home .ts-home-closing-copy {
+    margin-top: 16px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  #home .ts-home-closing-actions {
+    margin-top: 22px;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  #home .ts-home-closing-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 9px 13px;
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home .ts-home-closing-button {
+    transition: none;
+  }
+}
