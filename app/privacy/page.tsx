@@ -14,6 +14,7 @@ const sections = [
     body: [
       'Your verified email address when you sign in with Google or an email one-time code.',
       'Property information you choose to submit, including society, configuration, area, purchase date, purchase price, costs, and optional loan interest.',
+      'Developer report requests and owner experiences you choose to share, including developer, project, buying stage or relationship, your written experience, and your email consent.',
       'Basic security records needed to run sign-in, consent, and abuse protection.',
       'Basic website analytics, including pages viewed, buttons clicked, visit source, device type, and broad location. We do not send your email, form entries, purchase price, loan details, or private valuation to analytics.',
     ],
@@ -23,6 +24,7 @@ const sections = [
     body: [
       'To verify your account, provide property intelligence, calculate your private results, review contributed data, and improve society-level evidence.',
       'Owner contributions are reviewed before they can affect public ranges. Individual purchase prices are not published.',
+      'Developer experiences are moderated and privately verified before they can influence a public report. Your identity, email, and unit details are not published.',
       'We use aggregate website analytics to understand which pages and journeys work, where visitors leave, and which sources bring useful visits. Advertising personalisation and Google Signals are disabled.',
     ],
   },
@@ -38,6 +40,7 @@ const sections = [
     body: [
       'Account and submitted property data are stored in the production database and protected by access controls. Only the authorised administrator can review individual submissions.',
       'We retain information while it is needed to provide the service, protect the platform, and maintain the evidence record. You may ask us to access, correct, or delete information linked to your email.',
+      'You can opt out of developer report emails at any time. Opting out stops future emails and does not make a private submission public.',
     ],
   },
 ];
@@ -49,7 +52,7 @@ export default function PrivacyPage() {
 
       <section className="ts-orb-shell py-16 sm:py-24">
         <p className="ts-orb-eyebrow">
-          PRIVACY NOTICE · UPDATED 1 SEPTEMBER 2026
+          PRIVACY NOTICE · UPDATED 3 SEPTEMBER 2026
         </p>
         <h1 className="mt-5 max-w-4xl font-heading text-5xl leading-[0.98] tracking-[-0.04em] sm:text-7xl">
           Your property data stays private by default.
