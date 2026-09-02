@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   boolean,
   bigint,
+  check,
   date,
   index,
   integer,
@@ -170,6 +171,43 @@ export const contributionStatus = pgEnum('contribution_status', [
   'rejected',
 ]);
 
+export const flatValueSourceType = pgEnum('flat_value_source_type', [
+  'registered_transaction',
+  'owner_input',
+]);
+
+export const bangaloreFlatInventory = pgTable(
+  'bangalore_flat_inventory',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    nameKey: text('name_key').notNull(),
+    area: text('area').notNull(),
+    areaKey: text('area_key').notNull(),
+    builder: text('builder').notNull(),
+    sourceUrl: text('source_url'),
+    sourceFile: text('source_file').notNull(),
+    active: boolean('active').default(true).notNull(),
+    importedAt: timestamp('imported_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('bangalore_flat_inventory_name_area_unique').on(
+      table.nameKey,
+      table.areaKey,
+    ),
+    index('bangalore_flat_inventory_active_area_idx').on(
+      table.active,
+      table.area,
+      table.name,
+    ),
+  ],
+);
+
 export const contributors = pgTable(
   'contributors',
   {
@@ -195,6 +233,10 @@ export const ownerProperties = pgTable(
     contributorId: uuid('contributor_id')
       .notNull()
       .references(() => contributors.id, { onDelete: 'cascade' }),
+    flatInventoryId: text('flat_inventory_id').references(
+      () => bangaloreFlatInventory.id,
+      { onDelete: 'restrict' },
+    ),
     society: text('society').notNull(),
     location: text('location').notNull(),
     tower: text('tower').notNull(),
@@ -211,6 +253,7 @@ export const ownerProperties = pgTable(
   },
   (table) => [
     index('owner_properties_contributor_idx').on(table.contributorId),
+    index('owner_properties_flat_inventory_idx').on(table.flatInventoryId),
     index('owner_properties_society_bhk_idx').on(table.society, table.bhk),
   ],
 );
@@ -342,6 +385,10 @@ export const registeredTransactions = pgTable(
   'registered_transactions',
   {
     id: text('id').primaryKey(),
+    flatInventoryId: text('flat_inventory_id').references(
+      () => bangaloreFlatInventory.id,
+      { onDelete: 'restrict' },
+    ),
     location: text('location').notNull(),
     society: text('society').notNull(),
     tower: text('tower'),
@@ -361,6 +408,9 @@ export const registeredTransactions = pgTable(
       .notNull(),
   },
   (table) => [
+    index('registered_transactions_flat_inventory_idx').on(
+      table.flatInventoryId,
+    ),
     index('registered_transactions_society_bhk_idx').on(
       table.society,
       table.bhk,
@@ -369,6 +419,134 @@ export const registeredTransactions = pgTable(
       table.location,
       table.bhk,
     ),
+  ],
+);
+
+export const ownerInputTransactions = pgTable(
+  'owner_input_transactions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    contributionId: uuid('contribution_id')
+      .notNull()
+      .references(() => purchaseContributions.id, { onDelete: 'cascade' }),
+    flatInventoryId: text('flat_inventory_id').references(
+      () => bangaloreFlatInventory.id,
+      { onDelete: 'restrict' },
+    ),
+    purchasePrice: bigint('purchase_price', { mode: 'number' }).notNull(),
+    effectiveArea: numeric('effective_area', {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
+    pricePerSqFt: numeric('price_per_sq_ft', {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
+    bhk: text('bhk').notNull(),
+    purchaseDate: date('purchase_date').notNull(),
+    status: contributionStatus('status').default('pending').notNull(),
+    submittedAt: timestamp('submitted_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewedBy: text('reviewed_by'),
+    reviewNotes: text('review_notes'),
+    society: text('society').notNull(),
+    location: text('location').notNull(),
+  },
+  (table) => [
+    uniqueIndex('owner_input_transactions_contribution_unique').on(
+      table.contributionId,
+    ),
+    index('owner_input_transactions_flat_status_idx').on(
+      table.flatInventoryId,
+      table.status,
+    ),
+  ],
+);
+
+export const finalFlatValues = pgTable(
+  'final_flat_values',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    flatInventoryId: text('flat_inventory_id').references(
+      () => bangaloreFlatInventory.id,
+      { onDelete: 'restrict' },
+    ),
+    sourceType: flatValueSourceType('source_type').notNull(),
+    registeredTransactionId: text('registered_transaction_id').references(
+      () => registeredTransactions.id,
+      { onDelete: 'restrict' },
+    ),
+    ownerInputTransactionId: uuid('owner_input_transaction_id').references(
+      () => ownerInputTransactions.id,
+      { onDelete: 'restrict' },
+    ),
+    price: bigint('price', { mode: 'number' }).notNull(),
+    effectiveArea: numeric('effective_area', { precision: 12, scale: 2 }),
+    pricePerSqFt: numeric('price_per_sq_ft', { precision: 12, scale: 2 }),
+    bhk: text('bhk'),
+    valueDate: date('value_date'),
+    society: text('society').notNull(),
+    location: text('location').notNull(),
+    sourceUrl: text('source_url'),
+    approvedBy: text('approved_by'),
+    approvedAt: timestamp('approved_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('final_flat_values_registered_transaction_unique').on(
+      table.registeredTransactionId,
+    ),
+    uniqueIndex('final_flat_values_owner_input_unique').on(
+      table.ownerInputTransactionId,
+    ),
+    index('final_flat_values_flat_source_date_idx').on(
+      table.flatInventoryId,
+      table.sourceType,
+      table.valueDate,
+    ),
+    check(
+      'final_flat_values_source_reference_check',
+      sql`(
+        (${table.sourceType} = 'registered_transaction'
+          AND ${table.registeredTransactionId} IS NOT NULL
+          AND ${table.ownerInputTransactionId} IS NULL)
+        OR
+        (${table.sourceType} = 'owner_input'
+          AND ${table.registeredTransactionId} IS NULL
+          AND ${table.ownerInputTransactionId} IS NOT NULL
+          AND ${table.approvedAt} IS NOT NULL)
+      )`,
+    ),
+  ],
+);
+
+export const bugReports = pgTable(
+  'bug_reports',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id').references(() => appUsers.id, {
+      onDelete: 'set null',
+    }),
+    reporterEmail: text('reporter_email'),
+    pagePath: text('page_path').notNull(),
+    message: text('message').notNull(),
+    status: text('status').default('open').notNull(),
+    requestFingerprint: text('request_fingerprint'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    resolvedBy: text('resolved_by'),
+  },
+  (table) => [
+    index('bug_reports_status_created_idx').on(table.status, table.createdAt),
   ],
 );
 
