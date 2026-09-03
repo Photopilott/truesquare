@@ -536,21 +536,27 @@
   border-color: var(--ink);
   color: var(--ink);
 }
-.filter-row > p {
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   white-space: nowrap;
   color: var(--ink3);
   font: 500 9px/1 var(--font-geist-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.filter-row > p button {
-  margin-left: 8px;
-  border: 0;
-  border-bottom: 1px solid var(--accent);
-  background: none;
-  padding: 0;
-  color: var(--accent);
+.sort-control select {
+  min-width: 112px;
+  min-height: 38px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  padding: 8px 30px 8px 12px;
+  color: #fff;
   cursor: pointer;
+  font: 600 10px/1 var(--font-geist-mono);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .axis-strip {
@@ -1384,8 +1390,13 @@
   .filter-row [role='tab'] {
     min-height: 42px;
   }
-  .filter-row > p {
+  .sort-control {
+    justify-content: space-between;
     margin: 0 0 12px;
+  }
+  .sort-control select {
+    min-width: 132px;
+    min-height: 44px;
   }
   .axis-meta {
     height: 38px;

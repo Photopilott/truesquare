@@ -90,6 +90,23 @@ export type Filing = RawProject & {
   pincode: string | null;
 };
 
+export type AtlasStartDateOrder = 'latest' | 'oldest';
+
+export function sortFilingsByStartDate(
+  filings: readonly Filing[],
+  order: AtlasStartDateOrder,
+) {
+  return [...filings].sort((a, b) => {
+    if (!a.start && !b.start)
+      return a.name.localeCompare(b.name) || a.id - b.id;
+    if (!a.start) return 1;
+    if (!b.start) return -1;
+    const dateOrder = a.start.localeCompare(b.start);
+    if (dateOrder !== 0) return order === 'latest' ? -dateOrder : dateOrder;
+    return a.name.localeCompare(b.name) || a.id - b.id;
+  });
+}
+
 export type NearbyFiling = {
   filing: Filing;
   distance: number;

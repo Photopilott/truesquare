@@ -12,7 +12,13 @@ import {
   TimeAxis,
 } from '@/components/atlas/primitives';
 import { SiteHeader } from '@/components/site-header';
-import { indian, type AtlasMarket, type Filing } from '@/lib/atlas-model';
+import {
+  indian,
+  sortFilingsByStartDate,
+  type AtlasMarket,
+  type AtlasStartDateOrder,
+  type Filing,
+} from '@/lib/atlas-model';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 
 const PAGE_SIZE = 20;
@@ -29,16 +35,17 @@ export function MarketRegister({
     .slice(0, 4);
   const [page, setPage] = useState(1);
   const [area, setArea] = useState('All Bengaluru');
+  const [sortOrder, setSortOrder] = useState<AtlasStartDateOrder>('latest');
   const [filter, setFilter] = useState<
     'all' | 'residential' | 'plotted' | 'commercial' | 'mixed'
   >('all');
-  const records = useMemo(
-    () =>
+  const records = useMemo(() => {
+    const areaRecords =
       area === 'All Bengaluru'
         ? filings
-        : filings.filter((item) => item.market === area),
-    [area, filings],
-  );
+        : filings.filter((item) => item.market === area);
+    return sortFilingsByStartDate(areaRecords, sortOrder);
+  }, [area, filings, sortOrder]);
   const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
   const visible = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const active = records.filter(
@@ -162,9 +169,23 @@ export function MarketRegister({
                 </button>
               ))}
             </div>
-            <p>
-              Sorted · filing date <button type="button">Change</button>
-            </p>
+            <label className="sort-control">
+              <span>Sort · start date</span>
+              <select
+                aria-label="Sort projects by start date"
+                value={sortOrder}
+                onChange={(event) => {
+                  setSortOrder(event.target.value as AtlasStartDateOrder);
+                  setPage(1);
+                  trackAnalyticsEvent('atlas_filter_use', {
+                    filter_type: 'start_date_sort',
+                  });
+                }}
+              >
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            </label>
           </div>
           {filter === 'all' || filter === 'residential' ? (
             <>
