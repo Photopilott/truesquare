@@ -279,7 +279,7 @@ export async function PATCH(
         WHERE society = ${target.society} AND bhk = ${target.bhk}
         LIMIT 1
       `;
-      const society = getSocietySummaryByName(target.society);
+      const society = await getSocietySummaryByName(target.society);
       if (publicAggregates[0] && society) {
         try {
           subscriberNotification = await notifySocietyPriceSubscribers({

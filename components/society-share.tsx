@@ -44,6 +44,7 @@ export function SocietyShare({
   buttonLabel?: string;
   className?: string;
 }) {
+  const hasRegisteredEvidence = evidence.registeredCount > 0;
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const canonicalPath = `/societies/${evidence.society.slug}`;
@@ -189,26 +190,52 @@ export function SocietyShare({
             </h3>
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">12-month median price</p>
+                <p className="text-muted-foreground">
+                  {hasRegisteredEvidence
+                    ? '12-month median price'
+                    : 'Evidence benchmark'}
+                </p>
                 <p className="mt-1 font-semibold">
-                  {compactInr(evidence.registeredMedianPrice)}
+                  {compactInr(
+                    hasRegisteredEvidence
+                      ? evidence.registeredMedianPrice
+                      : evidence.benchmarkMedianPrice,
+                  )}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Latest / sq ft</p>
+                <p className="text-muted-foreground">
+                  {hasRegisteredEvidence ? 'Latest / sq ft' : 'Median / sq ft'}
+                </p>
                 <p className="mt-1 font-semibold">
-                  {wholeInr(evidence.latestRegisteredPricePerSqFt)}
+                  {wholeInr(
+                    hasRegisteredEvidence
+                      ? evidence.latestRegisteredPricePerSqFt
+                      : evidence.benchmarkMedianPricePerSqFt,
+                  )}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Latest flat sold</p>
+                <p className="text-muted-foreground">
+                  {hasRegisteredEvidence
+                    ? 'Latest flat sold'
+                    : 'Registered sales'}
+                </p>
                 <p className="mt-1 font-semibold">
-                  {compactInr(evidence.latestRegisteredPrice)}
+                  {hasRegisteredEvidence
+                    ? compactInr(evidence.latestRegisteredPrice)
+                    : evidence.registeredCount}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">12-month sales</p>
-                <p className="mt-1 font-semibold">{evidence.registeredCount}</p>
+                <p className="text-muted-foreground">
+                  {hasRegisteredEvidence ? '12-month sales' : 'Owner evidence'}
+                </p>
+                <p className="mt-1 font-semibold">
+                  {hasRegisteredEvidence
+                    ? evidence.registeredCount
+                    : evidence.publicOwnerContributionCount}
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Confidence</p>

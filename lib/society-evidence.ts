@@ -33,7 +33,18 @@ export type PublicSocietyEvidence = {
   latestEvidenceDate: string | null;
   publicOwnerContributionCount: number;
   publicOwnerAggregateCount: number;
+  benchmarkMedianPrice: number | null;
+  benchmarkMedianPricePerSqFt: number | null;
+  benchmarkEvidenceCount: number;
+  benchmarkSource: 'registered' | 'owner' | 'combined' | 'none';
 };
+
+function societyKey(value: string) {
+  return value
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
 
 function subtractOneYear(value: string) {
   const date = new Date(`${value}T00:00:00.000Z`);
@@ -58,9 +69,11 @@ export function buildPublicSocietyEvidence(
   records: TransactionRecord[],
   ownerAggregates: OwnerPriceAggregate[],
 ): PublicSocietyEvidence {
+  const societyNameKey = societyKey(society.name);
   const registeredRecords = records.filter(
     (record) =>
-      record.society === society.name && isEligibleRegisteredRecord(record),
+      societyKey(record.society) === societyNameKey &&
+      isEligibleRegisteredRecord(record),
   );
   const recordsByNewest = [...registeredRecords].sort((a, b) => {
     const dateComparison = (b.registrationDate ?? '').localeCompare(
@@ -79,8 +92,30 @@ export function buildPublicSocietyEvidence(
       )
     : [];
   const societyOwnerAggregates = ownerAggregates.filter(
-    (aggregate) => aggregate.society === society.name,
+    (aggregate) => societyKey(aggregate.society) === societyNameKey,
   );
+  const registeredMedianPrice = median(
+    oneYearRegisteredRecords
+      .map((record) => record.price)
+      .filter((price): price is number => price != null),
+  );
+  const registeredMedianPricePerSqFt = median(
+    oneYearRegisteredRecords
+      .map((record) => record.pricePerSqFt)
+      .filter((price): price is number => price != null),
+  );
+  const publicOwnerContributionCount = societyOwnerAggregates.reduce(
+    (total, aggregate) => total + aggregate.approvedCount,
+    0,
+  );
+  const benchmarkSource =
+    oneYearRegisteredRecords.length > 0 && publicOwnerContributionCount > 0
+      ? 'combined'
+      : oneYearRegisteredRecords.length > 0
+        ? 'registered'
+        : publicOwnerContributionCount > 0
+          ? 'owner'
+          : 'none';
   const bhks = [
     ...new Set(
       oneYearRegisteredRecords
@@ -91,16 +126,8 @@ export function buildPublicSocietyEvidence(
   return {
     society,
     registeredRecords,
-    registeredMedianPrice: median(
-      oneYearRegisteredRecords
-        .map((record) => record.price)
-        .filter((price): price is number => price != null),
-    ),
-    registeredMedianPricePerSqFt: median(
-      oneYearRegisteredRecords
-        .map((record) => record.pricePerSqFt)
-        .filter((price): price is number => price != null),
-    ),
+    registeredMedianPrice,
+    registeredMedianPricePerSqFt,
     registeredCount: oneYearRegisteredRecords.length,
     evidenceWindowStart,
     evidenceWindowEnd,
@@ -109,11 +136,14 @@ export function buildPublicSocietyEvidence(
     confidence: confidenceForCount(oneYearRegisteredRecords.length),
     bhks,
     latestEvidenceDate: evidenceWindowEnd,
-    publicOwnerContributionCount: societyOwnerAggregates.reduce(
-      (total, aggregate) => total + aggregate.approvedCount,
-      0,
-    ),
+    publicOwnerContributionCount,
     publicOwnerAggregateCount: societyOwnerAggregates.length,
+    benchmarkMedianPrice: registeredMedianPrice ?? society.medianPrice,
+    benchmarkMedianPricePerSqFt:
+      registeredMedianPricePerSqFt ?? society.medianPricePerSqFt,
+    benchmarkEvidenceCount:
+      oneYearRegisteredRecords.length + publicOwnerContributionCount,
+    benchmarkSource,
   };
 }
 
@@ -147,10 +177,14 @@ export function evidenceDate(value: string | null) {
 }
 
 export function societyShareMessage(evidence: PublicSocietyEvidence) {
-  const benchmarkPricePerSqFt =
-    evidence.latestRegisteredPricePerSqFt ??
-    evidence.society.medianPricePerSqFt;
-  return `Found a site that shows what your flat is worth today and how much it's gone up since you bought it. Uses actual registration data, not broker listings.\n${evidence.society.name} is at ${wholeInr(benchmarkPricePerSqFt)}/sq ft right now.`;
+  if (evidence.registeredCount > 0) {
+    const latestPricePerSqFt =
+      evidence.latestRegisteredPricePerSqFt ??
+      evidence.society.medianPricePerSqFt;
+    return `Found a site that shows what your flat is worth today and how much it's gone up since you bought it. Uses actual registration data, not broker listings.\n${evidence.society.name} is at ${wholeInr(latestPricePerSqFt)}/sq ft right now.`;
+  }
+  const benchmarkPricePerSqFt = evidence.benchmarkMedianPricePerSqFt;
+  return `Found a site that shows the verified price evidence for this society—not broker listings.\n${evidence.society.name} is at ${wholeInr(benchmarkPricePerSqFt)}/sq ft based on registered sales and anonymous, admin-approved owner evidence.`;
 }
 
 export function societyWhatsAppText(

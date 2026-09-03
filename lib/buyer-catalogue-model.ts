@@ -67,8 +67,15 @@ function dateOrNull(value: string | Date | null) {
   return new Date(value).toISOString().slice(0, 10);
 }
 
+export function societyNameKey(value: string) {
+  return value
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
 function identityKey(name: string, location: string) {
-  return `${name.trim().toLowerCase()}|${location.trim().toLowerCase()}`;
+  return `${societyNameKey(name)}|${location.trim().toLowerCase()}`;
 }
 
 function slugPart(value: string) {
@@ -100,6 +107,95 @@ function evidenceFromRow(row: BuyerSocietyEvidenceRow): BuyerEvidenceSummary {
     latestOwnerDate: dateOrNull(row.latest_owner_date),
     evidenceSource: row.evidence_source,
   };
+}
+
+function latestDate(values: Array<string | null>) {
+  return (
+    values
+      .filter((value): value is string => Boolean(value))
+      .sort()
+      .at(-1) ?? null
+  );
+}
+
+function firstNumber(values: Array<number | null>) {
+  return values.find((value): value is number => value != null) ?? null;
+}
+
+function minNumber(values: Array<number | null>) {
+  const numbers = values.filter((value): value is number => value != null);
+  return numbers.length ? Math.min(...numbers) : null;
+}
+
+function maxNumber(values: Array<number | null>) {
+  const numbers = values.filter((value): value is number => value != null);
+  return numbers.length ? Math.max(...numbers) : null;
+}
+
+function mergeEvidenceRows(
+  rows: BuyerSocietyEvidenceRow[],
+): BuyerEvidenceSummary[] {
+  const grouped = new Map<string, BuyerEvidenceSummary[]>();
+  for (const row of rows) {
+    const evidence = evidenceFromRow(row);
+    const key = evidence.isAllBhks ? 'all' : `bhk:${evidence.bhk ?? ''}`;
+    const group = grouped.get(key) ?? [];
+    group.push(evidence);
+    grouped.set(key, group);
+  }
+
+  return [...grouped.values()].map((group) => {
+    const registeredCount = group.reduce(
+      (total, row) => total + row.registeredCount,
+      0,
+    );
+    const approvedOwnerCount = group.reduce(
+      (total, row) => total + row.approvedOwnerCount,
+      0,
+    );
+    const publicOwnerCount = group.reduce(
+      (total, row) => total + row.publicOwnerCount,
+      0,
+    );
+
+    return {
+      bhk: group[0].bhk,
+      isAllBhks: group[0].isAllBhks,
+      registeredCount,
+      approvedOwnerCount,
+      publicOwnerCount,
+      registeredMedianPrice: firstNumber(
+        group.map((row) => row.registeredMedianPrice),
+      ),
+      registeredMedianPricePerSqFt: firstNumber(
+        group.map((row) => row.registeredMedianPricePerSqFt),
+      ),
+      ownerMedianPrice: firstNumber(group.map((row) => row.ownerMedianPrice)),
+      ownerMinPrice: minNumber(group.map((row) => row.ownerMinPrice)),
+      ownerMaxPrice: maxNumber(group.map((row) => row.ownerMaxPrice)),
+      ownerMedianPricePerSqFt: firstNumber(
+        group.map((row) => row.ownerMedianPricePerSqFt),
+      ),
+      ownerMinPricePerSqFt: minNumber(
+        group.map((row) => row.ownerMinPricePerSqFt),
+      ),
+      ownerMaxPricePerSqFt: maxNumber(
+        group.map((row) => row.ownerMaxPricePerSqFt),
+      ),
+      latestRegisteredDate: latestDate(
+        group.map((row) => row.latestRegisteredDate),
+      ),
+      latestOwnerDate: latestDate(group.map((row) => row.latestOwnerDate)),
+      evidenceSource:
+        registeredCount > 0 && publicOwnerCount > 0
+          ? 'combined'
+          : registeredCount > 0
+            ? 'registered_transaction'
+            : publicOwnerCount > 0
+              ? 'owner_input'
+              : 'none',
+    };
+  });
 }
 
 export function buyerEvidenceFor(society: BuyerSocietySummary, bhk: string) {
@@ -161,20 +257,49 @@ export function buildBuyerSocietyCatalogue(
       society,
     ]),
   );
+  const permanentByName = new Map<string, SocietySummary>();
+  const duplicatePermanentNames = new Set<string>();
+  for (const society of permanentSocieties) {
+    const key = societyNameKey(society.name);
+    if (permanentByName.has(key)) duplicatePermanentNames.add(key);
+    else permanentByName.set(key, society);
+  }
+  for (const key of duplicatePermanentNames) permanentByName.delete(key);
+
+  const inventoryIdsByName = new Map<string, Set<string>>();
+  for (const row of rows) {
+    if (!row.flat_inventory_id) continue;
+    const key = societyNameKey(row.society);
+    const ids = inventoryIdsByName.get(key) ?? new Set<string>();
+    ids.add(row.flat_inventory_id);
+    inventoryIdsByName.set(key, ids);
+  }
+  const canonicalInventoryByName = new Map<string, string>();
+  for (const [key, ids] of inventoryIdsByName) {
+    if (ids.size === 1) canonicalInventoryByName.set(key, [...ids][0]);
+  }
+
   const grouped = new Map<string, BuyerSocietyEvidenceRow[]>();
   for (const row of rows) {
-    const group = grouped.get(row.catalogue_id) ?? [];
+    const canonicalInventoryId = canonicalInventoryByName.get(
+      societyNameKey(row.society),
+    );
+    const catalogueKey = canonicalInventoryId
+      ? `inventory:${canonicalInventoryId}`
+      : row.catalogue_id;
+    const group = grouped.get(catalogueKey) ?? [];
     group.push(row);
-    grouped.set(row.catalogue_id, group);
+    grouped.set(catalogueKey, group);
   }
 
   return [...grouped.values()]
     .map((group) => {
-      const first = group[0];
-      const permanent = permanentByIdentity.get(
-        identityKey(first.society, first.location),
-      );
-      const evidence = group.map(evidenceFromRow);
+      const first =
+        group.find((row) => row.flat_inventory_id != null) ?? group[0];
+      const permanent =
+        permanentByIdentity.get(identityKey(first.society, first.location)) ??
+        permanentByName.get(societyNameKey(first.society));
+      const evidence = mergeEvidenceRows(group);
       const overall = evidence.find((row) => row.isAllBhks) ?? null;
       const publicBhks = evidence
         .filter((row) => !row.isAllBhks && row.bhk)
@@ -198,7 +323,7 @@ export function buildBuyerSocietyCatalogue(
         flatInventoryId: first.flat_inventory_id,
         builder: first.builder,
         catalogueSource: first.catalogue_source,
-        hasPermanentPage: Boolean(permanent),
+        hasPermanentPage: true,
         buyerEvidence: evidence,
       } satisfies BuyerSocietySummary;
     })

@@ -3,6 +3,8 @@ import 'server-only';
 import { cache } from 'react';
 
 import propertyData from '@/data/property-data.json';
+import { getBuyerSocietyCatalogue } from '@/lib/buyer-catalogue';
+import { societyNameKey } from '@/lib/buyer-catalogue-model';
 import { getPublicOwnerAggregates } from '@/lib/owner-aggregates';
 import { getRegisteredTransactions } from '@/lib/registered-transactions';
 import {
@@ -13,12 +15,24 @@ import {
 
 const societies = propertyData.societies as SocietySummary[];
 
-export function getSocietySummary(slug: string) {
-  return societies.find((society) => society.slug === slug) ?? null;
+export async function getSocietySummary(slug: string) {
+  const permanent = societies.find((society) => society.slug === slug);
+  if (permanent) return permanent;
+  const catalogue = await getBuyerSocietyCatalogue(societies);
+  return catalogue.find((society) => society.slug === slug) ?? null;
 }
 
-export function getSocietySummaryByName(name: string) {
-  return societies.find((society) => society.name === name) ?? null;
+export async function getSocietySummaryByName(name: string) {
+  const nameKey = societyNameKey(name);
+  const permanent = societies.find(
+    (society) => societyNameKey(society.name) === nameKey,
+  );
+  if (permanent) return permanent;
+  const catalogue = await getBuyerSocietyCatalogue(societies);
+  return (
+    catalogue.find((society) => societyNameKey(society.name) === nameKey) ??
+    null
+  );
 }
 
 export function getAllSocietySummaries() {
@@ -27,7 +41,7 @@ export function getAllSocietySummaries() {
 
 export const getPublicSocietyEvidence = cache(
   async (slug: string): Promise<PublicSocietyEvidence | null> => {
-    const society = getSocietySummary(slug);
+    const society = await getSocietySummary(slug);
     if (!society) return null;
     const [records, ownerAggregates] = await Promise.all([
       getRegisteredTransactions(),

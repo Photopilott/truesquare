@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 const SUBSCRIPTION_LIMIT = 100;
 const SOURCE_SCREENS = new Set(['society_page', 'buyer_detail']);
 
-function selectedSociety(request: Request) {
+async function selectedSociety(request: Request) {
   const slug = new URL(request.url).searchParams.get('society')?.trim() ?? '';
   return getSocietySummary(slug);
 }
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       { headers: { 'Cache-Control': 'no-store' } },
     );
   }
-  const society = selectedSociety(request);
+  const society = await selectedSociety(request);
   if (!society) {
     return NextResponse.json({ error: 'Society not found.' }, { status: 404 });
   }
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       { status: 401 },
     );
   }
-  const society = selectedSociety(request);
+  const society = await selectedSociety(request);
   if (!society) {
     return NextResponse.json({ error: 'Society not found.' }, { status: 404 });
   }
@@ -181,7 +181,7 @@ export async function DELETE(request: Request) {
       { status: 401 },
     );
   }
-  const society = selectedSociety(request);
+  const society = await selectedSociety(request);
   if (!society) {
     return NextResponse.json({ error: 'Society not found.' }, { status: 404 });
   }

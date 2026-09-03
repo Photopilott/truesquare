@@ -54,7 +54,7 @@ test('publishes Trinity after one owner price is approved', () => {
 
   assert.equal(trinity.name, 'Trinity Acres And Woods');
   assert.equal(trinity.location, 'Sarjapur Road');
-  assert.equal(trinity.hasPermanentPage, false);
+  assert.equal(trinity.hasPermanentPage, true);
   assert.deepEqual(trinity.bhks, ['3']);
   assert.equal(display.approvedOwnerCount, 1);
   assert.equal(display.publicOwnerCount, 1);
@@ -73,6 +73,58 @@ test('publishes Trinity after one owner price is approved', () => {
   ]) {
     assert.equal(privateField in publicFields, false);
   }
+});
+
+test('merges one society split between its inventory area and workbook micro-market', () => {
+  const catalogue = buildBuyerSocietyCatalogue(
+    [
+      row({
+        catalogue_id: 'inventory:blr_prestige_ferns',
+        flat_inventory_id: 'blr_prestige_ferns',
+        society: 'Prestige Ferns Residency',
+        location: 'Harlur',
+        registered_count: 0,
+        approved_owner_count: 3,
+        public_owner_count: 3,
+        owner_median_price: '18000000',
+        owner_median_price_per_sq_ft: '15038',
+        latest_owner_date: '2025-09-01',
+        evidence_source: 'owner_input',
+      }),
+      row({
+        catalogue_id: 'final:legacy-prestige-ferns',
+        flat_inventory_id: null,
+        society: 'Prestige Ferns Residency',
+        location: 'Sarjapur Road',
+        catalogue_source: 'final_value',
+        registered_count: 1,
+        approved_owner_count: 0,
+        public_owner_count: 0,
+        registered_median_price: '17200000',
+        registered_median_price_per_sq_ft: '14369',
+        owner_median_price: null,
+        owner_min_price: null,
+        owner_max_price: null,
+        owner_median_price_per_sq_ft: null,
+        owner_min_price_per_sq_ft: null,
+        owner_max_price_per_sq_ft: null,
+        latest_registered_date: '2024-11-12',
+        latest_owner_date: null,
+        evidence_source: 'registered_transaction',
+      }),
+    ],
+    [],
+  );
+
+  assert.equal(catalogue.length, 1);
+  assert.equal(catalogue[0].name, 'Prestige Ferns Residency');
+  assert.equal(catalogue[0].location, 'Harlur');
+  assert.equal(catalogue[0].flatInventoryId, 'blr_prestige_ferns');
+  const display = buyerEvidenceDisplay(buyerEvidenceFor(catalogue[0], 'All'));
+  assert.equal(display.registeredCount, 1);
+  assert.equal(display.publicOwnerCount, 3);
+  assert.equal(display.publicCount, 4);
+  assert.equal(display.label, 'Registered + approved owner evidence');
 });
 
 test('publishes the approved owner range when several records exist', () => {

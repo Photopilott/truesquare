@@ -2328,45 +2328,27 @@ function SocietyDetail({
           }
         />
       </div>
-      {society.hasPermanentPage !== false ? (
-        <div className="rounded-xl border border-border bg-accent p-4">
-          <p className="text-sm leading-6 text-muted-foreground">
-            Share the public {society.name} benchmark with your society group.
-            Owner identities and contact details are never part of the link.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <SocietyShare
-              evidence={publicEvidence}
-              sourceScreen="buyer_detail"
-              buttonLabel="Share on WhatsApp"
-            />
-            <SocietySubscribe society={society} sourceScreen="buyer_detail" />
-            <Link
-              href={`/societies/${society.slug}`}
-              className="text-sm font-semibold underline underline-offset-4"
-            >
-              Open permanent society page
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-border bg-accent p-4">
-          <p className="text-sm leading-6 text-muted-foreground">
-            {catalogueEvidence.approvedOwnerCount > 0
-              ? `${catalogueEvidence.approvedOwnerCount} admin-approved owner price submission${
-                  catalogueEvidence.approvedOwnerCount === 1 ? ' is' : 's are'
-                } included in this benchmark. Owner identity and contact details are not shown.`
-              : 'No approved price evidence exists yet. Owners can contribute a price for admin review to help build this society benchmark.'}
-          </p>
+      <div className="rounded-xl border border-border bg-accent p-4">
+        <p className="text-sm leading-6 text-muted-foreground">
+          Share the public {society.name} benchmark with your society group.
+          Owner identities and contact details are never part of the link.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <SocietyShare
+            evidence={publicEvidence}
+            sourceScreen="buyer_detail"
+            buttonLabel="Share on WhatsApp"
+          />
+          <SocietySubscribe society={society} sourceScreen="buyer_detail" />
           <Link
-            href="/owner"
-            className="mt-4 inline-flex h-11 items-center justify-center rounded-[9px] border border-primary bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/80"
+            href={`/societies/${society.slug}`}
+            className="text-sm font-semibold underline underline-offset-4"
           >
-            Contribute flat price
+            Open permanent society page
           </Link>
         </div>
-      )}
-      {records.length > 0 && unlocked ? (
+      </div>
+      {unlocked && records.length > 0 ? (
         <div>
           <h3 className="mb-3 font-medium">Registered transactions</h3>
           <div className="space-y-2">
@@ -2405,7 +2387,7 @@ function SocietyDetail({
               ))}
           </div>
         </div>
-      ) : records.length > 0 ? (
+      ) : !unlocked ? (
         <div className="rounded-xl border border-border bg-foreground p-5 text-background">
           <LockKeyhole className="size-5" />
           <h3 className="mt-3 font-heading text-xl font-semibold">

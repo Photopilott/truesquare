@@ -637,39 +637,69 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
       inventory.name AS society,
       inventory.area AS location,
       NULLIF(BTRIM(inventory.builder), '') AS builder,
-      'inventory'::text AS catalogue_source
+      'inventory'::text AS catalogue_source,
+      REGEXP_REPLACE(LOWER(BTRIM(inventory.name)), '[^a-z0-9]+', '', 'g') AS society_key,
+      LOWER(BTRIM(inventory.area)) AS location_key,
+      COUNT(*) OVER (
+        PARTITION BY REGEXP_REPLACE(
+          LOWER(BTRIM(inventory.name)),
+          '[^a-z0-9]+',
+          '',
+          'g'
+        )
+      ) AS society_name_count
     FROM bangalore_flat_inventory inventory
     WHERE inventory.active = TRUE
   ), final_only_entities AS (
     SELECT DISTINCT ON (
-      LOWER(BTRIM(final_values.society)),
+      REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
       LOWER(BTRIM(final_values.location))
     )
       'final:' || MD5(
-        LOWER(BTRIM(final_values.society)) || '|' ||
+        REGEXP_REPLACE(
+          LOWER(BTRIM(final_values.society)),
+          '[^a-z0-9]+',
+          '',
+          'g'
+        ) || '|' ||
         LOWER(BTRIM(final_values.location))
       ) AS catalogue_id,
       NULL::text AS flat_inventory_id,
       BTRIM(final_values.society) AS society,
       BTRIM(final_values.location) AS location,
       NULL::text AS builder,
-      'final_value'::text AS catalogue_source
+      'final_value'::text AS catalogue_source,
+      REGEXP_REPLACE(
+        LOWER(BTRIM(final_values.society)),
+        '[^a-z0-9]+',
+        '',
+        'g'
+      ) AS society_key,
+      LOWER(BTRIM(final_values.location)) AS location_key,
+      0::bigint AS society_name_count
     FROM final_flat_values final_values
     WHERE NOT EXISTS (
       SELECT 1
-      FROM bangalore_flat_inventory inventory
-      WHERE inventory.active = TRUE
-        AND (
-          final_values.flat_inventory_id = inventory.id
+      FROM inventory_entities inventory
+      WHERE (
+          final_values.flat_inventory_id = inventory.flat_inventory_id
           OR (
             final_values.flat_inventory_id IS NULL
-            AND LOWER(BTRIM(final_values.society)) = LOWER(BTRIM(inventory.name))
-            AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(inventory.area))
+            AND REGEXP_REPLACE(
+              LOWER(BTRIM(final_values.society)),
+              '[^a-z0-9]+',
+              '',
+              'g'
+            ) = inventory.society_key
+            AND (
+              LOWER(BTRIM(final_values.location)) = inventory.location_key
+              OR inventory.society_name_count = 1
+            )
           )
         )
     )
     ORDER BY
-      LOWER(BTRIM(final_values.society)),
+      REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
       LOWER(BTRIM(final_values.location)),
       final_values.value_date DESC NULLS LAST,
       final_values.created_at DESC
@@ -695,10 +725,30 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
     LEFT JOIN final_flat_values final_values
       ON (
         entities.flat_inventory_id IS NOT NULL
-        AND final_values.flat_inventory_id = entities.flat_inventory_id
+        AND (
+          final_values.flat_inventory_id = entities.flat_inventory_id
+          OR (
+            final_values.flat_inventory_id IS NULL
+            AND REGEXP_REPLACE(
+              LOWER(BTRIM(final_values.society)),
+              '[^a-z0-9]+',
+              '',
+              'g'
+            ) = entities.society_key
+            AND (
+              LOWER(BTRIM(final_values.location)) = entities.location_key
+              OR entities.society_name_count = 1
+            )
+          )
+        )
       ) OR (
-        final_values.flat_inventory_id IS NULL
-        AND LOWER(BTRIM(final_values.society)) = LOWER(BTRIM(entities.society))
+        entities.flat_inventory_id IS NULL
+        AND REGEXP_REPLACE(
+          LOWER(BTRIM(final_values.society)),
+          '[^a-z0-9]+',
+          '',
+          'g'
+        ) = entities.society_key
         AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(entities.location))
       )
   ), aggregated AS (

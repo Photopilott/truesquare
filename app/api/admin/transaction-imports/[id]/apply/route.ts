@@ -143,10 +143,33 @@ export async function POST(
       .map((row) => row.society);
 
     await sql.transaction([
-      sql`DELETE FROM registered_transactions`,
       sql`
+        WITH active_inventory AS (
+          SELECT
+            inventory.id,
+            inventory.name,
+            inventory.area,
+            REGEXP_REPLACE(
+              LOWER(BTRIM(inventory.name)),
+              '[^a-z0-9]+',
+              '',
+              'g'
+            ) AS society_key,
+            LOWER(BTRIM(inventory.area)) AS location_key,
+            COUNT(*) OVER (
+              PARTITION BY REGEXP_REPLACE(
+                LOWER(BTRIM(inventory.name)),
+                '[^a-z0-9]+',
+                '',
+                'g'
+              )
+            ) AS society_name_count
+          FROM bangalore_flat_inventory inventory
+          WHERE inventory.active = TRUE
+        )
         INSERT INTO registered_transactions (
           id,
+          flat_inventory_id,
           location,
           society,
           tower,
@@ -164,25 +187,110 @@ export async function POST(
           imported_at
         )
         SELECT
-          source_record_id,
-          location,
-          society,
-          tower,
-          bhk,
-          registration_date,
-          raw_date,
+          rows.source_record_id,
+          inventory.id,
+          COALESCE(inventory.area, rows.location),
+          COALESCE(inventory.name, rows.society),
+          rows.tower,
+          rows.bhk,
+          rows.registration_date,
+          rows.raw_date,
+          rows.price,
+          rows.effective_area,
+          rows.price_per_sq_ft,
+          rows.area_basis,
+          rows.sale_type,
+          rows.qa_notes,
+          rows.source_file,
+          rows.source_url,
+          NOW()
+        FROM registered_transaction_import_rows rows
+        LEFT JOIN LATERAL (
+          SELECT candidate.id, candidate.name, candidate.area
+          FROM active_inventory candidate
+          WHERE
+            REGEXP_REPLACE(
+              LOWER(BTRIM(rows.society)),
+              '[^a-z0-9]+',
+              '',
+              'g'
+            ) = candidate.society_key
+            AND (
+              LOWER(BTRIM(rows.location)) = candidate.location_key
+              OR candidate.society_name_count = 1
+            )
+          ORDER BY
+            CASE
+              WHEN LOWER(BTRIM(rows.location)) = candidate.location_key THEN 0
+              ELSE 1
+            END,
+            candidate.id
+          LIMIT 1
+        ) inventory ON TRUE
+        WHERE rows.import_id = ${id} AND rows.qa_status = 'ready'
+        ORDER BY rows.ordinal
+        ON CONFLICT (id) DO UPDATE SET
+          flat_inventory_id = EXCLUDED.flat_inventory_id,
+          location = EXCLUDED.location,
+          society = EXCLUDED.society,
+          tower = EXCLUDED.tower,
+          bhk = EXCLUDED.bhk,
+          registration_date = EXCLUDED.registration_date,
+          raw_date = EXCLUDED.raw_date,
+          price = EXCLUDED.price,
+          effective_area = EXCLUDED.effective_area,
+          price_per_sq_ft = EXCLUDED.price_per_sq_ft,
+          area_basis = EXCLUDED.area_basis,
+          sale_type = EXCLUDED.sale_type,
+          qa_notes = EXCLUDED.qa_notes,
+          source_file = EXCLUDED.source_file,
+          source_url = EXCLUDED.source_url,
+          imported_at = NOW()
+      `,
+      sql`
+        INSERT INTO final_flat_values (
+          flat_inventory_id,
+          source_type,
+          registered_transaction_id,
           price,
           effective_area,
           price_per_sq_ft,
-          area_basis,
-          sale_type,
-          qa_notes,
-          source_file,
-          source_url,
-          NOW()
-        FROM registered_transaction_import_rows
-        WHERE import_id = ${id} AND qa_status = 'ready'
-        ORDER BY ordinal
+          bhk,
+          value_date,
+          society,
+          location,
+          source_url
+        )
+        SELECT
+          transactions.flat_inventory_id,
+          'registered_transaction',
+          transactions.id,
+          transactions.price,
+          transactions.effective_area,
+          transactions.price_per_sq_ft,
+          transactions.bhk,
+          transactions.registration_date,
+          transactions.society,
+          transactions.location,
+          transactions.source_url
+        FROM registered_transactions transactions
+        JOIN registered_transaction_import_rows rows
+          ON rows.source_record_id = transactions.id
+        WHERE
+          rows.import_id = ${id}
+          AND rows.qa_status = 'ready'
+          AND transactions.price IS NOT NULL
+        ON CONFLICT (registered_transaction_id) DO UPDATE SET
+          flat_inventory_id = EXCLUDED.flat_inventory_id,
+          price = EXCLUDED.price,
+          effective_area = EXCLUDED.effective_area,
+          price_per_sq_ft = EXCLUDED.price_per_sq_ft,
+          bhk = EXCLUDED.bhk,
+          value_date = EXCLUDED.value_date,
+          society = EXCLUDED.society,
+          location = EXCLUDED.location,
+          source_url = EXCLUDED.source_url,
+          updated_at = NOW()
       `,
       sql`
         UPDATE registered_transaction_imports
@@ -193,7 +301,7 @@ export async function POST(
 
     const subscriberNotifications = [];
     for (const societyName of changedSocieties) {
-      const society = getSocietySummaryByName(societyName);
+      const society = await getSocietySummaryByName(societyName);
       if (!society) continue;
       try {
         subscriberNotifications.push({

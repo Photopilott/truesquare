@@ -120,6 +120,13 @@
       "when": 1788441047224,
       "tag": "0016_backfill_single_owner_aggregates",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1788447422859,
+      "tag": "0017_canonical_society_identity",
+      "breakpoints": true
     }
   ]
 }
