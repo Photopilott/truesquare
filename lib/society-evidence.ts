@@ -43,7 +43,8 @@ function societyKey(value: string) {
   return value
     .normalize('NFKD')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
+    .replace(/[^a-z0-9]+/g, '')
+    .replace(/apartments?$/, '');
 }
 
 function subtractOneYear(value: string) {

@@ -71,7 +71,8 @@ export function societyNameKey(value: string) {
   return value
     .normalize('NFKD')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
+    .replace(/[^a-z0-9]+/g, '')
+    .replace(/apartments?$/, '');
 }
 
 function identityKey(name: string, location: string) {

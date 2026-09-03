@@ -127,6 +127,59 @@ test('merges one society split between its inventory area and workbook micro-mar
   assert.equal(display.label, 'Registered + approved owner evidence');
 });
 
+test('merges a workbook society whose name adds a trailing Apartment label', () => {
+  const catalogue = buildBuyerSocietyCatalogue(
+    [
+      row({
+        catalogue_id: 'inventory:blr_shriram_chirping_woods',
+        flat_inventory_id: 'blr_shriram_chirping_woods',
+        society: 'Shriram Chirping Woods',
+        location: 'Harlur',
+        approved_owner_count: 0,
+        public_owner_count: 0,
+        owner_median_price: null,
+        owner_min_price: null,
+        owner_max_price: null,
+        owner_median_price_per_sq_ft: null,
+        owner_min_price_per_sq_ft: null,
+        owner_max_price_per_sq_ft: null,
+        latest_owner_date: null,
+        evidence_source: 'none',
+      }),
+      row({
+        catalogue_id: 'final:legacy-shriram-chirping-woods',
+        flat_inventory_id: null,
+        society: 'Shriram Chirping Woods Apartment',
+        location: 'Haralur',
+        catalogue_source: 'final_value',
+        registered_count: 5,
+        approved_owner_count: 0,
+        public_owner_count: 0,
+        registered_median_price: '17500000',
+        registered_median_price_per_sq_ft: '12551',
+        owner_median_price: null,
+        owner_min_price: null,
+        owner_max_price: null,
+        owner_median_price_per_sq_ft: null,
+        owner_min_price_per_sq_ft: null,
+        owner_max_price_per_sq_ft: null,
+        latest_registered_date: '2025-07-08',
+        latest_owner_date: null,
+        evidence_source: 'registered_transaction',
+      }),
+    ],
+    [],
+  );
+
+  assert.equal(catalogue.length, 1);
+  assert.equal(catalogue[0].name, 'Shriram Chirping Woods');
+  assert.equal(catalogue[0].location, 'Harlur');
+  assert.equal(catalogue[0].flatInventoryId, 'blr_shriram_chirping_woods');
+  const display = buyerEvidenceDisplay(buyerEvidenceFor(catalogue[0], 'All'));
+  assert.equal(display.registeredCount, 5);
+  assert.equal(display.publicCount, 5);
+});
+
 test('publishes the approved owner range when several records exist', () => {
   const catalogue = buildBuyerSocietyCatalogue(
     [

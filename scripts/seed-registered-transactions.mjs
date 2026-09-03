@@ -22,7 +22,8 @@ const identityKey = (value) =>
   value
     .normalize('NFKD')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
+    .replace(/[^a-z0-9]+/g, '')
+    .replace(/apartments?$/, '');
 const locationKey = (value) => value.trim().toLowerCase();
 const inventoryByName = new Map();
 for (const society of inventory) {

@@ -150,18 +150,26 @@ export async function POST(
             inventory.name,
             inventory.area,
             REGEXP_REPLACE(
-              LOWER(BTRIM(inventory.name)),
-              '[^a-z0-9]+',
-              '',
-              'g'
-            ) AS society_key,
-            LOWER(BTRIM(inventory.area)) AS location_key,
-            COUNT(*) OVER (
-              PARTITION BY REGEXP_REPLACE(
+              REGEXP_REPLACE(
                 LOWER(BTRIM(inventory.name)),
                 '[^a-z0-9]+',
                 '',
                 'g'
+              ),
+              'apartments?$',
+              ''
+            ) AS society_key,
+            LOWER(BTRIM(inventory.area)) AS location_key,
+            COUNT(*) OVER (
+              PARTITION BY REGEXP_REPLACE(
+                REGEXP_REPLACE(
+                  LOWER(BTRIM(inventory.name)),
+                  '[^a-z0-9]+',
+                  '',
+                  'g'
+                ),
+                'apartments?$',
+                ''
               )
             ) AS society_name_count
           FROM bangalore_flat_inventory inventory
@@ -210,10 +218,14 @@ export async function POST(
           FROM active_inventory candidate
           WHERE
             REGEXP_REPLACE(
-              LOWER(BTRIM(rows.society)),
-              '[^a-z0-9]+',
-              '',
-              'g'
+              REGEXP_REPLACE(
+                LOWER(BTRIM(rows.society)),
+                '[^a-z0-9]+',
+                '',
+                'g'
+              ),
+              'apartments?$',
+              ''
             ) = candidate.society_key
             AND (
               LOWER(BTRIM(rows.location)) = candidate.location_key

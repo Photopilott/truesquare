@@ -638,29 +638,35 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
       inventory.area AS location,
       NULLIF(BTRIM(inventory.builder), '') AS builder,
       'inventory'::text AS catalogue_source,
-      REGEXP_REPLACE(LOWER(BTRIM(inventory.name)), '[^a-z0-9]+', '', 'g') AS society_key,
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(LOWER(BTRIM(inventory.name)), '[^a-z0-9]+', '', 'g'),
+        'apartments?$',
+        ''
+      ) AS society_key,
       LOWER(BTRIM(inventory.area)) AS location_key,
       COUNT(*) OVER (
         PARTITION BY REGEXP_REPLACE(
-          LOWER(BTRIM(inventory.name)),
-          '[^a-z0-9]+',
-          '',
-          'g'
+          REGEXP_REPLACE(LOWER(BTRIM(inventory.name)), '[^a-z0-9]+', '', 'g'),
+          'apartments?$',
+          ''
         )
       ) AS society_name_count
     FROM bangalore_flat_inventory inventory
     WHERE inventory.active = TRUE
   ), final_only_entities AS (
     SELECT DISTINCT ON (
-      REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+        'apartments?$',
+        ''
+      ),
       LOWER(BTRIM(final_values.location))
     )
       'final:' || MD5(
         REGEXP_REPLACE(
-          LOWER(BTRIM(final_values.society)),
-          '[^a-z0-9]+',
-          '',
-          'g'
+          REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+          'apartments?$',
+          ''
         ) || '|' ||
         LOWER(BTRIM(final_values.location))
       ) AS catalogue_id,
@@ -670,10 +676,9 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
       NULL::text AS builder,
       'final_value'::text AS catalogue_source,
       REGEXP_REPLACE(
-        LOWER(BTRIM(final_values.society)),
-        '[^a-z0-9]+',
-        '',
-        'g'
+        REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+        'apartments?$',
+        ''
       ) AS society_key,
       LOWER(BTRIM(final_values.location)) AS location_key,
       0::bigint AS society_name_count
@@ -686,10 +691,9 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
           OR (
             final_values.flat_inventory_id IS NULL
             AND REGEXP_REPLACE(
-              LOWER(BTRIM(final_values.society)),
-              '[^a-z0-9]+',
-              '',
-              'g'
+              REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+              'apartments?$',
+              ''
             ) = inventory.society_key
             AND (
               LOWER(BTRIM(final_values.location)) = inventory.location_key
@@ -699,7 +703,11 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
         )
     )
     ORDER BY
-      REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+        'apartments?$',
+        ''
+      ),
       LOWER(BTRIM(final_values.location)),
       final_values.value_date DESC NULLS LAST,
       final_values.created_at DESC
@@ -730,10 +738,9 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
           OR (
             final_values.flat_inventory_id IS NULL
             AND REGEXP_REPLACE(
-              LOWER(BTRIM(final_values.society)),
-              '[^a-z0-9]+',
-              '',
-              'g'
+              REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+              'apartments?$',
+              ''
             ) = entities.society_key
             AND (
               LOWER(BTRIM(final_values.location)) = entities.location_key
@@ -744,10 +751,9 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
       ) OR (
         entities.flat_inventory_id IS NULL
         AND REGEXP_REPLACE(
-          LOWER(BTRIM(final_values.society)),
-          '[^a-z0-9]+',
-          '',
-          'g'
+          REGEXP_REPLACE(LOWER(BTRIM(final_values.society)), '[^a-z0-9]+', '', 'g'),
+          'apartments?$',
+          ''
         ) = entities.society_key
         AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(entities.location))
       )
