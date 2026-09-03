@@ -559,7 +559,9 @@
   padding: 8px 26px;
 }
 .record-list {
-  border-bottom: 1px solid var(--hair);
+  display: grid;
+  gap: 16px;
+  padding: 16px 0;
 }
 .record-row {
   position: relative;
@@ -571,12 +573,18 @@
   grid-template-areas: 'main duration timeline metrics action';
   gap: 24px;
   min-height: 178px;
-  border-top: 1px solid var(--hair);
+  border: 1px solid var(--hair);
   padding: 24px 20px 24px 26px;
-  transition: background-color 120ms ease;
+  background: var(--base);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
 }
 .record-row:hover {
   background: var(--panel);
+  border-color: var(--ink3);
+  transform: translateY(-2px);
 }
 .truth-ribbon {
   position: absolute;
@@ -667,14 +675,24 @@
   text-align: right;
 }
 .record-action a {
-  min-height: 44px;
+  min-width: 170px;
+  min-height: 56px;
+  padding: 14px 18px;
   display: inline-flex;
-  align-items: flex-end;
-  border-bottom: 1px solid var(--accent);
-  color: var(--accent);
-  font: 500 10px/1.2 var(--font-geist-mono);
-  letter-spacing: 0.08em;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--base);
+  font: 600 12px/1.2 var(--font-geist-mono);
+  letter-spacing: 0.06em;
+  text-align: center;
   text-transform: uppercase;
+}
+.record-action a:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--base);
 }
 .flag-line {
   margin: 0;
@@ -1638,6 +1656,12 @@
   .atlas-root .record-row {
     gap: 12px;
     padding: 15px 12px 15px 16px;
+  }
+
+  .atlas-root .market-page .record-action a {
+    width: 100%;
+    min-height: 54px;
+    font-size: 12px;
   }
 
   .atlas-root .record-metrics {
