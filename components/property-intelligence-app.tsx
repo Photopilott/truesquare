@@ -60,6 +60,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 import {
+  buyerEvidenceDisplay,
+  buyerEvidenceFor,
+  type BuyerSocietySummary,
+} from '@/lib/buyer-catalogue-model';
+import {
   NativeSelect,
   NativeSelectOption,
 } from '@/components/ui/native-select';
@@ -76,22 +81,11 @@ import {
   confidenceForCount,
   findComparableMatch,
   median,
-  type ComparableMatch,
   type TransactionRecord,
   type ValuationResult,
 } from '@/lib/valuation-engine';
 
-type SocietySummary = {
-  slug: string;
-  name: string;
-  location: string;
-  bhks: string[];
-  towers: string[];
-  transactionCount: number;
-  medianPrice: number | null;
-  medianPricePerSqFt: number | null;
-  latestTransactionDate: string | null;
-};
+type SocietySummary = BuyerSocietySummary;
 
 type OwnerForm = {
   societyOptionId: string;
@@ -106,10 +100,6 @@ type OwnerForm = {
   loanAmount: string;
   loanTenure: string;
   loanRate: string;
-};
-
-type BuyerEvidence = ComparableMatch & {
-  bhkBreakdown: string;
 };
 
 const EMPTY_FORM: OwnerForm = {
@@ -417,55 +407,104 @@ export function PropertyIntelligenceApp({
       );
   }, [ownerForm, valuation, view]);
 
-  function getBuyerEvidence(
-    society: SocietySummary,
-    selectedBhk: string,
-  ): BuyerEvidence {
-    if (selectedBhk !== 'All') {
-      const match = findComparableMatch(records, {
-        society: society.name,
-        bhk: selectedBhk,
-        location: society.location,
-      });
-      return {
-        ...match,
-        bhkBreakdown: `${selectedBhk} BHK (${match.records.length})`,
-      };
-    }
-
-    const matches = society.bhks.map((bhk) => ({
-      bhk,
-      match: findComparableMatch(records, {
-        society: society.name,
-        bhk,
-        location: society.location,
-      }),
-    }));
-    const uniqueRecords = [
-      ...new Map(
-        matches
-          .flatMap(({ match }) => match.records)
-          .map((record) => [record.id, record]),
-      ).values(),
-    ];
-    return {
-      tier: uniqueRecords.length ? 'same-society-any-bhk' : 'insufficient',
-      label: uniqueRecords.length
-        ? 'Tiered evidence across available BHKs'
-        : 'No evidence in any matching tier',
-      records: uniqueRecords,
-      bhkBreakdown:
-        matches
-          .filter(({ match }) => match.records.length)
-          .map(({ bhk, match }) => `${bhk} BHK (${match.records.length})`)
-          .join(', ') || 'Sparse',
-    };
+  function exactBuyerRecords(society: SocietySummary, selectedBhk: string) {
+    return records.filter(
+      (record) =>
+        record.society === society.name &&
+        record.location === society.location &&
+        (selectedBhk === 'All' || record.bhk === selectedBhk),
+    );
   }
 
-  const buyerSocietyEvidence = selectedSociety
-    ? getBuyerEvidence(selectedSociety, bhkFilter)
+  function buyerDisplayFor(society: SocietySummary, selectedBhk: string) {
+    const databaseEvidence = buyerEvidenceFor(society, selectedBhk);
+    if (databaseEvidence) return buyerEvidenceDisplay(databaseEvidence);
+
+    const matchingRecords = exactBuyerRecords(society, selectedBhk);
+    const matchingOwnerAggregates = ownerAggregates.filter(
+      (aggregate) =>
+        aggregate.society === society.name &&
+        (selectedBhk === 'All' || aggregate.bhk === selectedBhk),
+    );
+    const ownerCount = matchingOwnerAggregates.reduce(
+      (sum, aggregate) => sum + aggregate.approvedCount,
+      0,
+    );
+    const registeredCount = matchingRecords.length;
+    const latestDate =
+      [...matchingRecords]
+        .map((record) => record.registrationDate)
+        .filter((value): value is string => Boolean(value))
+        .sort()
+        .at(-1) ?? null;
+    const evidenceSource =
+      registeredCount && ownerCount
+        ? 'combined'
+        : registeredCount
+          ? 'registered_transaction'
+          : ownerCount
+            ? 'owner_input'
+            : 'none';
+
+    return buyerEvidenceDisplay({
+      bhk: selectedBhk === 'All' ? null : selectedBhk,
+      isAllBhks: selectedBhk === 'All',
+      registeredCount,
+      approvedOwnerCount: ownerCount,
+      publicOwnerCount: ownerCount,
+      registeredMedianPrice: median(
+        matchingRecords
+          .map((record) => record.price)
+          .filter((price): price is number => Boolean(price)),
+      ),
+      registeredMedianPricePerSqFt: median(
+        matchingRecords
+          .map((record) => record.pricePerSqFt)
+          .filter((price): price is number => Boolean(price)),
+      ),
+      ownerMedianPrice: null,
+      ownerMinPrice: null,
+      ownerMaxPrice: null,
+      ownerMedianPricePerSqFt:
+        matchingOwnerAggregates.length === 1
+          ? matchingOwnerAggregates[0].medianPricePerSqFt
+          : median(
+              matchingOwnerAggregates.map(
+                (aggregate) => aggregate.medianPricePerSqFt,
+              ),
+            ),
+      ownerMinPricePerSqFt:
+        matchingOwnerAggregates.length > 0
+          ? Math.min(
+              ...matchingOwnerAggregates.map(
+                (aggregate) => aggregate.minPricePerSqFt,
+              ),
+            )
+          : null,
+      ownerMaxPricePerSqFt:
+        matchingOwnerAggregates.length > 0
+          ? Math.max(
+              ...matchingOwnerAggregates.map(
+                (aggregate) => aggregate.maxPricePerSqFt,
+              ),
+            )
+          : null,
+      latestRegisteredDate: latestDate,
+      latestOwnerDate:
+        matchingOwnerAggregates
+          .map((aggregate) => aggregate.updatedAt.slice(0, 10))
+          .sort()
+          .at(-1) ?? null,
+      evidenceSource,
+    });
+  }
+
+  const buyerSocietyRecords = selectedSociety
+    ? exactBuyerRecords(selectedSociety, bhkFilter)
+    : [];
+  const selectedBuyerDisplay = selectedSociety
+    ? buyerDisplayFor(selectedSociety, bhkFilter)
     : null;
-  const buyerSocietyRecords = buyerSocietyEvidence?.records ?? [];
   const selectedOwnerSociety = searchableOwnerSocieties.find(
     (society) => society.id === ownerForm.societyOptionId,
   );
@@ -477,25 +516,33 @@ export function PropertyIntelligenceApp({
   const ownerPublicEvidence = ownerSociety
     ? buildPublicSocietyEvidence(ownerSociety, records, ownerAggregates)
     : null;
+  const buyerLocations = useMemo(
+    () =>
+      [...new Set(societies.map((society) => society.location))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [societies],
+  );
 
   const filteredSocieties = (() => {
     const budget = budgetFilter === 'All' ? Infinity : Number(budgetFilter);
     return societies.filter((society) => {
       const matchesLocation =
         locationFilter === 'All' || society.location === locationFilter;
-      const matchingRecords = getBuyerEvidence(society, bhkFilter).records;
-      const matchesBhk = bhkFilter === 'All' || matchingRecords.length > 0;
-      const matchingMedian = median(
-        matchingRecords
-          .map((record) => record.price)
-          .filter((price): price is number => Boolean(price)),
-      );
+      const databaseEvidence = buyerEvidenceFor(society, bhkFilter);
+      const matchingRecords = exactBuyerRecords(society, bhkFilter);
+      const matchesBhk =
+        bhkFilter === 'All' ||
+        Boolean(databaseEvidence) ||
+        matchingRecords.length > 0;
+      const matchingMedian = buyerDisplayFor(society, bhkFilter).medianPrice;
       const matchesBudget =
         budgetFilter === 'All' ||
         Boolean(matchingMedian && matchingMedian <= budget);
-      const matchesSearch = society.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      const normalizedSearch = searchQuery.trim().toLowerCase();
+      const matchesSearch = [society.name, society.location, society.builder]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(normalizedSearch));
       return matchesLocation && matchesBhk && matchesBudget && matchesSearch;
     });
   })();
@@ -793,7 +840,7 @@ export function PropertyIntelligenceApp({
                 production gate will ask for.
               </p>
               <div className="ts-orb-finder mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <FormField label="Search society">
+                <FormField label="Search society, area, or builder">
                   <Input
                     value={searchQuery}
                     onChange={(event) => {
@@ -806,7 +853,7 @@ export function PropertyIntelligenceApp({
                         filter_type: 'society_search',
                       })
                     }
-                    placeholder="e.g. Sobha, Purva…"
+                    placeholder="e.g. Trinity Acres, Sarjapur…"
                   />
                 </FormField>
                 <FormField label="Location">
@@ -822,9 +869,9 @@ export function PropertyIntelligenceApp({
                     }}
                   >
                     <NativeSelectOption value="All">
-                      All four markets
+                      All Bengaluru areas
                     </NativeSelectOption>
-                    {LOCATIONS.map((location) => (
+                    {buyerLocations.map((location) => (
                       <NativeSelectOption key={location} value={location}>
                         {location}
                       </NativeSelectOption>
@@ -885,11 +932,12 @@ export function PropertyIntelligenceApp({
               </div>
               <Alert className="mt-4 rounded-[12px] border-border bg-accent">
                 <Info />
-                <AlertTitle>Workbook data boundary</AlertTitle>
+                <AlertTitle>Complete society catalogue</AlertTitle>
                 <AlertDescription>
-                  {records.length} scoped sale records from the supplied
-                  workbook. Mortgages, villas, plots, unsupported locations, and
-                  invalid evidence are excluded.
+                  Search {societies.length} Bengaluru societies. Registered
+                  transactions are shown separately from approved owner data.
+                  Owner prices become public only as an anonymous group of at
+                  least three comparable submissions.
                 </AlertDescription>
               </Alert>
               <div className="ts-orb-panel mt-5 p-5 text-sm leading-6 text-muted-foreground">
@@ -913,34 +961,20 @@ export function PropertyIntelligenceApp({
               </div>
               <div className="ts-orb-card-grid">
                 {filteredSocieties.slice(0, visibleSocieties).map((society) => {
-                  const buyerEvidence = getBuyerEvidence(society, bhkFilter);
-                  const matchingRecords = buyerEvidence.records;
-                  const displayPrice = median(
-                    matchingRecords
-                      .map((record) => record.price)
-                      .filter((price): price is number => Boolean(price)),
-                  );
-                  const displayPpsf = median(
-                    matchingRecords
-                      .map((record) => record.pricePerSqFt)
-                      .filter((price): price is number => Boolean(price)),
-                  );
-                  const evidenceCount = matchingRecords.length;
-                  const societyOwnerAggregates = ownerAggregates.filter(
-                    (aggregate) =>
-                      aggregate.society === society.name &&
-                      (bhkFilter === 'All' || aggregate.bhk === bhkFilter),
-                  );
-                  const ownerContributionCount = societyOwnerAggregates.reduce(
-                    (sum, aggregate) => sum + aggregate.approvedCount,
-                    0,
-                  );
-                  const latestDate =
-                    [...matchingRecords].sort((a, b) =>
-                      (b.registrationDate ?? '').localeCompare(
-                        a.registrationDate ?? '',
-                      ),
-                    )[0]?.registrationDate ?? null;
+                  const evidence = buyerDisplayFor(society, bhkFilter);
+                  const bhkBreakdown =
+                    bhkFilter === 'All'
+                      ? society.bhks.length
+                        ? society.bhks.map((bhk) => `${bhk} BHK`).join(', ')
+                        : 'Evidence building'
+                      : `${bhkFilter} BHK (${evidence.publicCount})`;
+                  const supportLabel = evidence.publicCount
+                    ? `${evidence.publicCount} SUPPORTING`
+                    : evidence.approvedOwnerCount
+                      ? `${evidence.approvedOwnerCount} PRIVATE INPUT${
+                          evidence.approvedOwnerCount === 1 ? '' : 'S'
+                        }`
+                      : 'NO PRICE EVIDENCE';
                   return (
                     <button
                       key={society.slug}
@@ -966,7 +1000,7 @@ export function PropertyIntelligenceApp({
                               {society.location}
                             </Badge>
                             <span className="font-mono text-[10px] text-muted-foreground">
-                              {evidenceCount} SUPPORTING
+                              {supportLabel}
                             </span>
                           </div>
                           <CardTitle className="mt-3 text-[23px]">
@@ -977,38 +1011,45 @@ export function PropertyIntelligenceApp({
                           <Metric
                             label={
                               bhkFilter === 'All'
-                                ? 'Median price'
+                                ? 'Buyer benchmark'
                                 : `${bhkFilter} BHK median`
                             }
-                            value={formatInr(displayPrice, true)}
+                            value={formatInr(evidence.medianPrice, true)}
                           />
                           <Metric
                             label="Median / sq ft"
                             value={
-                              displayPpsf ? `${formatInr(displayPpsf)}` : '—'
+                              evidence.medianPricePerSqFt
+                                ? `${formatInr(evidence.medianPricePerSqFt)}`
+                                : '—'
                             }
                           />
-                          <Metric
-                            label="BHK evidence"
-                            value={buyerEvidence.bhkBreakdown}
-                          />
+                          <Metric label="BHK evidence" value={bhkBreakdown} />
                           <Metric
                             label="Confidence"
-                            value={confidenceForCount(evidenceCount)}
+                            value={
+                              evidence.publicCount
+                                ? confidenceForCount(evidence.publicCount)
+                                : 'Building'
+                            }
                           />
                           <Metric
                             label="Anonymous owner pool"
                             value={
-                              ownerContributionCount
-                                ? `${ownerContributionCount} approved`
-                                : 'Not public yet'
+                              evidence.publicOwnerCount
+                                ? `${evidence.publicOwnerCount} public`
+                                : evidence.approvedOwnerCount
+                                  ? `${evidence.approvedOwnerCount} approved · price private`
+                                  : 'No approved input yet'
                             }
                           />
                         </CardContent>
                         <CardFooter className="justify-between text-xs text-muted-foreground">
                           <span>
-                            {buyerEvidence.label} · Latest:{' '}
-                            {formatDate(latestDate)}
+                            {evidence.label}
+                            {evidence.latestDate
+                              ? ` · Latest: ${formatDate(evidence.latestDate)}`
+                              : ''}
                           </span>
                           <span className="flex shrink-0 items-center gap-1 font-medium text-foreground">
                             View evidence <ChevronRight className="size-4" />
@@ -1032,11 +1073,10 @@ export function PropertyIntelligenceApp({
                 <div className="rounded-[12px] border border-dashed border-border bg-card p-10 text-center">
                   <FileSearch className="mx-auto size-8 text-muted-foreground" />
                   <h2 className="mt-4 font-heading text-3xl font-normal">
-                    No supported society matches
+                    No society matches
                   </h2>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Try a different location, BHK, or budget. Only societies
-                    with registered transaction evidence are shown.
+                    Try a different society name, area, builder, BHK, or budget.
                   </p>
                 </div>
               )}
@@ -1445,11 +1485,11 @@ export function PropertyIntelligenceApp({
                 records,
                 ownerAggregates,
               )}
-              ownerAggregates={ownerAggregates.filter(
-                (aggregate) => aggregate.society === selectedSociety.name,
-              )}
+              catalogueEvidence={buyerDisplayFor(selectedSociety, bhkFilter)}
               bhkFilter={bhkFilter}
-              matchLabel={buyerSocietyEvidence?.label ?? 'No evidence'}
+              matchLabel={
+                selectedBuyerDisplay?.label ?? 'No verified price evidence'
+              }
               unlocked={buyerUnlocked}
               onUnlock={() => {
                 trackAnalyticsEvent('evidence_unlock_click', {
@@ -1474,8 +1514,9 @@ export function PropertyIntelligenceApp({
 
 function BuyerEditorialSections() {
   const liveNow = [
-    'Registered median price and price per square foot',
-    'A confidence level based on supporting transaction count',
+    'All active societies from the Bengaluru inventory',
+    'Registered prices kept separate from anonymous owner benchmarks',
+    'Owner prices published only after three comparable approvals',
     'Recent registered transactions with dates, configurations, and hidden unit numbers',
   ];
 
@@ -1498,7 +1539,7 @@ function BuyerEditorialSections() {
           <Card>
             <CardHeader>
               <Badge className="w-fit rounded-[2px]">Available now</Badge>
-              <CardTitle className="mt-3">Registered evidence</CardTitle>
+              <CardTitle className="mt-3">Transparent price evidence</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {liveNow.map((item) => (
@@ -2135,7 +2176,7 @@ function SocietyDetail({
   society,
   records,
   publicEvidence,
-  ownerAggregates,
+  catalogueEvidence,
   bhkFilter,
   matchLabel,
   unlocked,
@@ -2144,33 +2185,23 @@ function SocietyDetail({
   society: SocietySummary;
   records: TransactionRecord[];
   publicEvidence: PublicSocietyEvidence;
-  ownerAggregates: OwnerPriceAggregate[];
+  catalogueEvidence: ReturnType<typeof buyerEvidenceDisplay>;
   bhkFilter: string;
   matchLabel: string;
   unlocked: boolean;
   onUnlock: () => void;
 }) {
-  const detailBhks = [
-    ...new Set(
-      records
-        .map((record) => record.bhk)
-        .filter((bhk): bhk is string => Boolean(bhk)),
-    ),
-  ];
-  const visibleOwnerAggregates = ownerAggregates.filter(
-    (aggregate) => bhkFilter === 'All' || aggregate.bhk === bhkFilter,
-  );
-  const ownerContributionCount = visibleOwnerAggregates.reduce(
-    (sum, aggregate) => sum + aggregate.approvedCount,
-    0,
-  );
+  const detailBhks = society.bhks;
   return (
     <>
       <DialogHeader>
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{society.location}</Badge>
           <Badge variant="outline">
-            {publicEvidence.confidence} confidence
+            {catalogueEvidence.publicCount
+              ? confidenceForCount(catalogueEvidence.publicCount)
+              : 'Building'}{' '}
+            confidence
           </Badge>
         </div>
         <DialogTitle className="mt-2 font-heading text-2xl">
@@ -2180,26 +2211,26 @@ function SocietyDetail({
           {bhkFilter === 'All'
             ? 'Society evidence assembled by BHK.'
             : `Filtered to ${bhkFilter} BHK evidence.`}{' '}
-          Evidence tier: {matchLabel}. This is not a live listing, ranking, or
-          recommendation.
+          Evidence: {matchLabel}. This is not a live listing, ranking, or
+          recommendation. Individual owner prices are never shown.
         </DialogDescription>
       </DialogHeader>
       <div className="grid grid-cols-2 gap-4 rounded-xl bg-muted/45 p-4 sm:grid-cols-4">
         <Metric
-          label="12-month median"
-          value={formatInr(publicEvidence.registeredMedianPrice, true)}
+          label="Buyer benchmark"
+          value={formatInr(catalogueEvidence.medianPrice, true)}
         />
         <Metric
-          label="Latest / sq ft"
-          value={formatInr(publicEvidence.latestRegisteredPricePerSqFt)}
+          label="Median / sq ft"
+          value={formatInr(catalogueEvidence.medianPricePerSqFt)}
         />
         <Metric
-          label="Latest flat sold"
-          value={formatInr(publicEvidence.latestRegisteredPrice, true)}
+          label="Latest evidence"
+          value={formatDate(catalogueEvidence.latestDate)}
         />
         <Metric
-          label="12-month sales"
-          value={String(publicEvidence.registeredCount)}
+          label="Public evidence"
+          value={String(catalogueEvidence.publicCount)}
         />
         <Metric
           label="BHK evidence"
@@ -2208,33 +2239,53 @@ function SocietyDetail({
         <Metric
           label="Anonymous owner pool"
           value={
-            ownerContributionCount
-              ? `${ownerContributionCount} approved`
-              : 'Not public yet'
+            catalogueEvidence.publicOwnerCount
+              ? `${catalogueEvidence.publicOwnerCount} public`
+              : catalogueEvidence.approvedOwnerCount
+                ? `${catalogueEvidence.approvedOwnerCount} approved · price private`
+                : 'No approved input yet'
           }
         />
       </div>
-      <div className="rounded-xl border border-border bg-accent p-4">
-        <p className="text-sm leading-6 text-muted-foreground">
-          Share the public {society.name} benchmark with your society group.
-          Your own flat price is never part of the link.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <SocietyShare
-            evidence={publicEvidence}
-            sourceScreen="buyer_detail"
-            buttonLabel="Share on WhatsApp"
-          />
-          <SocietySubscribe society={society} sourceScreen="buyer_detail" />
+      {society.hasPermanentPage !== false ? (
+        <div className="rounded-xl border border-border bg-accent p-4">
+          <p className="text-sm leading-6 text-muted-foreground">
+            Share the public {society.name} benchmark with your society group.
+            Your own flat price is never part of the link.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <SocietyShare
+              evidence={publicEvidence}
+              sourceScreen="buyer_detail"
+              buttonLabel="Share on WhatsApp"
+            />
+            <SocietySubscribe society={society} sourceScreen="buyer_detail" />
+            <Link
+              href={`/societies/${society.slug}`}
+              className="text-sm font-semibold underline underline-offset-4"
+            >
+              Open permanent society page
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border bg-accent p-4">
+          <p className="text-sm leading-6 text-muted-foreground">
+            {catalogueEvidence.approvedOwnerCount > 0
+              ? `${catalogueEvidence.approvedOwnerCount} approved owner submission${
+                  catalogueEvidence.approvedOwnerCount === 1 ? ' is' : 's are'
+                } held privately. A price becomes public only after at least three comparable approved submissions exist for the same BHK.`
+              : 'No approved price evidence exists yet. Owners can contribute privately to help build this society benchmark.'}
+          </p>
           <Link
-            href={`/societies/${society.slug}`}
-            className="text-sm font-semibold underline underline-offset-4"
+            href="/owner"
+            className="mt-4 inline-flex h-11 items-center justify-center rounded-[9px] border border-primary bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/80"
           >
-            Open permanent society page
+            Contribute private flat data
           </Link>
         </div>
-      </div>
-      {unlocked ? (
+      )}
+      {records.length > 0 && unlocked ? (
         <div>
           <h3 className="mb-3 font-medium">Registered transactions</h3>
           <div className="space-y-2">
@@ -2273,7 +2324,7 @@ function SocietyDetail({
               ))}
           </div>
         </div>
-      ) : (
+      ) : records.length > 0 ? (
         <div className="rounded-xl border border-border bg-foreground p-5 text-background">
           <LockKeyhole className="size-5" />
           <h3 className="mt-3 font-heading text-xl font-semibold">
@@ -2286,6 +2337,16 @@ function SocietyDetail({
           <Button className="mt-4" onClick={onUnlock}>
             Unlock detailed evidence
           </Button>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border p-5">
+          <h3 className="font-heading text-xl font-semibold">
+            No registered transaction details yet
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Approved owner values remain anonymous and are shown only as a
+            grouped benchmark after the privacy threshold is met.
+          </p>
         </div>
       )}
     </>

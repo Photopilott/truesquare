@@ -1,0 +1,209 @@
+import type { SocietySummary } from './society-evidence.ts';
+
+export type BuyerEvidenceSource =
+  | 'none'
+  | 'registered_transaction'
+  | 'owner_input'
+  | 'combined';
+
+export type BuyerEvidenceSummary = {
+  bhk: string | null;
+  isAllBhks: boolean;
+  registeredCount: number;
+  approvedOwnerCount: number;
+  publicOwnerCount: number;
+  registeredMedianPrice: number | null;
+  registeredMedianPricePerSqFt: number | null;
+  ownerMedianPrice: number | null;
+  ownerMinPrice: number | null;
+  ownerMaxPrice: number | null;
+  ownerMedianPricePerSqFt: number | null;
+  ownerMinPricePerSqFt: number | null;
+  ownerMaxPricePerSqFt: number | null;
+  latestRegisteredDate: string | null;
+  latestOwnerDate: string | null;
+  evidenceSource: BuyerEvidenceSource;
+};
+
+export type BuyerSocietySummary = SocietySummary & {
+  flatInventoryId?: string | null;
+  builder?: string | null;
+  catalogueSource?: 'inventory' | 'final_value';
+  hasPermanentPage?: boolean;
+  buyerEvidence?: BuyerEvidenceSummary[];
+};
+
+export type BuyerSocietyEvidenceRow = {
+  catalogue_id: string;
+  flat_inventory_id: string | null;
+  society: string;
+  location: string;
+  builder: string | null;
+  catalogue_source: 'inventory' | 'final_value';
+  bhk: string | null;
+  is_all_bhks: boolean;
+  registered_count: number | string;
+  approved_owner_count: number | string;
+  public_owner_count: number | string;
+  registered_median_price: number | string | null;
+  registered_median_price_per_sq_ft: number | string | null;
+  owner_median_price: number | string | null;
+  owner_min_price: number | string | null;
+  owner_max_price: number | string | null;
+  owner_median_price_per_sq_ft: number | string | null;
+  owner_min_price_per_sq_ft: number | string | null;
+  owner_max_price_per_sq_ft: number | string | null;
+  latest_registered_date: string | Date | null;
+  latest_owner_date: string | Date | null;
+  evidence_source: BuyerEvidenceSource;
+};
+
+function numberOrNull(value: number | string | null) {
+  return value == null ? null : Number(value);
+}
+
+function dateOrNull(value: string | Date | null) {
+  if (value == null) return null;
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+function identityKey(name: string, location: string) {
+  return `${name.trim().toLowerCase()}|${location.trim().toLowerCase()}`;
+}
+
+function slugPart(value: string) {
+  return value
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function evidenceFromRow(row: BuyerSocietyEvidenceRow): BuyerEvidenceSummary {
+  return {
+    bhk: row.bhk,
+    isAllBhks: Boolean(row.is_all_bhks),
+    registeredCount: Number(row.registered_count),
+    approvedOwnerCount: Number(row.approved_owner_count),
+    publicOwnerCount: Number(row.public_owner_count),
+    registeredMedianPrice: numberOrNull(row.registered_median_price),
+    registeredMedianPricePerSqFt: numberOrNull(
+      row.registered_median_price_per_sq_ft,
+    ),
+    ownerMedianPrice: numberOrNull(row.owner_median_price),
+    ownerMinPrice: numberOrNull(row.owner_min_price),
+    ownerMaxPrice: numberOrNull(row.owner_max_price),
+    ownerMedianPricePerSqFt: numberOrNull(row.owner_median_price_per_sq_ft),
+    ownerMinPricePerSqFt: numberOrNull(row.owner_min_price_per_sq_ft),
+    ownerMaxPricePerSqFt: numberOrNull(row.owner_max_price_per_sq_ft),
+    latestRegisteredDate: dateOrNull(row.latest_registered_date),
+    latestOwnerDate: dateOrNull(row.latest_owner_date),
+    evidenceSource: row.evidence_source,
+  };
+}
+
+export function buyerEvidenceFor(society: BuyerSocietySummary, bhk: string) {
+  const rows = society.buyerEvidence ?? [];
+  return (
+    rows.find((row) =>
+      bhk === 'All' ? row.isAllBhks : !row.isAllBhks && row.bhk === bhk,
+    ) ?? null
+  );
+}
+
+export function buyerEvidenceDisplay(evidence: BuyerEvidenceSummary | null) {
+  const registeredCount = evidence?.registeredCount ?? 0;
+  const approvedOwnerCount = evidence?.approvedOwnerCount ?? 0;
+  const publicOwnerCount = evidence?.publicOwnerCount ?? 0;
+  const publicCount = registeredCount + publicOwnerCount;
+  const medianPrice =
+    evidence?.registeredMedianPrice ?? evidence?.ownerMedianPrice ?? null;
+  const medianPricePerSqFt =
+    evidence?.registeredMedianPricePerSqFt ??
+    evidence?.ownerMedianPricePerSqFt ??
+    null;
+  const latestDate =
+    [evidence?.latestRegisteredDate, evidence?.latestOwnerDate]
+      .filter((value): value is string => Boolean(value))
+      .sort()
+      .at(-1) ?? null;
+
+  let label = 'No verified price evidence';
+  if (evidence?.evidenceSource === 'combined') {
+    label = 'Registered + anonymous owner evidence';
+  } else if (evidence?.evidenceSource === 'registered_transaction') {
+    label = 'Registered transaction evidence';
+  } else if (evidence?.evidenceSource === 'owner_input') {
+    label = 'Anonymous owner evidence';
+  } else if (approvedOwnerCount > 0) {
+    label = 'Owner evidence building';
+  }
+
+  return {
+    registeredCount,
+    approvedOwnerCount,
+    publicOwnerCount,
+    publicCount,
+    medianPrice,
+    medianPricePerSqFt,
+    latestDate,
+    label,
+  };
+}
+
+export function buildBuyerSocietyCatalogue(
+  rows: BuyerSocietyEvidenceRow[],
+  permanentSocieties: SocietySummary[],
+): BuyerSocietySummary[] {
+  const permanentByIdentity = new Map(
+    permanentSocieties.map((society) => [
+      identityKey(society.name, society.location),
+      society,
+    ]),
+  );
+  const grouped = new Map<string, BuyerSocietyEvidenceRow[]>();
+  for (const row of rows) {
+    const group = grouped.get(row.catalogue_id) ?? [];
+    group.push(row);
+    grouped.set(row.catalogue_id, group);
+  }
+
+  return [...grouped.values()]
+    .map((group) => {
+      const first = group[0];
+      const permanent = permanentByIdentity.get(
+        identityKey(first.society, first.location),
+      );
+      const evidence = group.map(evidenceFromRow);
+      const overall = evidence.find((row) => row.isAllBhks) ?? null;
+      const publicBhks = evidence
+        .filter((row) => !row.isAllBhks && row.bhk)
+        .map((row) => row.bhk as string)
+        .sort((a, b) => Number(a) - Number(b));
+      const display = buyerEvidenceDisplay(overall);
+      const fallbackSlug = `${slugPart(first.society)}-${slugPart(
+        first.location,
+      )}`;
+
+      return {
+        slug: permanent?.slug ?? fallbackSlug,
+        name: first.society,
+        location: first.location,
+        bhks: publicBhks.length ? publicBhks : (permanent?.bhks ?? []),
+        towers: permanent?.towers ?? [],
+        transactionCount: overall?.registeredCount ?? 0,
+        medianPrice: display.medianPrice,
+        medianPricePerSqFt: display.medianPricePerSqFt,
+        latestTransactionDate: display.latestDate,
+        flatInventoryId: first.flat_inventory_id,
+        builder: first.builder,
+        catalogueSource: first.catalogue_source,
+        hasPermanentPage: Boolean(permanent),
+        buyerEvidence: evidence,
+      } satisfies BuyerSocietySummary;
+    })
+    .sort(
+      (a, b) =>
+        a.name.localeCompare(b.name) || a.location.localeCompare(b.location),
+    );
+}

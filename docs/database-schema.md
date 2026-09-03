@@ -35,11 +35,15 @@ flowchart LR
   Admin[Private admin review]
   Final[final_flat_values\nApproved master values]
   Search[Owner society search]
+  BuyerView[buyer_society_evidence\nPrivacy-safe database view]
+  Buyer[Buyer catalogue]
   BugForm[Report a bug]
   Bugs[bug_reports\nOpen / resolved]
 
   Inventory --> Search
   Final --> Search
+  Inventory --> BuyerView
+  Final --> BuyerView --> Buyer
   OwnerForm --> Contribution --> OwnerInput --> Admin
   Admin -->|approved only| Final
   Registered --> Final
@@ -63,6 +67,29 @@ An inventory society is marked as having valuation evidence when a row in
 trimmed society and location match it. A society with no matching master value
 can still be selected and submitted, but the owner sees an acknowledgement
 instead of an empty valuation.
+
+## Buyer catalogue and owner-price privacy
+
+The Buyer catalogue is not maintained as a separate handwritten list. It reads
+`buyer_society_evidence`, a database view (a saved read-only query) built from:
+
+- every active society in `bangalore_flat_inventory`;
+- unmatched society and location pairs retained in `final_flat_values`; and
+- approved registered and owner evidence in `final_flat_values`.
+
+This means a newly added inventory society can appear in Buyer search even when
+it has no price evidence. Its card shows that evidence is not yet available.
+
+Individual owner prices are never returned to the Buyer page. Owner evidence is
+grouped by society and BHK inside the database view. The view exposes an owner
+median and range only when at least three approved owner records exist for the
+same society and BHK. With one or two approvals, the view exposes only the
+number of approved inputs and returns null for every owner-derived price and
+date. BHK-specific rows are also withheld below this threshold.
+
+When registered and anonymous owner evidence both exist, the Buyer benchmark
+uses the registered median as the primary price. The owner median remains a
+separate supporting signal, and the source is labelled `combined`.
 
 ## Table reference
 
@@ -161,6 +188,27 @@ The application must never insert pending or rejected owner input into this
 table. Approval updates `owner_input_transactions` and creates the master row
 in the same database transaction, so they either both succeed or neither does.
 
+### `buyer_society_evidence`
+
+Purpose: provide the complete Buyer society catalogue and privacy-safe price
+summaries without copying or exposing raw owner records.
+
+This is a live database view, not another stored transaction table. It returns
+one all-BHK summary per society and additional BHK rows only when registered
+evidence exists or the owner anonymity threshold has been met.
+
+Important columns include `catalogue_id`, `flat_inventory_id`, `society`,
+`location`, `builder`, `bhk`, `registered_count`, `approved_owner_count`,
+`public_owner_count`, separate registered and owner medians, the owner range,
+latest eligible evidence dates, and `evidence_source`.
+
+Allowed `evidence_source` values are:
+
+- `none`: no public price evidence; private owner evidence may still be building;
+- `registered_transaction`: registered evidence only;
+- `owner_input`: an anonymous owner cohort only; and
+- `combined`: registered evidence plus an anonymous owner cohort.
+
 ### `bug_reports`
 
 Purpose: track bug reports submitted from the owner page.
@@ -219,11 +267,16 @@ flat-data tables that were already present in production and adds
 `bug_reports`. Its table, column, constraint, and index operations are written
 to be safe when the earlier flat tables already exist.
 
+Migration `0013` adds the read-only `buyer_society_evidence` view. It does not
+delete or rewrite inventory, registered transactions, owner inputs, or master
+values.
+
 Production is the Vercel project `truesquare`, with `flatdata.in` and
 `www.flatdata.in` assigned to its production deployment. Apply a required
 database migration before deploying application code that queries the new
-table. After deployment, verify the owner page, one no-valuation society, one
-valued society, the bug-report API, and the private admin operations panel.
+table or view. After deployment, verify the owner page, one no-valuation
+society, one valued society, one privacy-threshold society in Buyer search, the
+bug-report API, and the private admin operations panel.
 
 Never put database passwords, authentication secrets, or complete connection
 URLs in this document or in source control.

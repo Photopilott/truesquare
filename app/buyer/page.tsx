@@ -2,25 +2,27 @@ import type { Metadata } from 'next';
 
 import propertyData from '@/data/property-data.json';
 import { PropertyIntelligenceApp } from '@/components/property-intelligence-app';
+import { getBuyerSocietyCatalogue } from '@/lib/buyer-catalogue';
 import { getPublicOwnerAggregates } from '@/lib/owner-aggregates';
 import { getRegisteredTransactions } from '@/lib/registered-transactions';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Research a society — FlatData',
+  title: 'Search Bengaluru societies — FlatData',
   description:
-    'See what supported Bengaluru societies have actually sold for using registered transaction evidence.',
+    'Search Bengaluru societies and compare registered transactions with privacy-safe, approved owner evidence.',
 };
 
 export default async function BuyerPage() {
-  const [ownerAggregates, records] = await Promise.all([
+  const [societies, ownerAggregates, records] = await Promise.all([
+    getBuyerSocietyCatalogue(propertyData.societies),
     getPublicOwnerAggregates(),
     getRegisteredTransactions(),
   ]);
   return (
     <PropertyIntelligenceApp
-      societies={propertyData.societies}
+      societies={societies}
       records={records}
       ownerAggregates={ownerAggregates}
       initialView="buyer"
