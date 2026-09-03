@@ -926,9 +926,11 @@ export function PropertyIntelligenceApp({
                                   : 'Configuration not filed'}
                               </p>
                               <p className="mt-1 font-mono text-[9px] tracking-[0.08em] text-[#FA3600] uppercase">
-                                {buyerEvidenceDisplay(
-                                  buyerEvidenceFor(society, 'All'),
-                                ).label}
+                                {
+                                  buyerEvidenceDisplay(
+                                    buyerEvidenceFor(society, 'All'),
+                                  ).label
+                                }
                               </p>
                             </div>
                           </ComboboxItem>
@@ -1016,9 +1018,9 @@ export function PropertyIntelligenceApp({
                 <AlertTitle>Complete society catalogue</AlertTitle>
                 <AlertDescription>
                   Search {societies.length} Bengaluru societies. Registered
-                  transactions are shown separately from approved owner data.
-                  Owner prices become public only as an anonymous group of at
-                  least three comparable submissions.
+                  transactions are shown separately from admin-approved owner
+                  data. An approved owner price appears in the Buyer benchmark
+                  immediately.
                 </AlertDescription>
               </Alert>
               <div className="ts-orb-panel mt-5 p-5 text-sm leading-6 text-muted-foreground">
@@ -1051,11 +1053,7 @@ export function PropertyIntelligenceApp({
                       : `${bhkFilter} BHK (${evidence.publicCount})`;
                   const supportLabel = evidence.publicCount
                     ? `${evidence.publicCount} SUPPORTING`
-                    : evidence.approvedOwnerCount
-                      ? `${evidence.approvedOwnerCount} PRIVATE INPUT${
-                          evidence.approvedOwnerCount === 1 ? '' : 'S'
-                        }`
-                      : 'NO PRICE EVIDENCE';
+                    : 'NO PRICE EVIDENCE';
                   return (
                     <button
                       key={society.slug}
@@ -1115,12 +1113,12 @@ export function PropertyIntelligenceApp({
                             }
                           />
                           <Metric
-                            label="Anonymous owner pool"
+                            label="Approved owner evidence"
                             value={
                               evidence.publicOwnerCount
-                                ? `${evidence.publicOwnerCount} public`
+                                ? `${evidence.publicOwnerCount} approved`
                                 : evidence.approvedOwnerCount
-                                  ? `${evidence.approvedOwnerCount} approved · price private`
+                                  ? `${evidence.approvedOwnerCount} approved`
                                   : 'No approved input yet'
                             }
                           />
@@ -1221,7 +1219,7 @@ export function PropertyIntelligenceApp({
                 </AlertDescription>
               </Alert>
               <p className="mt-5 text-sm leading-6 text-muted-foreground">
-                Priced from registered transactions and approved anonymous owner
+                Priced from registered transactions and admin-approved owner
                 contributions — with a confidence level on every estimate.
               </p>
               <p className="mt-6 font-heading text-2xl leading-snug">
@@ -1422,8 +1420,8 @@ export function PropertyIntelligenceApp({
                   accepted.
                 </p>
                 <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-accent-foreground">
-                  <LockKeyhole className="size-3.5" /> Your flat price stays
-                  private. Always. It is never included in a shared link.
+                  <LockKeyhole className="size-3.5" /> Your identity and contact
+                  details are never included in a shared link.
                 </p>
               </div>
               <div>
@@ -1519,8 +1517,9 @@ export function PropertyIntelligenceApp({
               </Button>
               <BugReport />
               <p className="mt-3 text-center text-xs font-medium text-muted-foreground">
-                Your flat price and personal result are visible only to you. Any
-                later share contains only the society benchmark.
+                Your personal result is visible only to you. If an admin
+                approves your price, it joins the public society and BHK
+                benchmark without your identity or contact details.
               </p>
             </form>
           </div>
@@ -1596,8 +1595,8 @@ export function PropertyIntelligenceApp({
 function BuyerEditorialSections() {
   const liveNow = [
     'All active societies from the Bengaluru inventory',
-    'Registered prices kept separate from anonymous owner benchmarks',
-    'Owner prices published only after three comparable approvals',
+    'Registered prices kept separate from admin-approved owner benchmarks',
+    'Owner prices published immediately after admin approval',
     'Recent registered transactions with dates, configurations, and hidden unit numbers',
   ];
 
@@ -1735,8 +1734,8 @@ function HomeView({
               </div>
               <CardTitle className="text-2xl">I own a property</CardTitle>
               <p className="max-w-md text-sm leading-6 text-background/72">
-                Privately contribute what you paid to unlock an evidence-based
-                estimate and acquisition return.
+                Contribute what you paid for admin review and unlock an
+                evidence-based estimate and acquisition return.
               </p>
             </CardHeader>
             <CardContent>
@@ -1815,12 +1814,11 @@ function HomeView({
         <div className="flex gap-3">
           <LockKeyhole className="mt-0.5 size-5 shrink-0 text-accent-foreground" />
           <div>
-            <p className="font-medium">
-              Your exact purchase price stays private.
-            </p>
+            <p className="font-medium">Your identity stays private.</p>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              It is stored separately from identity and can appear to others
-              only inside a sufficiently large anonymized cohort.
+              Your submitted price stays in admin review until it is approved.
+              After approval, it is included immediately in the public society
+              and BHK benchmark without your identity or contact details.
             </p>
           </div>
         </div>
@@ -1889,7 +1887,7 @@ function OwnerSubmissionReceived({
             <CheckCircle2 className="size-6" />
           </div>
           <p className="mt-6 font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
-            PRIVATE SUBMISSION RECEIVED
+            SUBMISSION RECEIVED
           </p>
           <CardTitle className="mt-2 font-heading text-4xl font-normal sm:text-5xl">
             Your flat is now under consideration
@@ -1898,13 +1896,14 @@ function OwnerSubmissionReceived({
         <CardContent className="space-y-5 p-7 sm:p-10">
           <p className="text-base leading-7">
             We did not have a transaction value for {society.name},{' '}
-            {society.location}. Your submission has now been added to our
-            private review queue.
+            {society.location}. Your submission has now been added to our admin
+            review queue.
           </p>
           <p className="text-sm leading-6 text-muted-foreground">
-            Thank you for contributing this data point. As promised, your flat
-            details and purchase price remain private. We will not show an
-            estimate until there is reviewed evidence to support it.
+            Thank you for contributing this data point. Your identity, contact
+            details, floor, and loan details remain private. If the price is
+            approved, it will be included immediately in the public society and
+            BHK benchmark.
           </p>
           <Alert className="border-[#A9DCB8] bg-accent">
             <LockKeyhole />
@@ -2108,8 +2107,8 @@ function OwnerResult({
         <Alert className="mt-6 rounded-[12px] border-border bg-accent">
           <CheckCircle2 />
           <AlertTitle>
-            Anonymous owner pool · {result.ownerAggregate.approvedCount}{' '}
-            approved contributions
+            Admin-approved owner evidence ·{' '}
+            {result.ownerAggregate.approvedCount} approved contributions
           </AlertTitle>
           <AlertDescription>
             Owners of {form.bhk} BHK homes in this society contributed an
@@ -2118,7 +2117,8 @@ function OwnerResult({
               result.ownerAggregate.minPricePerSqFt * Number(form.area),
               result.ownerAggregate.maxPricePerSqFt * Number(form.area),
             )}{' '}
-            for an apartment of this size. Individual prices are never shown.
+            for an apartment of this size. Owner identities and contact details
+            are never shown.
           </AlertDescription>
         </Alert>
       )}
@@ -2135,13 +2135,13 @@ function OwnerResult({
           <CardContent className="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
             <div>
               <p className="text-sm leading-6 text-muted-foreground">
-                Your valuation, purchase price, returns, floor, and identity
+                Your valuation, returns, floor, identity, and contact details
                 stay private. The share contains only the public society
-                benchmark and its supporting evidence count.
+                benchmark and never identifies your individual submission.
               </p>
               <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-accent-foreground">
-                <LockKeyhole className="size-4" /> Your flat price stays
-                private. Always.
+                <LockKeyhole className="size-4" /> Owner identities and contact
+                details are never shown.
               </p>
             </div>
             <SocietyShare
@@ -2293,7 +2293,7 @@ function SocietyDetail({
             ? 'Society evidence assembled by BHK.'
             : `Filtered to ${bhkFilter} BHK evidence.`}{' '}
           Evidence: {matchLabel}. This is not a live listing, ranking, or
-          recommendation. Individual owner prices are never shown.
+          recommendation. Owner identities and contact details are never shown.
         </DialogDescription>
       </DialogHeader>
       <div className="grid grid-cols-2 gap-4 rounded-xl bg-muted/45 p-4 sm:grid-cols-4">
@@ -2318,12 +2318,12 @@ function SocietyDetail({
           value={detailBhks.join(', ') || 'Sparse'}
         />
         <Metric
-          label="Anonymous owner pool"
+          label="Approved owner evidence"
           value={
             catalogueEvidence.publicOwnerCount
-              ? `${catalogueEvidence.publicOwnerCount} public`
+              ? `${catalogueEvidence.publicOwnerCount} approved`
               : catalogueEvidence.approvedOwnerCount
-                ? `${catalogueEvidence.approvedOwnerCount} approved · price private`
+                ? `${catalogueEvidence.approvedOwnerCount} approved`
                 : 'No approved input yet'
           }
         />
@@ -2332,7 +2332,7 @@ function SocietyDetail({
         <div className="rounded-xl border border-border bg-accent p-4">
           <p className="text-sm leading-6 text-muted-foreground">
             Share the public {society.name} benchmark with your society group.
-            Your own flat price is never part of the link.
+            Owner identities and contact details are never part of the link.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <SocietyShare
@@ -2353,16 +2353,16 @@ function SocietyDetail({
         <div className="rounded-xl border border-border bg-accent p-4">
           <p className="text-sm leading-6 text-muted-foreground">
             {catalogueEvidence.approvedOwnerCount > 0
-              ? `${catalogueEvidence.approvedOwnerCount} approved owner submission${
+              ? `${catalogueEvidence.approvedOwnerCount} admin-approved owner price submission${
                   catalogueEvidence.approvedOwnerCount === 1 ? ' is' : 's are'
-                } held privately. A price becomes public only after at least three comparable approved submissions exist for the same BHK.`
-              : 'No approved price evidence exists yet. Owners can contribute privately to help build this society benchmark.'}
+                } included in this benchmark. Owner identity and contact details are not shown.`
+              : 'No approved price evidence exists yet. Owners can contribute a price for admin review to help build this society benchmark.'}
           </p>
           <Link
             href="/owner"
             className="mt-4 inline-flex h-11 items-center justify-center rounded-[9px] border border-primary bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/80"
           >
-            Contribute private flat data
+            Contribute flat price
           </Link>
         </div>
       )}
@@ -2425,8 +2425,8 @@ function SocietyDetail({
             No registered transaction details yet
           </h3>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Approved owner values remain anonymous and are shown only as a
-            grouped benchmark after the privacy threshold is met.
+            The benchmark above includes all admin-approved owner evidence.
+            Registered transaction details will appear here when available.
           </p>
         </div>
       )}

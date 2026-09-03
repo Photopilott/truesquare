@@ -13,7 +13,7 @@ import { getSql, hasDatabase } from '@/db';
 export const USER_SESSION_COOKIE = 'truesquare_user_session';
 export const GOOGLE_OAUTH_COOKIE = 'truesquare_google_oauth';
 export const USER_SESSION_SECONDS = 60 * 60 * 24 * 30;
-export const DATA_COVENANT_VERSION = '2026-08-31';
+export const DATA_COVENANT_VERSION = '2026-09-03';
 
 export type UserAuthProvider = 'google' | 'email_otp';
 export type ConsentContext = 'owner' | 'buyer' | 'subscription';

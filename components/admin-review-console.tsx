@@ -831,8 +831,8 @@ function Dashboard({
             <p className="ts-orb-eyebrow">PRIVATE REVIEW CONSOLE</p>
             <h1 className="ts-orb-page-title">Owner contribution queue</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Approve only plausible evidence. Public owner ranges appear after
-              three approved contributions for the same society and BHK.
+              Approve only plausible evidence. An approved owner price appears
+              in the Buyer benchmark immediately.
             </p>
           </div>
           <Button

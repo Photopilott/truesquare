@@ -22,38 +22,60 @@ function row(
     is_all_bhks: true,
     registered_count: 0,
     approved_owner_count: 1,
-    public_owner_count: 0,
+    public_owner_count: 1,
     registered_median_price: null,
     registered_median_price_per_sq_ft: null,
-    owner_median_price: null,
-    owner_min_price: null,
-    owner_max_price: null,
-    owner_median_price_per_sq_ft: null,
-    owner_min_price_per_sq_ft: null,
-    owner_max_price_per_sq_ft: null,
+    owner_median_price: '15200000',
+    owner_min_price: '15200000',
+    owner_max_price: '15200000',
+    owner_median_price_per_sq_ft: '9500',
+    owner_min_price_per_sq_ft: '9500',
+    owner_max_price_per_sq_ft: '9500',
     latest_registered_date: null,
-    latest_owner_date: null,
-    evidence_source: 'none',
+    latest_owner_date: '2026-08-01',
+    evidence_source: 'owner_input',
     ...overrides,
   };
 }
 
-test('keeps Trinity searchable while one approved owner price stays private', () => {
-  const catalogue = buildBuyerSocietyCatalogue([row()], []);
+test('publishes Trinity after one owner price is approved', () => {
+  const catalogue = buildBuyerSocietyCatalogue(
+    [
+      row(),
+      row({
+        bhk: '3',
+        is_all_bhks: false,
+      }),
+    ],
+    [],
+  );
   const trinity = catalogue[0];
   const display = buyerEvidenceDisplay(buyerEvidenceFor(trinity, 'All'));
 
   assert.equal(trinity.name, 'Trinity Acres And Woods');
   assert.equal(trinity.location, 'Sarjapur Road');
   assert.equal(trinity.hasPermanentPage, false);
-  assert.deepEqual(trinity.bhks, []);
+  assert.deepEqual(trinity.bhks, ['3']);
   assert.equal(display.approvedOwnerCount, 1);
-  assert.equal(display.publicOwnerCount, 0);
-  assert.equal(display.medianPrice, null);
-  assert.equal(display.label, 'Owner evidence building');
+  assert.equal(display.publicOwnerCount, 1);
+  assert.equal(display.medianPrice, 15_200_000);
+  assert.equal(display.medianPricePerSqFt, 9_500);
+  assert.equal(display.label, 'Admin-approved owner evidence');
+
+  const publicFields = trinity as unknown as Record<string, unknown>;
+  for (const privateField of [
+    'contributorId',
+    'userId',
+    'email',
+    'ownerInputTransactionId',
+    'floor',
+    'loanAmount',
+  ]) {
+    assert.equal(privateField in publicFields, false);
+  }
 });
 
-test('publishes anonymous owner evidence after the three-record threshold', () => {
+test('publishes the approved owner range when several records exist', () => {
   const catalogue = buildBuyerSocietyCatalogue(
     [
       row({
@@ -88,7 +110,7 @@ test('publishes anonymous owner evidence after the three-record threshold', () =
   assert.equal(display.publicOwnerCount, 3);
   assert.equal(display.medianPrice, 15_200_000);
   assert.equal(display.medianPricePerSqFt, 9_500);
-  assert.equal(display.label, 'Anonymous owner evidence');
+  assert.equal(display.label, 'Admin-approved owner evidence');
 });
 
 test('uses registered evidence as the primary benchmark when both sources exist', () => {
@@ -115,5 +137,5 @@ test('uses registered evidence as the primary benchmark when both sources exist'
   assert.equal(display.medianPrice, 16_000_000);
   assert.equal(display.medianPricePerSqFt, 10_000);
   assert.equal(display.latestDate, '2026-08-15');
-  assert.equal(display.label, 'Registered + anonymous owner evidence');
+  assert.equal(display.label, 'Registered + approved owner evidence');
 });

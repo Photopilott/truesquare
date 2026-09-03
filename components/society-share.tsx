@@ -163,8 +163,7 @@ export function SocietyShare({
           <Share2 /> {buttonLabel}
         </Button>
         <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
-          <LockKeyhole className="size-3.5" /> Your flat price stays private.
-          Always.
+          <LockKeyhole className="size-3.5" /> Owner identities stay private.
         </p>
       </div>
 
@@ -174,10 +173,10 @@ export function SocietyShare({
             <p className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground">
               WHATSAPP PREVIEW
             </p>
-            <DialogTitle>Share the benchmark, not your flat price</DialogTitle>
+            <DialogTitle>Share the society benchmark</DialogTitle>
             <DialogDescription>
-              This is exactly what neighbours will see. Your personal value,
-              purchase price, returns, floor, and email are never included.
+              This is exactly what neighbours will see. Your personal valuation,
+              returns, floor, identity, and contact details are never included.
             </DialogDescription>
           </DialogHeader>
 
@@ -228,15 +227,15 @@ export function SocietyShare({
             <div className="rounded-lg border border-border p-4">
               <p className="font-semibold">What stays private</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Your flat price, valuation, returns, floor, and identity.
+                Your identity, contact details, valuation, returns, and floor.
               </p>
             </div>
           </div>
 
           <p className="flex items-start gap-2 text-sm font-medium">
             <LockKeyhole className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
-            Your flat price stays private. Always. Only this society benchmark
-            is shared.
+            Owner identities and contact details stay private. Only this society
+            benchmark is shared.
           </p>
           <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
             <Button size="lg" onClick={shareOnWhatsApp}>

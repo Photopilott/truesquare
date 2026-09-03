@@ -151,7 +151,7 @@ export function SocietyLanding({
                 </li>
                 <li className="flex gap-2">
                   <LockKeyhole className="size-5 shrink-0 text-accent-foreground" />
-                  Your flat price stays private. Always.
+                  Your identity and contact details stay private.
                 </li>
               </ul>
               <Link

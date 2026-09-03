@@ -72,7 +72,7 @@ export default async function Image({
           confidence
         </div>
         <div style={{ color: '#fa3600', fontWeight: 700 }}>
-          Personal flat prices stay private
+          Owner identities are never displayed
         </div>
       </div>
     </div>,

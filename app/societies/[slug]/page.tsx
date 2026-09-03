@@ -23,7 +23,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const evidence = await getPublicSocietyEvidence(slug);
   if (!evidence) return {};
-  const description = `${evidence.society.name} 12-month registered price benchmark: ${compactInr(evidence.registeredMedianPrice)}, based on ${evidence.registeredCount} supporting sales. Personal flat prices stay private.`;
+  const description = `${evidence.society.name} 12-month registered price benchmark: ${compactInr(evidence.registeredMedianPrice)}, based on ${evidence.registeredCount} supporting sales. Owner identities are never displayed.`;
   return {
     title: `${evidence.society.name} latest price benchmark — FlatData`,
     description,

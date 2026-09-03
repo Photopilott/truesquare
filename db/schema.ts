@@ -690,14 +690,7 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
       final_values.price,
       final_values.price_per_sq_ft,
       NULLIF(BTRIM(final_values.bhk), '') AS bhk,
-      final_values.value_date,
-      COUNT(*) FILTER (
-        WHERE final_values.source_type = 'owner_input'
-      ) OVER (
-        PARTITION BY
-          entities.catalogue_id,
-          NULLIF(BTRIM(final_values.bhk), '')
-      ) AS owner_bhk_count
+      final_values.value_date
     FROM catalogue_entities entities
     LEFT JOIN final_flat_values final_values
       ON (
@@ -725,7 +718,7 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
         WHERE source_type = 'owner_input'
       ) AS approved_owner_count,
       COUNT(final_value_id) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3
+        WHERE source_type = 'owner_input'
       ) AS public_owner_count,
       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) FILTER (
         WHERE source_type = 'registered_transaction' AND price > 0
@@ -734,28 +727,28 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
         WHERE source_type = 'registered_transaction' AND price_per_sq_ft > 0
       )::numeric AS registered_median_price_per_sq_ft,
       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price > 0
+        WHERE source_type = 'owner_input' AND price > 0
       )::numeric AS owner_median_price,
       MIN(price) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price > 0
+        WHERE source_type = 'owner_input' AND price > 0
       )::numeric AS owner_min_price,
       MAX(price) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price > 0
+        WHERE source_type = 'owner_input' AND price > 0
       )::numeric AS owner_max_price,
       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_per_sq_ft) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price_per_sq_ft > 0
+        WHERE source_type = 'owner_input' AND price_per_sq_ft > 0
       )::numeric AS owner_median_price_per_sq_ft,
       MIN(price_per_sq_ft) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price_per_sq_ft > 0
+        WHERE source_type = 'owner_input' AND price_per_sq_ft > 0
       )::numeric AS owner_min_price_per_sq_ft,
       MAX(price_per_sq_ft) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price_per_sq_ft > 0
+        WHERE source_type = 'owner_input' AND price_per_sq_ft > 0
       )::numeric AS owner_max_price_per_sq_ft,
       MAX(value_date) FILTER (
         WHERE source_type = 'registered_transaction'
       ) AS latest_registered_date,
       MAX(value_date) FILTER (
-        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3
+        WHERE source_type = 'owner_input'
       ) AS latest_owner_date
     FROM matched_values
     GROUP BY GROUPING SETS (
@@ -786,7 +779,7 @@ export const buyerSocietyEvidence = pgView('buyer_society_evidence', {
             WHERE source_type = 'registered_transaction'
           ) > 0
           OR COUNT(final_value_id) FILTER (
-            WHERE source_type = 'owner_input' AND owner_bhk_count >= 3
+            WHERE source_type = 'owner_input'
           ) > 0
         )
       )

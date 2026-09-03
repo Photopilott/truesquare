@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Search Bengaluru societies — FlatData',
   description:
-    'Search Bengaluru societies and compare registered transactions with privacy-safe, approved owner evidence.',
+    'Search Bengaluru societies and compare registered transactions with admin-approved owner evidence.',
 };
 
 export default async function BuyerPage() {

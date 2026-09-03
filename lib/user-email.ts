@@ -79,8 +79,8 @@ export async function sendContributionReviewEmail({
     ? 'Your contribution was approved'
     : 'Your contribution was not approved';
   const body = approved
-    ? `Your private contribution for ${society} has been reviewed and approved. It may contribute to an anonymous society-level range once FlatData has enough approved like-for-like contributions. Your individual price and property details are never published.`
-    : `Your private contribution for ${society} has been reviewed and was not approved for the anonymous evidence pool. Your individual price and property details are not published.`;
+    ? `Your contribution for ${society} has been reviewed and approved. Its price now supports the public society and BHK benchmark. Your identity, email, floor, loan details, and private valuation are not published.`
+    : `Your contribution for ${society} has been reviewed and was not approved for the public benchmark. Its price and your personal details are not published.`;
 
   const response = await fetch(
     `https://api.agentmail.to/v0/inboxes/${encodeURIComponent(inboxId)}/messages/send`,
@@ -147,11 +147,11 @@ export async function sendSocietyPriceUpdateEmail({
   const safeSocietyName = escapeHtml(societyName);
   const updateHeading =
     eventType === 'owner_benchmark_updated'
-      ? 'New anonymous owner pricing evidence'
+      ? 'New admin-approved owner pricing evidence'
       : 'New verified transaction pricing';
   const updateDetail =
     eventType === 'owner_benchmark_updated'
-      ? `${publicOwnerContributionCount} approved owner contributions now support the public, anonymous society benchmark. No individual owner's price or property details are included.`
+      ? `${publicOwnerContributionCount} admin-approved owner contributions now support the public society benchmark. Contributor identities, contact details, floor, loan details, and private valuations are not included.`
       : `FlatData has published updated registered-sale evidence for ${societyName}.`;
   const baseUrl = (
     process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.flatdata.in'

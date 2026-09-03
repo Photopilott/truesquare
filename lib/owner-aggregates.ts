@@ -1,7 +1,5 @@
 import { getSql, hasDatabase } from '@/db';
 
-export const MINIMUM_PUBLIC_CONTRIBUTIONS = 3;
-
 export type OwnerPriceAggregate = {
   society: string;
   location: string;
@@ -24,12 +22,14 @@ type AggregateRow = {
   updated_at: string | Date;
 };
 
-export async function getPublicOwnerAggregates(): Promise<OwnerPriceAggregate[]> {
+export async function getPublicOwnerAggregates(): Promise<
+  OwnerPriceAggregate[]
+> {
   if (!hasDatabase()) return [];
 
   try {
     const sql = getSql();
-    const rows = await sql`
+    const rows = (await sql`
       SELECT
         society,
         location,
@@ -40,9 +40,8 @@ export async function getPublicOwnerAggregates(): Promise<OwnerPriceAggregate[]>
         max_price_per_sq_ft,
         updated_at
       FROM owner_price_aggregates
-      WHERE approved_count >= ${MINIMUM_PUBLIC_CONTRIBUTIONS}
       ORDER BY society, bhk
-    ` as AggregateRow[];
+    `) as AggregateRow[];
 
     return rows.map((row) => ({
       society: row.society,
@@ -60,6 +59,11 @@ export async function getPublicOwnerAggregates(): Promise<OwnerPriceAggregate[]>
   }
 }
 
-export function countPublicOwnerContributions(aggregates: OwnerPriceAggregate[]) {
-  return aggregates.reduce((sum, aggregate) => sum + aggregate.approvedCount, 0);
+export function countPublicOwnerContributions(
+  aggregates: OwnerPriceAggregate[],
+) {
+  return aggregates.reduce(
+    (sum, aggregate) => sum + aggregate.approvedCount,
+    0,
+  );
 }

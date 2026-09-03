@@ -23,7 +23,7 @@ const sections = [
     title: 'How we use it',
     body: [
       'To verify your account, provide property intelligence, calculate your private results, review contributed data, and improve society-level evidence.',
-      'Owner contributions are reviewed before they can affect public ranges. Individual purchase prices are not published.',
+      'Owner contributions are reviewed before they can affect public benchmarks. Once approved, a submitted purchase price is included immediately in the public society and BHK benchmark. The contributor’s identity, email, contact details, floor, loan details, and private valuation are not published.',
       'Developer experiences are moderated and privately verified before they can influence a public report. Your identity, email, and unit details are not published.',
       'We use aggregate website analytics to understand which pages and journeys work, where visitors leave, and which sources bring useful visits. Advertising personalisation and Google Signals are disabled.',
     ],
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
           PRIVACY NOTICE · UPDATED 3 SEPTEMBER 2026
         </p>
         <h1 className="mt-5 max-w-4xl font-heading text-5xl leading-[0.98] tracking-[-0.04em] sm:text-7xl">
-          Your property data stays private by default.
+          Your identity and sensitive details stay private.
         </h1>
         <p className="mt-7 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
           This notice explains what FlatData collects, why it is needed, and how

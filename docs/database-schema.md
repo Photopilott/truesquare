@@ -68,7 +68,7 @@ trimmed society and location match it. A society with no matching master value
 can still be selected and submitted, but the owner sees an acknowledgement
 instead of an empty valuation.
 
-## Buyer catalogue and owner-price privacy
+## Buyer catalogue and approved owner pricing
 
 The Buyer catalogue is not maintained as a separate handwritten list. It reads
 `buyer_society_evidence`, a database view (a saved read-only query) built from:
@@ -80,14 +80,18 @@ The Buyer catalogue is not maintained as a separate handwritten list. It reads
 This means a newly added inventory society can appear in Buyer search even when
 it has no price evidence. Its card shows that evidence is not yet available.
 
-Individual owner prices are never returned to the Buyer page. Owner evidence is
-grouped by society and BHK inside the database view. The view exposes an owner
-median and range only when at least three approved owner records exist for the
-same society and BHK. With one or two approvals, the view exposes only the
-number of approved inputs and returns null for every owner-derived price and
-date. BHK-specific rows are also withheld below this threshold.
+Owner evidence is grouped by society and BHK inside the database view. Every
+admin-approved owner record is included immediately in the owner median, range,
+evidence count, latest date, and BHK-specific rows. This rule applies to both
+new and previously approved records. With one approval, the median, minimum,
+and maximum are the approved submitted price.
 
-When registered and anonymous owner evidence both exist, the Buyer benchmark
+The Buyer view never selects or returns the contributor identity, email,
+contact details, floor, loan details, private valuation, contribution ID, or
+owner-input transaction ID. The public page labels the result as an
+admin-approved society and BHK benchmark, never as a named user's submission.
+
+When registered and approved owner evidence both exist, the Buyer benchmark
 uses the registered median as the primary price. The owner median remains a
 separate supporting signal, and the source is labelled `combined`.
 
@@ -97,19 +101,19 @@ separate supporting signal, and the source is labelled `combined`.
 
 Purpose: the separate, searchable Bangalore gated-society catalogue.
 
-| Column | Meaning |
-| --- | --- |
-| `id` | Stable text primary key used by linked tables. |
-| `name` | Display name of the society or apartment project. |
-| `name_key` | Normalized name used for matching and deduplication. |
-| `area` | Display area or locality. |
-| `area_key` | Normalized area used for matching and deduplication. |
-| `builder` | Builder or developer name from the inventory source. |
-| `source_url` | Optional source page for the inventory record. |
-| `source_file` | File or import source that produced the record. |
-| `active` | Whether the society is currently available in search. |
-| `imported_at` | First import time. |
-| `updated_at` | Last inventory update time. |
+| Column        | Meaning                                               |
+| ------------- | ----------------------------------------------------- |
+| `id`          | Stable text primary key used by linked tables.        |
+| `name`        | Display name of the society or apartment project.     |
+| `name_key`    | Normalized name used for matching and deduplication.  |
+| `area`        | Display area or locality.                             |
+| `area_key`    | Normalized area used for matching and deduplication.  |
+| `builder`     | Builder or developer name from the inventory source.  |
+| `source_url`  | Optional source page for the inventory record.        |
+| `source_file` | File or import source that produced the record.       |
+| `active`      | Whether the society is currently available in search. |
+| `imported_at` | First import time.                                    |
+| `updated_at`  | Last inventory update time.                           |
 
 Important rule: `(name_key, area_key)` is unique. Deactivate a superseded row
 instead of deleting history that may already be referenced.
@@ -190,12 +194,12 @@ in the same database transaction, so they either both succeed or neither does.
 
 ### `buyer_society_evidence`
 
-Purpose: provide the complete Buyer society catalogue and privacy-safe price
-summaries without copying or exposing raw owner records.
+Purpose: provide the complete Buyer society catalogue and approved price
+summaries without copying or exposing contributor identity or contact data.
 
 This is a live database view, not another stored transaction table. It returns
-one all-BHK summary per society and additional BHK rows only when registered
-evidence exists or the owner anonymity threshold has been met.
+one all-BHK summary per society and additional BHK rows whenever registered or
+admin-approved owner evidence exists.
 
 Important columns include `catalogue_id`, `flat_inventory_id`, `society`,
 `location`, `builder`, `bhk`, `registered_count`, `approved_owner_count`,
@@ -204,27 +208,27 @@ latest eligible evidence dates, and `evidence_source`.
 
 Allowed `evidence_source` values are:
 
-- `none`: no public price evidence; private owner evidence may still be building;
+- `none`: no registered or admin-approved owner price evidence;
 - `registered_transaction`: registered evidence only;
-- `owner_input`: an anonymous owner cohort only; and
-- `combined`: registered evidence plus an anonymous owner cohort.
+- `owner_input`: admin-approved owner evidence only; and
+- `combined`: registered evidence plus admin-approved owner evidence.
 
 ### `bug_reports`
 
 Purpose: track bug reports submitted from the owner page.
 
-| Column | Meaning |
-| --- | --- |
-| `id` | UUID primary key. |
-| `user_id` | Optional signed-in user link. |
-| `reporter_email` | Optional email copied from the signed-in session. |
-| `page_path` | App page on which the problem was reported. |
-| `message` | User's bug description, limited to 2,000 characters by the API. |
-| `status` | `open` or `resolved`. |
-| `request_fingerprint` | One-way request fingerprint used only for rate limiting. |
-| `created_at` | Submission time. |
-| `resolved_at` | Resolution time. |
-| `resolved_by` | Admin email that marked the report resolved. |
+| Column                | Meaning                                                         |
+| --------------------- | --------------------------------------------------------------- |
+| `id`                  | UUID primary key.                                               |
+| `user_id`             | Optional signed-in user link.                                   |
+| `reporter_email`      | Optional email copied from the signed-in session.               |
+| `page_path`           | App page on which the problem was reported.                     |
+| `message`             | User's bug description, limited to 2,000 characters by the API. |
+| `status`              | `open` or `resolved`.                                           |
+| `request_fingerprint` | One-way request fingerprint used only for rate limiting.        |
+| `created_at`          | Submission time.                                                |
+| `resolved_at`         | Resolution time.                                                |
+| `resolved_by`         | Admin email that marked the report resolved.                    |
 
 The private admin dashboard lists open reports and can mark them resolved. Raw
 IP addresses are not stored.
@@ -232,8 +236,8 @@ IP addresses are not stored.
 ## Supporting tables
 
 - `contributors` links an authenticated user and email to private owner data.
-- `owner_price_aggregates` contains privacy-safe approved owner ranges. Public
-  owner evidence appears only after the configured minimum cohort is reached.
+- `owner_price_aggregates` contains admin-approved owner ranges. A range is
+  available from the first approved contribution.
 - `valuation_snapshots` records the algorithm version, evidence IDs, input
   snapshot, estimate, range, and confidence used for a private result.
 - `registered_transaction_imports` and
@@ -250,12 +254,12 @@ IP addresses are not stored.
 
 1. A draft stays in the owner's browser until the owner verifies access and
    submits it.
-2. The saved contribution and owner-input row are private.
+2. The saved contribution and owner-input row remain private while pending.
 3. A pending submission cannot affect `final_flat_values`.
 4. An admin decision changes both the contribution and owner-input status.
 5. Only approval inserts the owner evidence into `final_flat_values`.
-6. Public owner ranges continue to require a minimum anonymous cohort; one
-   owner's exact price must never be shown as a public comparable.
+6. Every approved owner value contributes immediately to the public society and
+   BHK benchmark. Contributor identity and contact data remain private.
 7. A rejected row remains in `owner_input_transactions` for audit history but
    is excluded from the master table and public aggregates.
 
@@ -271,11 +275,21 @@ Migration `0014` adds the read-only `buyer_society_evidence` view. It does not
 delete or rewrite inventory, registered transactions, owner inputs, or master
 values.
 
+Migration `0015` removes the three-approval threshold from that view. It uses
+all existing and future admin-approved owner values immediately and does not
+delete or rewrite transaction records.
+
+Migration `0016` rebuilds `owner_price_aggregates` from existing approved owner
+rows in `final_flat_values`, so values approved under the earlier rule also
+become available immediately. It inserts or updates summaries without changing
+the underlying owner or master transaction rows.
+
 Production is the Vercel project `truesquare`, with `flatdata.in` and
 `www.flatdata.in` assigned to its production deployment. Apply a required
 database migration before deploying application code that queries the new
 table or view. After deployment, verify the owner page, one no-valuation
-society, one valued society, one privacy-threshold society in Buyer search, the
+society, one valued society, one society with a single approved owner value in
+Buyer search, the
 bug-report API, and the private admin operations panel.
 
 Never put database passwords, authentication secrets, or complete connection

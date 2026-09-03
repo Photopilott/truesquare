@@ -5,7 +5,6 @@ import {
   getAdminSessionFromRequest,
   isSameOriginRequest,
 } from '@/lib/admin-auth';
-import { MINIMUM_PUBLIC_CONTRIBUTIONS } from '@/lib/owner-aggregates';
 import { getSocietySummaryByName } from '@/lib/society-evidence-data';
 import { notifySocietyPriceSubscribers } from '@/lib/society-subscriptions';
 import { sendContributionReviewEmail } from '@/lib/user-email';
@@ -213,7 +212,6 @@ export async function PATCH(
           AND op.society = ${target.society}
           AND op.bhk = ${target.bhk}
         GROUP BY op.society, op.location, op.bhk
-        HAVING COUNT(*) >= ${MINIMUM_PUBLIC_CONTRIBUTIONS}
         ON CONFLICT (society, bhk) DO UPDATE SET
           location = EXCLUDED.location,
           approved_count = EXCLUDED.approved_count,

@@ -32,7 +32,7 @@ export function ExplorerPage({
     'No brokers on this platform.',
     'No developer advertising.',
     'No paid rankings or sponsored placement.',
-    'No individual purchase price is ever shown. No unit numbers are ever collected.',
+    'No owner identity is shown. No unit numbers are ever collected.',
     'No data sales, advertising profiles, remarketing, or targeting.',
     'Every estimate carries its confidence level and the evidence behind it.',
   ];
@@ -50,8 +50,8 @@ export function ExplorerPage({
           <p className="ts-orb-hero-copy">
             An open, evidence-based view of gated societies in Sarjapur Road,
             Bellandur, Marathahalli, and Haralur—priced from registered
-            transactions and approved anonymous owner contributions. Look
-            around. No account needed.
+            transactions and admin-approved owner contributions. Look around. No
+            account needed.
           </p>
           <div className="ts-orb-hero-actions">
             <AnalyticsAnchor
@@ -88,8 +88,8 @@ export function ExplorerPage({
               </strong>
             </p>
             <p className="text-xs text-muted-foreground">
-              Only admin-approved contributions that meet the privacy threshold
-              are counted. Updated as approved evidence comes in.
+              Every admin-approved contribution is counted immediately. Updated
+              as approved evidence comes in.
             </p>
           </div>
           <div className="ts-orb-evidence-strip">
@@ -129,13 +129,12 @@ export function ExplorerPage({
             </p>
             <p>
               So we are building the missing record: registered transactions
-              plus purchase prices contributed privately by owners, pooled
-              anonymously and published only as safe ranges.
+              plus purchase prices contributed by owners and accepted through
+              admin review.
             </p>
             <p className="font-medium text-foreground">
-              The more owners contribute, the sharper it gets—for everyone. Raw
-              submissions stay private; only qualifying anonymous ranges are
-              published.
+              The more owners contribute, the sharper it gets—for everyone.
+              Contributor identities and contact details are never published.
             </p>
           </div>
         </div>

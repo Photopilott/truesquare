@@ -130,13 +130,13 @@ export function buyerEvidenceDisplay(evidence: BuyerEvidenceSummary | null) {
 
   let label = 'No verified price evidence';
   if (evidence?.evidenceSource === 'combined') {
-    label = 'Registered + anonymous owner evidence';
+    label = 'Registered + approved owner evidence';
   } else if (evidence?.evidenceSource === 'registered_transaction') {
     label = 'Registered transaction evidence';
   } else if (evidence?.evidenceSource === 'owner_input') {
-    label = 'Anonymous owner evidence';
+    label = 'Admin-approved owner evidence';
   } else if (approvedOwnerCount > 0) {
-    label = 'Owner evidence building';
+    label = 'Approved owner evidence';
   }
 
   return {

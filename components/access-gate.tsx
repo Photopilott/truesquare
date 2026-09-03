@@ -268,7 +268,7 @@ export function AccessGate({
                 Use Google, or verify any email with a one-time code. We ask
                 only for a verified email—never your phone number.{' '}
                 {context === 'owner' &&
-                  'Your flat price and private valuation are never shared.'}
+                  'If approved, your price will support the public society benchmark without showing your identity or contact details.'}
               </>
             )}
           </DialogDescription>
@@ -278,7 +278,7 @@ export function AccessGate({
           <div className="space-y-2 rounded-[10px] border border-border bg-accent p-4 text-sm">
             <p className="flex items-start gap-2">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
-              New anonymous owner benchmark and latest pricing
+              New admin-approved owner benchmark and latest pricing
             </p>
             <p className="flex items-start gap-2">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent-foreground" />
@@ -325,8 +325,8 @@ export function AccessGate({
               />
               <span>
                 {context === 'subscription'
-                  ? `Email me when FlatData adds a new anonymous owner benchmark or verified sale for ${subject ?? 'this society'}. No spam, calls, or sale of my data—only evidence.`
-                  : 'I accept the data covenant. My exact purchase price will not be shown publicly or used for advertising, targeting, broker access, or developer access.'}
+                  ? `Email me when FlatData adds a new admin-approved owner benchmark or verified sale for ${subject ?? 'this society'}. No spam, calls, or sale of my data—only evidence.`
+                  : 'I accept the data covenant. If an admin approves my submission, my price may be included immediately in the public society and BHK benchmark. My identity, contact details, floor, loan details, and private valuation will not be shown or sold.'}
               </span>
             </label>
           </div>
