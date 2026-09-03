@@ -87,6 +87,23 @@ function slugPart(value: string) {
     .replace(/^-+|-+$/g, '');
 }
 
+function permanentSlugFor(
+  permanent: SocietySummary | undefined,
+  canonicalSocietyName: string,
+  fallbackSlug: string,
+) {
+  if (!permanent) return fallbackSlug;
+  const canonicalNameSlug = slugPart(canonicalSocietyName);
+  const permanentNameSlug = slugPart(permanent.name);
+  if (
+    permanentNameSlug === `${canonicalNameSlug}-apartment` ||
+    permanentNameSlug === `${canonicalNameSlug}-apartments`
+  ) {
+    return canonicalNameSlug;
+  }
+  return permanent.slug;
+}
+
 function evidenceFromRow(row: BuyerSocietyEvidenceRow): BuyerEvidenceSummary {
   return {
     bhk: row.bhk,
@@ -312,7 +329,7 @@ export function buildBuyerSocietyCatalogue(
       )}`;
 
       return {
-        slug: permanent?.slug ?? fallbackSlug,
+        slug: permanentSlugFor(permanent, first.society, fallbackSlug),
         name: first.society,
         location: first.location,
         bhks: publicBhks.length ? publicBhks : (permanent?.bhks ?? []),

@@ -168,13 +168,26 @@ test('merges a workbook society whose name adds a trailing Apartment label', () 
         evidence_source: 'registered_transaction',
       }),
     ],
-    [],
+    [
+      {
+        slug: 'shriram-chirping-woods-apartment',
+        name: 'Shriram Chirping Woods Apartment',
+        location: 'Haralur',
+        bhks: ['1', '2', '3'],
+        towers: ['1', '2', '11', '17'],
+        transactionCount: 5,
+        medianPrice: 17_500_000,
+        medianPricePerSqFt: 12_551,
+        latestTransactionDate: '2025-07-08',
+      },
+    ],
   );
 
   assert.equal(catalogue.length, 1);
   assert.equal(catalogue[0].name, 'Shriram Chirping Woods');
   assert.equal(catalogue[0].location, 'Harlur');
   assert.equal(catalogue[0].flatInventoryId, 'blr_shriram_chirping_woods');
+  assert.equal(catalogue[0].slug, 'shriram-chirping-woods');
   const display = buyerEvidenceDisplay(buyerEvidenceFor(catalogue[0], 'All'));
   assert.equal(display.registeredCount, 5);
   assert.equal(display.publicCount, 5);

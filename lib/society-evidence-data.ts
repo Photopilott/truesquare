@@ -16,10 +16,17 @@ import {
 const societies = propertyData.societies as SocietySummary[];
 
 export async function getSocietySummary(slug: string) {
-  const permanent = societies.find((society) => society.slug === slug);
-  if (permanent) return permanent;
   const catalogue = await getBuyerSocietyCatalogue(societies);
-  return catalogue.find((society) => society.slug === slug) ?? null;
+  const catalogueMatch = catalogue.find((society) => society.slug === slug);
+  if (catalogueMatch) return catalogueMatch;
+  const permanent = societies.find((society) => society.slug === slug);
+  if (!permanent) return null;
+  return (
+    catalogue.find(
+      (society) =>
+        societyNameKey(society.name) === societyNameKey(permanent.name),
+    ) ?? permanent
+  );
 }
 
 export async function getSocietySummaryByName(name: string) {
