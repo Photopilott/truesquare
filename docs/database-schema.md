@@ -267,7 +267,7 @@ flat-data tables that were already present in production and adds
 `bug_reports`. Its table, column, constraint, and index operations are written
 to be safe when the earlier flat tables already exist.
 
-Migration `0013` adds the read-only `buyer_society_evidence` view. It does not
+Migration `0014` adds the read-only `buyer_society_evidence` view. It does not
 delete or rewrite inventory, registered transactions, owner inputs, or master
 values.
 

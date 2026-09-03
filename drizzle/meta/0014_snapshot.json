@@ -1,6 +1,6 @@
 {
-  "id": "b3d541a5-0cf9-43fc-a51b-e442b5f7a3b7",
-  "prevId": "976e1b68-85af-4498-a2a1-09406135d65e",
+  "id": "b7ac3089-e835-4158-8503-99b7673935b1",
+  "prevId": "b3d541a5-0cf9-43fc-a51b-e442b5f7a3b7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3879,7 +3879,149 @@
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
+  "views": {
+    "public.buyer_society_evidence": {
+      "columns": {
+        "catalogue_id": {
+          "name": "catalogue_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "flat_inventory_id": {
+          "name": "flat_inventory_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "society": {
+          "name": "society",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "builder": {
+          "name": "builder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "catalogue_source": {
+          "name": "catalogue_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bhk": {
+          "name": "bhk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_all_bhks": {
+          "name": "is_all_bhks",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registered_count": {
+          "name": "registered_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "approved_owner_count": {
+          "name": "approved_owner_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "public_owner_count": {
+          "name": "public_owner_count",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registered_median_price": {
+          "name": "registered_median_price",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "registered_median_price_per_sq_ft": {
+          "name": "registered_median_price_per_sq_ft",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_median_price": {
+          "name": "owner_median_price",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_min_price": {
+          "name": "owner_min_price",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_max_price": {
+          "name": "owner_max_price",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_median_price_per_sq_ft": {
+          "name": "owner_median_price_per_sq_ft",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_min_price_per_sq_ft": {
+          "name": "owner_min_price_per_sq_ft",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "owner_max_price_per_sq_ft": {
+          "name": "owner_max_price_per_sq_ft",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latest_registered_date": {
+          "name": "latest_registered_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latest_owner_date": {
+          "name": "latest_owner_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "evidence_source": {
+          "name": "evidence_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "definition": "\n  WITH inventory_entities AS (\n    SELECT\n      'inventory:' || inventory.id AS catalogue_id,\n      inventory.id AS flat_inventory_id,\n      inventory.name AS society,\n      inventory.area AS location,\n      NULLIF(BTRIM(inventory.builder), '') AS builder,\n      'inventory'::text AS catalogue_source\n    FROM bangalore_flat_inventory inventory\n    WHERE inventory.active = TRUE\n  ), final_only_entities AS (\n    SELECT DISTINCT ON (\n      LOWER(BTRIM(final_values.society)),\n      LOWER(BTRIM(final_values.location))\n    )\n      'final:' || MD5(\n        LOWER(BTRIM(final_values.society)) || '|' ||\n        LOWER(BTRIM(final_values.location))\n      ) AS catalogue_id,\n      NULL::text AS flat_inventory_id,\n      BTRIM(final_values.society) AS society,\n      BTRIM(final_values.location) AS location,\n      NULL::text AS builder,\n      'final_value'::text AS catalogue_source\n    FROM final_flat_values final_values\n    WHERE NOT EXISTS (\n      SELECT 1\n      FROM bangalore_flat_inventory inventory\n      WHERE inventory.active = TRUE\n        AND (\n          final_values.flat_inventory_id = inventory.id\n          OR (\n            final_values.flat_inventory_id IS NULL\n            AND LOWER(BTRIM(final_values.society)) = LOWER(BTRIM(inventory.name))\n            AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(inventory.area))\n          )\n        )\n    )\n    ORDER BY\n      LOWER(BTRIM(final_values.society)),\n      LOWER(BTRIM(final_values.location)),\n      final_values.value_date DESC NULLS LAST,\n      final_values.created_at DESC\n  ), catalogue_entities AS (\n    SELECT * FROM inventory_entities\n    UNION ALL\n    SELECT * FROM final_only_entities\n  ), matched_values AS (\n    SELECT\n      entities.catalogue_id,\n      entities.flat_inventory_id,\n      entities.society,\n      entities.location,\n      entities.builder,\n      entities.catalogue_source,\n      final_values.id AS final_value_id,\n      final_values.source_type,\n      final_values.price,\n      final_values.price_per_sq_ft,\n      NULLIF(BTRIM(final_values.bhk), '') AS bhk,\n      final_values.value_date,\n      COUNT(*) FILTER (\n        WHERE final_values.source_type = 'owner_input'\n      ) OVER (\n        PARTITION BY\n          entities.catalogue_id,\n          NULLIF(BTRIM(final_values.bhk), '')\n      ) AS owner_bhk_count\n    FROM catalogue_entities entities\n    LEFT JOIN final_flat_values final_values\n      ON (\n        entities.flat_inventory_id IS NOT NULL\n        AND final_values.flat_inventory_id = entities.flat_inventory_id\n      ) OR (\n        final_values.flat_inventory_id IS NULL\n        AND LOWER(BTRIM(final_values.society)) = LOWER(BTRIM(entities.society))\n        AND LOWER(BTRIM(final_values.location)) = LOWER(BTRIM(entities.location))\n      )\n  ), aggregated AS (\n    SELECT\n      catalogue_id,\n      flat_inventory_id,\n      society,\n      location,\n      builder,\n      catalogue_source,\n      CASE WHEN GROUPING(bhk) = 1 THEN NULL ELSE bhk END AS bhk,\n      GROUPING(bhk) = 1 AS is_all_bhks,\n      COUNT(final_value_id) FILTER (\n        WHERE source_type = 'registered_transaction'\n      ) AS registered_count,\n      COUNT(final_value_id) FILTER (\n        WHERE source_type = 'owner_input'\n      ) AS approved_owner_count,\n      COUNT(final_value_id) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3\n      ) AS public_owner_count,\n      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) FILTER (\n        WHERE source_type = 'registered_transaction' AND price > 0\n      )::numeric AS registered_median_price,\n      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_per_sq_ft) FILTER (\n        WHERE source_type = 'registered_transaction' AND price_per_sq_ft > 0\n      )::numeric AS registered_median_price_per_sq_ft,\n      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price > 0\n      )::numeric AS owner_median_price,\n      MIN(price) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price > 0\n      )::numeric AS owner_min_price,\n      MAX(price) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price > 0\n      )::numeric AS owner_max_price,\n      PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY price_per_sq_ft) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price_per_sq_ft > 0\n      )::numeric AS owner_median_price_per_sq_ft,\n      MIN(price_per_sq_ft) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price_per_sq_ft > 0\n      )::numeric AS owner_min_price_per_sq_ft,\n      MAX(price_per_sq_ft) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3 AND price_per_sq_ft > 0\n      )::numeric AS owner_max_price_per_sq_ft,\n      MAX(value_date) FILTER (\n        WHERE source_type = 'registered_transaction'\n      ) AS latest_registered_date,\n      MAX(value_date) FILTER (\n        WHERE source_type = 'owner_input' AND owner_bhk_count >= 3\n      ) AS latest_owner_date\n    FROM matched_values\n    GROUP BY GROUPING SETS (\n      (\n        catalogue_id,\n        flat_inventory_id,\n        society,\n        location,\n        builder,\n        catalogue_source\n      ),\n      (\n        catalogue_id,\n        flat_inventory_id,\n        society,\n        location,\n        builder,\n        catalogue_source,\n        bhk\n      )\n    )\n    HAVING\n      GROUPING(bhk) = 1\n      OR (\n        bhk IS NOT NULL\n        AND (\n          COUNT(final_value_id) FILTER (\n            WHERE source_type = 'registered_transaction'\n          ) > 0\n          OR COUNT(final_value_id) FILTER (\n            WHERE source_type = 'owner_input' AND owner_bhk_count >= 3\n          ) > 0\n        )\n      )\n  )\n  SELECT\n    catalogue_id,\n    flat_inventory_id,\n    society,\n    location,\n    builder,\n    catalogue_source,\n    bhk,\n    is_all_bhks,\n    registered_count,\n    approved_owner_count,\n    public_owner_count,\n    registered_median_price,\n    registered_median_price_per_sq_ft,\n    owner_median_price,\n    owner_min_price,\n    owner_max_price,\n    owner_median_price_per_sq_ft,\n    owner_min_price_per_sq_ft,\n    owner_max_price_per_sq_ft,\n    latest_registered_date,\n    latest_owner_date,\n    CASE\n      WHEN registered_count > 0 AND public_owner_count > 0 THEN 'combined'\n      WHEN registered_count > 0 THEN 'registered_transaction'\n      WHEN public_owner_count > 0 THEN 'owner_input'\n      ELSE 'none'\n    END AS evidence_source\n  FROM aggregated\n",
+      "name": "buyer_society_evidence",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    }
+  },
   "_meta": {
     "columns": {},
     "schemas": {},

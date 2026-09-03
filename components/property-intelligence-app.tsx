@@ -274,6 +274,8 @@ export function PropertyIntelligenceApp({
   const [bhkFilter, setBhkFilter] = useState('All');
   const [budgetFilter, setBudgetFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [buyerSearchSociety, setBuyerSearchSociety] =
+    useState<SocietySummary | null>(null);
   const [visibleSocieties, setVisibleSocieties] = useState(18);
   const [referralShareId, setReferralShareId] = useState<string | null>(null);
   const [isWhatsAppReferral, setIsWhatsAppReferral] = useState(false);
@@ -840,22 +842,101 @@ export function PropertyIntelligenceApp({
                 production gate will ask for.
               </p>
               <div className="ts-orb-finder mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <FormField label="Search society, area, or builder">
-                  <Input
-                    value={searchQuery}
-                    onChange={(event) => {
-                      setSearchQuery(event.target.value);
+                <div className="min-w-0">
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <Label htmlFor="buyer-society-search">
+                      Search society, area, or builder
+                    </Label>
+                  </div>
+                  <Combobox
+                    items={societies}
+                    value={buyerSearchSociety}
+                    inputValue={searchQuery}
+                    onInputValueChange={(value) => {
+                      setSearchQuery(value);
+                      setBuyerSearchSociety((current) =>
+                        current?.name === value ? current : null,
+                      );
                       setVisibleSocieties(18);
                     }}
-                    onBlur={() =>
-                      searchQuery.trim() &&
-                      trackAnalyticsEvent('buyer_filter_use', {
-                        filter_type: 'society_search',
-                      })
+                    onValueChange={(society) => {
+                      setBuyerSearchSociety(society);
+                      setSearchQuery(society?.name ?? '');
+                      setVisibleSocieties(18);
+                      if (society) {
+                        trackAnalyticsEvent('buyer_filter_use', {
+                          filter_type: 'society_search_selection',
+                          society_slug: society.slug,
+                        });
+                      }
+                    }}
+                    itemToStringLabel={(society: SocietySummary) =>
+                      society.name
                     }
-                    placeholder="e.g. Trinity Acres, Sarjapur…"
-                  />
-                </FormField>
+                    isItemEqualToValue={(
+                      society: SocietySummary,
+                      value: SocietySummary,
+                    ) => society.slug === value.slug}
+                    filter={(society: SocietySummary, query: string) =>
+                      [society.name, society.location, society.builder]
+                        .filter((value): value is string => Boolean(value))
+                        .join(' ')
+                        .toLowerCase()
+                        .includes(query.trim().toLowerCase())
+                    }
+                    limit={8}
+                    autoHighlight
+                    openOnInputClick
+                  >
+                    <ComboboxInput
+                      id="buyer-society-search"
+                      className="h-12 w-full rounded-[8px] bg-card text-foreground"
+                      placeholder="e.g. Trinity Acres, Sarjapur…"
+                      showClear
+                      onBlur={() => {
+                        if (!searchQuery.trim()) return;
+                        trackAnalyticsEvent('buyer_filter_use', {
+                          filter_type: 'society_search',
+                        });
+                      }}
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>
+                        No matching society found in the current catalogue.
+                      </ComboboxEmpty>
+                      <ComboboxList>
+                        {(society: SocietySummary) => (
+                          <ComboboxItem
+                            key={society.slug}
+                            value={society}
+                            className="items-start px-3 py-3"
+                          >
+                            <div className="min-w-0 pr-6">
+                              <p className="truncate font-medium">
+                                {society.name}
+                              </p>
+                              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                                {society.location}
+                                {society.builder ? ` · ${society.builder}` : ''}
+                                {' · '}
+                                {society.bhks.length
+                                  ? society.bhks
+                                      .map((bhk) => `${bhk} BHK`)
+                                      .join(', ')
+                                  : 'Configuration not filed'}
+                              </p>
+                              <p className="mt-1 font-mono text-[9px] tracking-[0.08em] text-[#FA3600] uppercase">
+                                {buyerEvidenceDisplay(
+                                  buyerEvidenceFor(society, 'All'),
+                                ).label}
+                              </p>
+                            </div>
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                </div>
                 <FormField label="Location">
                   <NativeSelect
                     className="w-full"

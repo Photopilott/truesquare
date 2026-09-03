@@ -1,717 +1,1433 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FlatData Developer Ratings — Mockup</title>
-  <meta name="description" content="An isolated mockup for a data-led real-estate developer rating and review module." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --paper: #f7f4ed;
-      --paper-2: #efebe2;
-      --ink: #15110d;
-      --muted: #6d675f;
-      --line: #d9d3ca;
-      --white: #fffdfa;
-      --mint: #8be6a9;
-      --mint-soft: #ddf8e5;
-      --blue: #2f50d2;
-      --blue-soft: #e2e8ff;
-      --orange: #f59b62;
-      --shadow: 0 18px 50px rgba(34, 27, 19, .1);
-      --serif: "Newsreader", Georgia, serif;
-      --sans: "DM Sans", Arial, sans-serif;
-      --pixel: "Silkscreen", "Courier New", monospace;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: var(--sans);
-      font-size: 16px;
-      line-height: 1.5;
-    }
-    button, input, select, textarea { font: inherit; }
-    button, a { -webkit-tap-highlight-color: transparent; }
-    a { color: inherit; }
-    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-
-    .announcement {
-      min-height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 10px 18px;
-      background: var(--ink);
-      color: #fff;
-      font-size: 13px;
-      text-align: center;
-    }
-    .announcement strong {
-      color: var(--ink);
-      background: var(--mint);
-      padding: 5px 8px;
-      font-family: var(--pixel);
-      font-size: 9px;
-      font-weight: 400;
-    }
-
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      padding-bottom: 1px;
-    }
-
-    .shell { width: min(1160px, calc(100% - 32px)); margin: 0 auto; }
-    .nav {
-      position: relative;
-      z-index: 20;
-      min-height: 74px;
-      margin-top: 24px;
-      padding: 12px 14px 12px 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      background: rgba(255, 253, 250, .94);
-      border: 1px solid rgba(21, 17, 13, .08);
-      border-radius: 14px;
-      box-shadow: 0 10px 26px rgba(38, 29, 18, .1);
-      backdrop-filter: blur(16px);
-    }
-    .brand { display: inline-flex; align-items: baseline; font-size: 31px; font-weight: 500; line-height: 1; text-decoration: none; }
-    .brand-flat { font-family: var(--serif); letter-spacing: -.04em; }
-    .brand-data { margin-left: .08em; font-family: var(--pixel); font-size: .7em; font-weight: 400; letter-spacing: -.06em; line-height: 1; }
-    .nav-links { display: flex; align-items: center; gap: 26px; font-size: 13px; font-weight: 500; }
-    .nav-links a { text-decoration: none; }
-    .mobile-menu { display: none; position: relative; }
-    .mobile-menu summary {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      cursor: pointer;
-      font-size: 21px;
-      list-style: none;
-    }
-    .mobile-menu summary::-webkit-details-marker { display: none; }
-    .mobile-menu nav {
-      position: absolute;
-      top: 50px;
-      right: 0;
-      width: min(320px, calc(100vw - 30px));
-      padding: 10px;
-      display: grid;
-      background: var(--white);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-    }
-    .mobile-menu nav a {
-      min-height: 48px;
-      padding: 0 12px;
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .button {
-      min-height: 46px;
-      border: 1.5px solid var(--ink);
-      border-radius: 9px;
-      padding: 0 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      background: transparent;
-      color: var(--ink);
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-    }
-    .button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(21,17,13,.12); }
-    .button.dark { background: var(--ink); color: #fff; }
-    .button.mint { background: var(--mint); }
-    .button.small { min-height: 40px; padding: 0 14px; font-size: 13px; }
-
-    .hero {
-      min-height: 720px;
-      padding: 126px 0 92px;
-      display: grid;
-      grid-template-columns: 1.08fr .92fr;
-      gap: 64px;
-      align-items: center;
-    }
-    .eyebrow {
-      margin: 0 0 22px;
-      font-family: var(--pixel);
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: .02em;
-      text-transform: uppercase;
-    }
-    h1, h2, h3, p { margin-top: 0; }
-    h1 {
-      max-width: 720px;
-      margin-bottom: 26px;
-      font-family: var(--serif);
-      font-size: clamp(56px, 6.4vw, 88px);
-      font-weight: 400;
-      line-height: .94;
-      letter-spacing: -.035em;
-    }
-    .pixel { font-family: var(--pixel); font-size: .75em; line-height: 1.1; letter-spacing: -.06em; }
-    .hero-copy { max-width: 610px; color: #3f3932; font-size: 18px; line-height: 1.65; }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
-    .hero-note { margin-top: 18px; color: var(--muted); font-size: 12px; }
-
-    .trust-card {
-      position: relative;
-      background: var(--white);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .trust-card::before {
-      content: "ILLUSTRATIVE DATA";
-      position: absolute;
-      top: 18px;
-      right: -45px;
-      z-index: 2;
-      width: 180px;
-      padding: 7px 0;
-      transform: rotate(36deg);
-      background: var(--blue);
-      color: white;
-      font-family: var(--pixel);
-      font-size: 8px;
-      text-align: center;
-    }
-    .trust-top { padding: 30px; border-bottom: 1px solid var(--line); }
-    .profile-kicker { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-    .profile-name { margin: 5px 0 20px; font-family: var(--serif); font-size: 35px; font-weight: 500; line-height: 1; }
-    .score-row { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
-    .score { font-family: var(--serif); font-size: 78px; line-height: .8; letter-spacing: -.06em; }
-    .score small { font-family: var(--sans); font-size: 16px; color: var(--muted); letter-spacing: 0; }
-    .recommend { text-align: right; font-size: 13px; color: var(--muted); }
-    .recommend strong { display: block; color: var(--ink); font-family: var(--pixel); font-size: 17px; font-weight: 400; }
-    .trust-bars { padding: 22px 30px 30px; display: grid; gap: 15px; }
-    .bar-line { display: grid; grid-template-columns: 1fr 108px 28px; gap: 10px; align-items: center; font-size: 12px; }
-    .bar { height: 8px; background: var(--paper-2); overflow: hidden; }
-    .bar span { display: block; height: 100%; background: var(--blue); }
-    .evidence-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); background: var(--paper-2); }
-    .evidence-strip div { padding: 18px; text-align: center; border-right: 1px solid var(--line); }
-    .evidence-strip div:last-child { border-right: 0; }
-    .evidence-strip strong { display: block; font-family: var(--serif); font-size: 25px; }
-    .evidence-strip span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
-
-    .section { padding: 96px 0; border-top: 1px solid var(--line); }
-    .section-head { display: grid; grid-template-columns: .9fr 1.1fr; gap: 50px; align-items: end; margin-bottom: 44px; }
-    .section h2 { margin-bottom: 0; font-family: var(--serif); font-size: clamp(44px, 5vw, 68px); font-weight: 400; line-height: .98; letter-spacing: -.025em; }
-    .section-intro { max-width: 570px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
-
-    .finder { background: var(--ink); color: #fff; padding: 24px; border-radius: 15px; }
-    .finder-controls { display: grid; grid-template-columns: 1fr 190px 190px; gap: 10px; }
-    .field { min-height: 52px; width: 100%; border: 1px solid #5c5751; border-radius: 8px; background: #24201c; color: #fff; padding: 0 16px; }
-    .field::placeholder { color: #aaa49d; }
-    select.field { appearance: none; background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%); background-position: calc(100% - 17px) 22px, calc(100% - 11px) 22px; background-size: 6px 6px; background-repeat: no-repeat; }
-
-    .developer-grid { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .developer-card {
-      min-height: 270px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      text-align: left;
-      background: var(--white);
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform .18s ease, border-color .18s ease;
-    }
-    .developer-card:hover, .developer-card.active { transform: translateY(-4px); border-color: var(--ink); }
-    .card-top { display: flex; justify-content: space-between; gap: 16px; }
-    .developer-card h3 { margin: 6px 0 4px; font-family: var(--serif); font-size: 28px; font-weight: 500; line-height: 1.05; }
-    .developer-card .area { color: var(--muted); font-size: 12px; }
-    .mini-score { font-family: var(--pixel); font-size: 20px; }
-    .mini-score small { font-family: var(--sans); font-size: 10px; color: var(--muted); }
-    .card-bars { margin: 24px 0; display: grid; gap: 10px; }
-    .card-bar { display: grid; grid-template-columns: 1fr 70px; gap: 10px; font-size: 11px; align-items: center; }
-    .card-bar i { display: block; height: 5px; background: var(--paper-2); }
-    .card-bar i span { display: block; height: 100%; background: var(--blue); }
-    .card-foot { margin-top: auto; display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
-    .card-foot strong { color: var(--ink); }
-    .empty { display: none; padding: 40px 20px; text-align: center; color: #bbb; }
-
-    .profile-layout { display: grid; grid-template-columns: .77fr 1.23fr; gap: 22px; }
-    .profile-summary, .review-panel { background: var(--white); border: 1px solid var(--line); border-radius: 14px; }
-    .profile-summary { padding: 30px; align-self: start; position: sticky; top: 110px; }
-    .profile-summary h3 { margin: 6px 0 5px; font-family: var(--serif); font-size: 39px; font-weight: 500; }
-    .score-block { margin: 28px 0; padding: 24px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-    .score-block .score { font-size: 70px; }
-    .rating-list { display: grid; gap: 16px; }
-    .rating-item { display: grid; grid-template-columns: 1fr 100px 30px; gap: 10px; align-items: center; font-size: 12px; }
-    .rating-item .bar span { background: var(--blue); }
-    .profile-action { width: 100%; margin-top: 26px; }
-
-    .review-panel { overflow: hidden; }
-    .review-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); }
-    .review-tabs button { flex: 0 0 auto; min-height: 54px; padding: 0 20px; border: 0; border-right: 1px solid var(--line); background: transparent; cursor: pointer; color: var(--muted); }
-    .review-tabs button.active { background: var(--mint-soft); color: var(--ink); font-weight: 700; }
-    .review-list { padding: 6px 28px; }
-    .review { padding: 28px 0; border-bottom: 1px solid var(--line); }
-    .review:last-child { border-bottom: 0; }
-    .review-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 11px; }
-    .review h4 { margin: 14px 0 7px; font-family: var(--serif); font-size: 25px; font-weight: 500; line-height: 1.15; }
-    .review p { margin-bottom: 14px; color: #514a42; font-size: 14px; line-height: 1.65; }
-    .tag-row { display: flex; flex-wrap: wrap; gap: 7px; }
-    .tag { padding: 6px 9px; border: 1px solid var(--line); font-size: 10px; background: var(--paper); }
-    .verified { color: #126d38; font-weight: 700; }
-
-    .principles { background: var(--mint-soft); }
-    .principle-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #a9dcb8; }
-    .principle { min-height: 275px; padding: 28px; border-right: 1px solid #a9dcb8; }
-    .principle:last-child { border-right: 0; }
-    .principle-number { font-family: var(--pixel); font-size: 11px; }
-    .principle h3 { margin: 54px 0 12px; font-family: var(--serif); font-size: 31px; font-weight: 500; }
-    .principle p { color: #4f6154; font-size: 14px; }
-
-    .cta { padding: 100px 0; text-align: center; background: var(--blue); color: #fff; }
-    .cta h2 { max-width: 800px; margin: 0 auto 22px; font-family: var(--serif); font-size: clamp(48px, 6vw, 78px); font-weight: 400; line-height: .98; }
-    .cta p { max-width: 600px; margin: 0 auto 30px; color: #dce3ff; }
-    .cta .button { background: #fff; }
-    footer { padding: 30px 0 50px; color: var(--muted); font-size: 12px; }
-    footer .shell { display: flex; justify-content: space-between; gap: 20px; }
-
-    dialog {
-      width: min(680px, calc(100% - 24px));
-      max-height: calc(100vh - 30px);
-      padding: 0;
-      border: 1px solid var(--ink);
-      border-radius: 14px;
-      background: var(--white);
-      color: var(--ink);
-      box-shadow: 0 30px 100px rgba(0,0,0,.28);
-    }
-    dialog::backdrop { background: rgba(21,17,13,.64); backdrop-filter: blur(3px); }
-    .modal-head { padding: 25px 28px; display: flex; align-items: start; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
-    .modal-head h3 { margin: 2px 0 0; font-family: var(--serif); font-size: 31px; font-weight: 500; }
-    .icon-button { width: 40px; height: 40px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 20px; }
-    .modal-body { padding: 25px 28px 30px; overflow-y: auto; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    label { display: grid; gap: 7px; font-size: 12px; font-weight: 700; }
-    .form-control { min-height: 47px; width: 100%; padding: 10px 12px; border: 1px solid var(--line); background: #fff; border-radius: 6px; }
-    textarea.form-control { min-height: 110px; resize: vertical; }
-    .full { grid-column: 1 / -1; }
-    .stars { display: flex; gap: 4px; }
-    .stars button { border: 0; background: transparent; padding: 2px; color: #b8b1a8; font-size: 27px; cursor: pointer; }
-    .stars button.selected { color: var(--orange); }
-    .privacy-note { margin: 18px 0; padding: 13px; background: var(--paper-2); color: var(--muted); font-size: 11px; }
-    .success { display: none; padding: 45px 20px; text-align: center; }
-    .success .pixel { color: var(--blue); font-size: 20px; }
-
-    @media (max-width: 900px) {
-      .nav-links { display: none; }
-      .mobile-menu { display: block; }
-      .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 90px; }
-      .trust-card { max-width: 650px; }
-      .section-head, .profile-layout { grid-template-columns: 1fr; }
-      .developer-grid { grid-template-columns: 1fr 1fr; }
-      .profile-summary { position: static; }
-      .principle-grid { grid-template-columns: 1fr; }
-      .principle { min-height: auto; border-right: 0; border-bottom: 1px solid #a9dcb8; }
-      .principle:last-child { border-bottom: 0; }
-    }
-
-    @media (max-width: 640px) {
-      .shell { width: min(100% - 20px, 1160px); }
-      .announcement { justify-content: flex-start; text-align: left; }
-      .nav { top: 6px; margin-top: 10px; min-height: 62px; padding: 9px 10px 9px 15px; }
-      .brand { font-size: 25px; }
-      .hero { padding: 76px 0 70px; gap: 44px; }
-      h1 { font-size: clamp(51px, 16vw, 68px); }
-      .pixel { font-size: .65em; }
-      .hero-copy { font-size: 16px; }
-      .hero-actions { display: grid; }
-      .hero-actions .button { width: 100%; }
-      .trust-top, .trust-bars { padding-left: 20px; padding-right: 20px; }
-      .score { font-size: 62px; }
-      .evidence-strip span { font-size: 8px; }
-      .section { padding: 72px 0; }
-      .section-head { gap: 22px; }
-      .section h2 { font-size: 48px; }
-      .finder { padding: 14px; }
-      .finder-controls, .developer-grid { grid-template-columns: 1fr; }
-      .developer-card { min-height: 245px; }
-      .profile-summary, .review-list { padding-left: 18px; padding-right: 18px; }
-      .rating-item { grid-template-columns: 1fr 72px 25px; }
-      .review-tabs button { padding: 0 13px; font-size: 12px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .full { grid-column: auto; }
-      footer .shell { flex-direction: column; }
-    }
-
-    /* Keep navigation available after the announcement row scrolls away. */
-    .site-header { top: -52px; }
-
-    @media (max-width: 640px) {
-      .site-header { top: -59px; }
-      .hero { padding: 34px 0 36px; gap: 22px; }
-      h1,
-      .section h2,
-      .cta h2 {
-        font-size: clamp(27px, 7.8vw, 30px);
-        line-height: .98;
-        letter-spacing: -.03em;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="FlatData is building an evidence-backed record of Indian real-estate developers, shaped by buyers and verified owners."
+    />
+    <meta
+      property="og:title"
+      content="Developer Intelligence is coming — FlatData"
+    />
+    <meta
+      property="og:description"
+      content="A developer can promise you a home. Only an owner can tell you what arrived."
+    />
+    <meta property="og:image" content="https://www.flatdata.in/og.png" />
+    <title>Developer Intelligence is coming — FlatData</title>
+    <style>
+      :root {
+        --ink: #20211f;
+        --paper: #f3efe5;
+        --white: #fffdf8;
+        --orange: #f04a24;
+        --blue: #173bc5;
+        --mint: #bfe9cf;
+        --yellow: #f4d76f;
+        --muted: #686860;
+        --line: rgba(32, 33, 31, 0.2);
+        --serif: Iowan Old Style, Baskerville, 'Times New Roman', serif;
+        --sans: Inter, Helvetica Neue, Arial, sans-serif;
+        --mono: SFMono-Regular, Consolas, 'Liberation Mono', monospace;
       }
-      .eyebrow { margin-bottom: 7px; font-size: 7px; }
-      .hero-copy,
-      .section-intro {
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      .shell {
+        width: min(1320px, calc(100% - 48px));
+        margin-inline: auto;
+      }
+      .eyebrow {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.5;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .announcement {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 8px 20px;
+        background: var(--ink);
+        color: white;
+        font-size: 12px;
+      }
+      .announcement strong {
+        padding: 5px 8px;
+        background: var(--yellow);
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.08em;
+      }
+      .nav {
+        min-height: 80px;
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        border-inline: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        padding: 0 28px;
+        border-right: 1px solid var(--line);
+        font-family: var(--serif);
+        font-size: 31px;
+        font-weight: 600;
+        letter-spacing: -0.06em;
+      }
+      .brand span {
+        margin-left: 1px;
+        font-family: var(--mono);
+        font-size: 0.55em;
+        letter-spacing: -0.08em;
+        text-transform: uppercase;
+      }
+      .nav-links {
+        display: flex;
+        align-items: stretch;
+      }
+      .nav-links a {
+        min-width: 112px;
+        display: grid;
+        place-items: center;
+        padding: 0 20px;
+        border-left: 1px solid var(--line);
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .nav-links .nav-cta {
+        background: var(--orange);
+        color: white;
+      }
+      .menu {
+        display: none;
+      }
+
+      .hero {
+        min-height: 700px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(450px, 0.92fr);
+        border-inline: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 68px 64px 58px;
+        border-right: 1px solid var(--line);
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .coming {
+        width: fit-content;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 10px;
+        border: 1px solid var(--orange);
+        color: var(--orange);
+      }
+      .coming::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--orange);
+        content: '';
+        animation: pulse 1.8s infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.25;
+        }
+      }
+      h1 {
+        max-width: 780px;
+        margin: 23px 0 26px;
+        font-family: var(--serif);
+        font-size: clamp(62px, 6vw, 91px);
+        font-weight: 500;
+        line-height: 0.91;
+        letter-spacing: -0.06em;
+      }
+      .hero-intro {
+        max-width: 690px;
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.62;
+      }
+      .hero-intro strong {
+        color: var(--blue);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 33px;
+      }
+      .button {
+        min-height: 57px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 0 20px;
+        border: 1px solid var(--ink);
+        border-radius: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .button-dark {
+        background: var(--ink);
+        color: white;
+      }
+      .microcopy {
+        margin: 16px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .hero-visual {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        padding: 32px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(32, 33, 31, 0.04),
+            rgba(32, 33, 31, 0.82)
+          ),
+          url('/images/apartment-sketch-courtyard-portrait.jpg') center/cover
+            no-repeat;
+        overflow: hidden;
+      }
+      .hero-visual::before {
+        position: absolute;
+        inset: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        content: '';
+      }
+      .promise-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        background: rgba(255, 253, 248, 0.96);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+      }
+      .promise-head {
+        padding: 22px 23px 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      .promise-head h2 {
+        margin: 9px 0 0;
+        font-family: var(--serif);
+        font-size: 31px;
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.035em;
+      }
+      .promise-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .promise-item {
+        min-height: 115px;
+        padding: 19px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .promise-item:nth-child(even) {
+        border-right: 0;
+      }
+      .promise-item:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+      .promise-item strong {
+        display: block;
+        margin-top: 23px;
+        font-family: var(--serif);
+        font-size: 20px;
+        line-height: 1.05;
+      }
+
+      .purpose {
+        padding: 112px 0;
+        background: var(--white);
+      }
+      .purpose-grid {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.74fr) minmax(0, 1.26fr);
+        gap: 95px;
+      }
+      .section-title {
+        margin: 18px 0 0;
+        font-family: var(--serif);
+        font-size: clamp(48px, 5.3vw, 77px);
+        font-weight: 500;
+        line-height: 0.95;
+        letter-spacing: -0.055em;
+      }
+      .purpose-story {
+        padding-top: 3px;
+        font-family: var(--serif);
+        font-size: clamp(27px, 2.45vw, 39px);
+        line-height: 1.34;
+      }
+      .purpose-story p {
+        margin: 0 0 27px;
+      }
+      .purpose-story .turn {
+        margin-top: 38px;
+        padding: 24px 0 0 28px;
+        border-top: 1px solid var(--line);
+        border-left: 4px solid var(--orange);
+        color: var(--orange);
+      }
+      .lost-answers {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 72px;
+        border: 1px solid var(--line);
+      }
+      .lost {
+        min-height: 238px;
+        padding: 23px;
+        border-right: 1px solid var(--line);
+      }
+      .lost:last-child {
+        border-right: 0;
+      }
+      .lost strong {
+        display: block;
+        margin-top: 54px;
+        font-family: var(--serif);
+        font-size: 27px;
+        line-height: 1.08;
+      }
+      .lost p {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .vision {
+        padding: 108px 0;
+        background: var(--ink);
+        color: white;
+      }
+      .vision-head {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 80px;
+        align-items: end;
+      }
+      .vision-copy {
+        margin: 0 0 5px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 17px;
+        line-height: 1.7;
+      }
+      .signal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 64px;
+        border-top: 1px solid rgba(255, 255, 255, 0.45);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+      }
+      .signal {
+        min-height: 235px;
+        padding: 24px;
+        border-right: 1px solid rgba(255, 255, 255, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .signal:nth-child(3n) {
+        border-right: 0;
+      }
+      .signal:nth-last-child(-n + 3) {
+        border-bottom: 0;
+      }
+      .signal strong {
+        display: block;
+        margin-top: 56px;
+        font-family: var(--serif);
+        font-size: 27px;
+        font-weight: 500;
+        line-height: 1.05;
+      }
+      .signal p {
+        margin: 11px 0 0;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .method {
+        padding: 108px 0;
+      }
+      .method-head {
+        max-width: 970px;
+      }
+      .method-head > p:last-child {
+        max-width: 690px;
+        margin: 25px 0 0;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.7;
+      }
+      .method-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin-top: 60px;
+        border-top: 1px solid var(--ink);
+        border-bottom: 1px solid var(--ink);
+      }
+      .method-step {
+        min-height: 280px;
+        padding: 24px;
+        border-right: 1px solid var(--line);
+      }
+      .method-step:last-child {
+        border-right: 0;
+      }
+      .method-step strong {
+        display: block;
+        margin-top: 73px;
+        font-family: var(--serif);
+        font-size: 27px;
+        line-height: 1.06;
+      }
+      .method-step p {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+      .rule {
+        margin-top: 38px;
+        padding: 42px;
+        background: var(--mint);
+        text-align: center;
+        font-family: var(--serif);
+        font-size: clamp(28px, 3vw, 42px);
+        line-height: 1.12;
+      }
+
+      .early {
+        padding: 108px 0;
+        background: var(--orange);
+      }
+      .early-shell {
+        display: grid;
+        grid-template-columns: 0.82fr 1.18fr;
+        background: var(--white);
+        border: 1px solid var(--ink);
+      }
+      .early-copy {
+        display: flex;
+        flex-direction: column;
+        padding: 50px;
+        border-right: 1px solid var(--line);
+      }
+      .early-copy h2 {
+        margin: 20px 0 22px;
+        font-family: var(--serif);
+        font-size: clamp(47px, 4.5vw, 68px);
+        font-weight: 500;
+        line-height: 0.95;
+        letter-spacing: -0.055em;
+      }
+      .early-copy > p:not(.eyebrow) {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.65;
+      }
+      .early-note {
+        margin-top: auto !important;
+        padding-top: 30px;
+        font-size: 11px !important;
+      }
+      .signup {
+        padding: 40px;
+      }
+      .tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--ink);
+      }
+      .tab {
+        min-height: 54px;
+        border: 0;
+        border-right: 1px solid var(--ink);
+        background: var(--white);
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .tab:last-child {
+        border-right: 0;
+      }
+      .tab[aria-selected='true'] {
+        background: var(--ink);
+        color: white;
+      }
+      .form-panel {
+        display: none;
+        padding-top: 32px;
+      }
+      .form-panel.active {
+        display: block;
+      }
+      .form-panel h3 {
+        margin: 0 0 9px;
+        font-family: var(--serif);
+        font-size: 34px;
+        font-weight: 500;
+        letter-spacing: -0.035em;
+      }
+      .form-intro {
+        margin: 0 0 26px;
+        color: var(--muted);
         font-size: 13px;
-        line-height: 1.42;
+        line-height: 1.55;
       }
-      .hero-actions { gap: 8px; margin-top: 16px; }
-      .hero-note { margin-top: 8px; font-size: 10px; }
-      .trust-card { border-radius: 8px; }
-      .trust-top,
-      .trust-bars { padding: 15px; }
-      .trust-bars { gap: 9px; }
-      .profile-name { margin-bottom: 12px; font-size: 27px; }
-      .score { font-size: 50px; }
-      .evidence-strip div { padding: 11px 5px; }
-      .evidence-strip strong { font-size: 19px; }
-      .section { padding: 36px 0; }
-      .section-head { gap: 10px; margin-bottom: 20px; }
-      .finder { padding: 12px; border-radius: 8px; }
-      .developer-grid { gap: 8px; margin-top: 12px; }
-      .developer-card { min-height: 0; padding: 14px; border-radius: 6px; }
-      .developer-card h3 { font-size: 22px; }
-      .card-bars { margin: 14px 0; gap: 7px; }
-      .profile-layout { gap: 10px; }
-      .profile-summary,
-      .review-panel { border-radius: 7px; }
-      .profile-summary { padding: 16px; }
-      .profile-summary h3 { font-size: 28px; }
-      .score-block { margin: 16px 0; padding: 16px 0; }
-      .score-block .score { font-size: 50px; }
-      .rating-list { gap: 10px; }
-      .profile-action { margin-top: 16px; }
-      .review-list { padding: 4px 16px; }
-      .review { padding: 18px 0; }
-      .review h4 { margin-top: 10px; font-size: 21px; }
-      .review p { font-size: 12px; line-height: 1.45; }
-      .principle-grid { gap: 1px; }
-      .principle { padding: 16px; }
-      .principle h3 { margin: 16px 0 7px; font-size: 22px; }
-      .principle p { font-size: 12px; line-height: 1.45; }
-      .cta { padding: 42px 0; }
-      .cta h2 { margin-bottom: 14px; }
-      .cta p { margin-bottom: 18px; font-size: 13px; line-height: 1.42; }
-      footer { padding: 24px 0 30px; }
-      dialog { border-radius: 8px; }
-      .modal-head,
-      .modal-body { padding: 18px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="site-header">
-    <div class="announcement"><strong>INDEPENDENT</strong><span>No listings sold. No leads sold. No data sold.</span></div>
+      .fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      label {
+        display: grid;
+        gap: 8px;
+        font-family: var(--mono);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      label.full {
+        grid-column: 1/-1;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 51px;
+        padding: 13px 14px;
+        border: 1px solid var(--line);
+        border-radius: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 13px;
+        text-transform: none;
+      }
+      textarea {
+        min-height: 92px;
+        resize: vertical;
+      }
+      .form-panel .button {
+        width: 100%;
+        margin-top: 16px;
+      }
+      .privacy {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+      .privacy a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .consent {
+        grid-column: 1/-1;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+      .consent input {
+        width: 17px;
+        min-height: 17px;
+        margin: 0;
+        padding: 0;
+        flex: none;
+        accent-color: var(--ink);
+      }
+      .form-error {
+        min-height: 18px;
+        margin: 10px 0 0;
+        color: #a12d18;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+      .button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+      }
+      .success {
+        display: none;
+        min-height: 390px;
+        place-items: center;
+        padding: 30px;
+        text-align: center;
+      }
+      .success.show {
+        display: grid;
+      }
+      .success h3 {
+        max-width: 550px;
+        margin: 14px auto;
+        font-family: var(--serif);
+        font-size: 42px;
+        font-weight: 500;
+        line-height: 1;
+      }
+      .success p:last-child {
+        max-width: 480px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
 
-    <header class="shell nav" aria-label="Primary navigation">
-      <a class="brand" href="/" aria-label="FlatData home"><span class="brand-flat" aria-hidden="true">Flat</span><span class="brand-data" aria-hidden="true">Data</span></a>
-      <nav class="nav-links" aria-label="Main navigation">
-        <a href="/owner">OWNERS</a>
-        <a href="/buyer">BUYERS</a>
-        <a href="/explore">FLAT PRICE VERIFIED</a>
-        <a href="/atlas">NEW FLATS R&amp;D</a>
-        <a href="/developer-ratings.html">DEVELOPER RATINGS</a>
-        <a class="button dark small" href="/#paths">GET STARTED</a>
-      </nav>
-      <details class="mobile-menu">
-        <summary aria-label="Open navigation">☰</summary>
-        <nav aria-label="Mobile navigation">
-          <a href="/">HOME</a>
-          <a href="/owner">OWNERS</a>
-          <a href="/buyer">BUYERS</a>
-          <a href="/explore">FLAT PRICE VERIFIED</a>
-          <a href="/atlas">NEW FLATS R&amp;D</a>
-          <a href="/developer-ratings.html">DEVELOPER RATINGS</a>
-          <a href="/#paths">CHOOSE A PATH</a>
-        </nav>
-      </details>
-    </header>
-  </div>
+      .close {
+        padding: 106px 0;
+        background: var(--ink);
+        color: white;
+        text-align: center;
+      }
+      .close h2 {
+        max-width: 1020px;
+        margin: 20px auto 25px;
+        font-family: var(--serif);
+        font-size: clamp(54px, 7vw, 94px);
+        font-weight: 500;
+        line-height: 0.92;
+        letter-spacing: -0.06em;
+      }
+      .close h2 em {
+        color: var(--yellow);
+        font-weight: 400;
+      }
+      .close p:last-child {
+        max-width: 670px;
+        margin: 0 auto;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 16px;
+        line-height: 1.65;
+      }
+      footer {
+        padding: 34px 0;
+        background: #111210;
+        color: white;
+      }
+      .footer-inner {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1.4fr;
+        gap: 45px;
+      }
+      .footer-brand {
+        font-family: var(--serif);
+        font-size: 28px;
+      }
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 23px;
+        font-family: var(--mono);
+        font-size: 9px;
+        text-transform: uppercase;
+      }
+      .footer-note {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.63);
+        font-size: 11px;
+        line-height: 1.7;
+      }
 
-  <main id="top">
-    <section class="shell hero">
-      <div>
-        <p class="eyebrow">Builder quality &amp; reputation</p>
-        <h1>Don’t just buy a home. <span class="pixel">Know the builder.</span></h1>
-        <p class="hero-copy">A Glassdoor-like record of the buying and ownership experience—possession timelines, flat quality, price parity, fittings, delivery against promises, and after-sales support.</p>
-        <div class="hero-actions">
-          <a class="button dark" href="#developers">Explore developer ratings <span aria-hidden="true">→</span></a>
-          <button class="button" type="button" data-open-review>Share your experience</button>
-        </div>
-        <p class="hero-note">Mockup only · All developer names and review data below are illustrative.</p>
-      </div>
-
-      <aside class="trust-card" aria-label="Illustrative developer trust profile">
-        <div class="trust-top">
-          <p class="profile-kicker">Developer trust profile</p>
-          <h2 class="profile-name">Aster Communities</h2>
-          <div class="score-row">
-            <div class="score">3.8 <small>/ 5</small></div>
-            <div class="recommend"><strong>72%</strong>would recommend</div>
-          </div>
-        </div>
-        <div class="trust-bars">
-          <div class="bar-line"><span>Flat quality</span><div class="bar"><span style="width:82%"></span></div><strong>4.1</strong></div>
-          <div class="bar-line"><span>Price parity</span><div class="bar"><span style="width:74%"></span></div><strong>3.7</strong></div>
-          <div class="bar-line"><span>Possession timeline</span><div class="bar"><span style="width:68%"></span></div><strong>3.4</strong></div>
-          <div class="bar-line"><span>Delivered as promised</span><div class="bar"><span style="width:64%"></span></div><strong>3.2</strong></div>
-        </div>
-        <div class="evidence-strip">
-          <div><strong>148</strong><span>Reviews</span></div>
-          <div><strong>9</strong><span>Projects</span></div>
-          <div><strong>61%</strong><span>Verified</span></div>
-        </div>
-      </aside>
-    </section>
-
-    <section class="section" id="developers">
-      <div class="shell">
-        <div class="section-head">
-          <div><p class="eyebrow">Developer directory</p><h2>Start with the experience, not the brochure.</h2></div>
-          <p class="section-intro">Search and compare builders using structured owner feedback. Every rating shows its evidence count, project coverage, and verification mix so buyers can judge the signal—not just the score.</p>
-        </div>
-
-        <div class="finder">
-          <div class="finder-controls">
-            <input class="field" id="search" type="search" placeholder="Search developer or project" aria-label="Search developer or project" />
-            <select class="field" id="experience-filter" aria-label="Filter by experience">
-              <option value="all">All experiences</option>
-              <option value="delivery">Delivery strength</option>
-              <option value="quality">Build quality</option>
-              <option value="service">After-sales service</option>
-            </select>
-            <select class="field" id="sort" aria-label="Sort developers">
-              <option value="reviews">Most reviewed</option>
-              <option value="rating">Highest rated</option>
-              <option value="recommend">Most recommended</option>
-            </select>
-          </div>
-          <div class="developer-grid" id="developer-grid" aria-live="polite"></div>
-          <div class="empty" id="empty-state">No illustrative developer matches that search.</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="profile">
-      <div class="shell">
-        <div class="section-head">
-          <div><p class="eyebrow">Developer rating</p><h2 id="profile-heading">Aster Communities, unpacked.</h2></div>
-          <p class="section-intro">The overall score is only the start. Buyers can see which parts of the experience are strong, where feedback diverges, and what verified residents say in their own words.</p>
-        </div>
-
-        <div class="profile-layout">
-          <aside class="profile-summary">
-            <p class="profile-kicker">Illustrative profile · Bengaluru</p>
-            <h3 id="detail-name">Aster Communities</h3>
-            <p class="area" id="detail-projects">9 projects represented</p>
-            <div class="score-block">
-              <div class="score" id="detail-score">3.8 <small>/ 5</small></div>
-              <p id="detail-evidence">148 reviews · 61% verified owners</p>
-            </div>
-            <div class="rating-list" id="rating-list"></div>
-            <button class="button dark profile-action" type="button" data-open-review>Review this developer</button>
-          </aside>
-
-          <div class="review-panel">
-            <div class="review-tabs" role="tablist" aria-label="Review themes">
-              <button class="active" type="button" data-theme="all" role="tab">All feedback</button>
-              <button type="button" data-theme="delivery" role="tab">Possession</button>
-              <button type="button" data-theme="quality" role="tab">Quality</button>
-              <button type="button" data-theme="price" role="tab">Price parity</button>
-              <button type="button" data-theme="service" role="tab">After-sales</button>
-            </div>
-            <div class="review-list" id="review-list"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section principles" id="method">
-      <div class="shell">
-        <div class="section-head">
-          <div><p class="eyebrow">Published rules</p><h2>Feedback loops need guardrails.</h2></div>
-          <p class="section-intro">The module is designed to make buyers and owners smarter without turning anonymous opinion into unquestioned truth.</p>
-        </div>
-        <div class="principle-grid">
-          <article class="principle"><span class="principle-number">01</span><h3>Evidence before averages</h3><p>Every score carries its review count, project spread, freshness, and verified-owner share. Thin evidence stays visibly thin.</p></article>
-          <article class="principle"><span class="principle-number">02</span><h3>Structured, not sensational</h3><p>Reviews focus on possession, quality, parity, fittings, promises, and service. Personal attacks and unverifiable claims do not belong.</p></article>
-          <article class="principle"><span class="principle-number">03</span><h3>Right to respond</h3><p>Developers may add a dated public response, but cannot pay to remove criticism, improve a score, or rank above another builder.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="cta">
-      <div class="shell">
-        <p class="eyebrow">The feedback layer</p>
-        <h2>Make the next homebuyer smarter than the last one.</h2>
-        <p>Owners contribute lived experience. Buyers see patterns. Developers receive a clearer signal about what must improve.</p>
-        <button class="button" type="button" data-open-review>Share an experience</button>
-      </div>
-    </section>
-  </main>
-
-  <footer><div class="shell"><span>FlatData Developer Ratings · UI mockup only</span><span>No data submitted here is stored or sent.</span></div></footer>
-
-  <dialog id="review-dialog" aria-labelledby="review-title">
-    <div id="review-form-view">
-      <div class="modal-head"><div><p class="eyebrow">Owner feedback</p><h3 id="review-title">Review a developer</h3></div><button class="icon-button" type="button" data-close aria-label="Close review form">×</button></div>
-      <form class="modal-body" id="review-form">
-        <div class="form-grid">
-          <label>Developer<select class="form-control" id="review-developer"><option>Aster Communities</option><option>Northfield Homes</option><option>Cedar &amp; Stone</option></select></label>
-          <label>Project<input class="form-control" required placeholder="Project or society name" /></label>
-          <label>Relationship<select class="form-control"><option>Current owner</option><option>Past owner</option><option>Buyer — purchase completed</option><option>Buyer — purchase cancelled</option></select></label>
-          <label>Possession year<input class="form-control" inputmode="numeric" placeholder="e.g. 2024" /></label>
-          <label class="full">Overall experience<div class="stars" aria-label="Overall rating"><button type="button" data-star="1" aria-label="1 star">★</button><button type="button" data-star="2" aria-label="2 stars">★</button><button type="button" data-star="3" aria-label="3 stars">★</button><button type="button" data-star="4" aria-label="4 stars">★</button><button type="button" data-star="5" aria-label="5 stars">★</button></div></label>
-          <label class="full">What should another buyer know?<textarea class="form-control" required placeholder="Focus on timelines, quality, price parity, fittings, promises, and after-sales experience."></textarea></label>
-        </div>
-        <div class="privacy-note">Mockup behaviour only. This form does not store or transmit anything. A real version should verify ownership privately and publish only anonymised feedback.</div>
-        <button class="button dark" type="submit">Preview submission</button>
-      </form>
+      @media (max-width: 1000px) {
+        .nav-links a:not(.nav-cta) {
+          display: none;
+        }
+        .hero {
+          grid-template-columns: 1fr;
+        }
+        .hero-copy {
+          min-height: 650px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .hero-visual {
+          min-height: 650px;
+        }
+        .purpose-grid,
+        .vision-head {
+          grid-template-columns: 1fr;
+          gap: 36px;
+        }
+        .lost-answers {
+          grid-template-columns: 1fr;
+        }
+        .lost {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .lost:last-child {
+          border-bottom: 0;
+        }
+        .method-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .method-step:nth-child(2) {
+          border-right: 0;
+        }
+        .method-step:nth-child(-n + 2) {
+          border-bottom: 1px solid var(--line);
+        }
+        .early-shell {
+          grid-template-columns: 1fr;
+        }
+        .early-copy {
+          min-height: 470px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+      }
+      @media (max-width: 640px) {
+        .shell {
+          width: 100%;
+        }
+        .announcement {
+          min-height: 36px;
+          padding: 7px 11px;
+          font-size: 10px;
+        }
+        .announcement strong {
+          font-size: 7px;
+        }
+        .nav {
+          min-height: 65px;
+          border-inline: 0;
+        }
+        .brand {
+          padding: 0 18px;
+          border-right: 0;
+          font-size: 26px;
+        }
+        .nav-links {
+          display: none;
+        }
+        .menu {
+          width: 65px;
+          display: grid;
+          place-items: center;
+          border-left: 1px solid var(--line);
+          font-family: var(--mono);
+          font-size: 9px;
+        }
+        .hero {
+          min-height: 0;
+          border-inline: 0;
+        }
+        .hero-copy {
+          min-height: calc(100svh - 101px);
+          padding: 35px 20px 26px;
+        }
+        h1 {
+          margin: 14px 0 18px;
+          font-size: 50px;
+        }
+        .hero-intro {
+          font-size: 15px;
+          line-height: 1.48;
+        }
+        .actions {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 8px;
+          margin-top: 20px;
+        }
+        .button {
+          width: 100%;
+          min-height: 52px;
+        }
+        .microcopy {
+          margin-top: 10px;
+        }
+        .hero-visual {
+          min-height: 560px;
+          padding: 18px;
+        }
+        .hero-visual::before {
+          inset: 10px;
+        }
+        .promise-head {
+          padding: 19px;
+        }
+        .promise-list {
+          grid-template-columns: 1fr;
+        }
+        .promise-item {
+          min-height: 100px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line) !important;
+        }
+        .promise-item:last-child {
+          border-bottom: 0 !important;
+        }
+        .purpose,
+        .vision,
+        .method,
+        .early {
+          padding: 72px 20px;
+        }
+        .section-title {
+          font-size: 50px;
+        }
+        .purpose-story {
+          font-size: 26px;
+        }
+        .purpose-story .turn {
+          padding-left: 19px;
+        }
+        .lost-answers {
+          margin-top: 48px;
+        }
+        .lost {
+          min-height: 190px;
+        }
+        .lost strong {
+          margin-top: 34px;
+        }
+        .signal-grid {
+          grid-template-columns: 1fr;
+          margin-top: 45px;
+        }
+        .signal {
+          min-height: 190px;
+          border-right: 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        .signal:last-child {
+          border-bottom: 0 !important;
+        }
+        .signal strong {
+          margin-top: 34px;
+        }
+        .method-grid {
+          grid-template-columns: 1fr;
+          margin-top: 44px;
+        }
+        .method-step {
+          min-height: 225px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line) !important;
+        }
+        .method-step:last-child {
+          border-bottom: 0 !important;
+        }
+        .method-step strong {
+          margin-top: 43px;
+        }
+        .rule {
+          margin-inline: -20px;
+          padding: 38px 20px;
+        }
+        .early-shell {
+          margin-inline: -20px;
+          border-inline: 0;
+        }
+        .early-copy {
+          min-height: 430px;
+          padding: 47px 20px;
+        }
+        .signup {
+          padding: 28px 20px;
+        }
+        .fields {
+          grid-template-columns: 1fr;
+        }
+        label.full {
+          grid-column: auto;
+        }
+        .close {
+          padding: 82px 20px;
+        }
+        .close h2 {
+          font-size: 58px;
+        }
+        footer {
+          padding: 32px 20px;
+        }
+        .footer-inner {
+          grid-template-columns: 1fr;
+          gap: 27px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="announcement">
+      <strong>COMING SOON</strong
+      ><span>The record every homebuyer wishes existed.</span>
     </div>
-    <div class="success" id="review-success"><p class="pixel">Feedback ready</p><h3>Thanks for making the record sharper.</h3><p>This is a mockup confirmation. Nothing was saved or sent.</p><button class="button dark" type="button" data-close>Done</button></div>
-  </dialog>
+    <header class="shell nav">
+      <a class="brand" href="/" aria-label="FlatData home"
+        >Flat<span>Data</span></a
+      >
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="/buyer">Buyers</a><a href="/owner">Owners</a
+        ><a href="/explore">Sale prices</a><a href="/atlas">New projects</a>
+        <a class="nav-cta buyer-jump" href="#early-access"
+          >Request a report →</a
+        >
+      </nav>
+      <span class="menu" aria-hidden="true">MENU</span>
+    </header>
 
-  <script>
-    const developers = [
-      {
-        id: 'aster', name: 'Aster Communities', city: 'Bengaluru', score: 3.8, reviews: 148, projects: 9, verified: 61, recommend: 72,
-        metrics: { 'Possession timeline': 3.4, 'Flat quality': 4.1, 'Purchase price parity': 3.7, 'Fittings quality': 3.9, 'Delivered as promised': 3.2, 'After-sales support': 3.1 },
-        strengths: ['quality', 'delivery'],
-        reviewsList: [
-          { theme:'quality', rating:4, title:'The structure and common areas have aged well', body:'Handover took longer than the original estimate, but the finishing quality in our tower has held up well. Snag resolution was responsive during the first six months.', meta:'Verified owner · 3 BHK · Possession 2023', tags:['Flat quality 4/5','Delay: 4–8 months','Resolved snags'] },
-          { theme:'delivery', rating:3, title:'Good home, but the possession updates were uneven', body:'The final apartment broadly matched what was shown, although milestone communication became less reliable near handover. Buyers should ask for tower-specific delivery history.', meta:'Verified owner · 2 BHK · Possession 2024', tags:['Timeline 3/5','Promise parity 3/5','Tower-specific'] },
-          { theme:'price', rating:4, title:'Final cost stayed close to the signed schedule', body:'There were a few maintenance and utility deposits near possession, but the purchase price itself stayed close to the agreement. The cost sheet was clearer than others we evaluated.', meta:'Buyer · 3 BHK · Registered 2022', tags:['Price parity 4/5','Clear cost sheet'] }
-        ]
-      },
-      {
-        id: 'northfield', name: 'Northfield Homes', city: 'Bengaluru', score: 4.2, reviews: 86, projects: 5, verified: 68, recommend: 81,
-        metrics: { 'Possession timeline': 4.3, 'Flat quality': 4.2, 'Purchase price parity': 4.0, 'Fittings quality': 3.8, 'Delivered as promised': 4.4, 'After-sales support': 3.6 },
-        strengths: ['delivery', 'quality'],
-        reviewsList: [
-          { theme:'delivery', rating:5, title:'The handover date was realistic and well communicated', body:'Construction updates matched visible progress, and our tower was handed over within the stated quarter. Documentation at registration was organised.', meta:'Verified owner · 2 BHK · Possession 2024', tags:['On-time band','Communication 5/5'] },
-          { theme:'service', rating:3, title:'Strong delivery, slower after-sales queue', body:'The possession process was efficient. Minor plumbing and door-alignment items took several follow-ups after moving in, though all were eventually closed.', meta:'Verified owner · 3 BHK · Possession 2023', tags:['After-sales 3/5','Issues closed'] }
-        ]
-      },
-      {
-        id: 'cedar', name: 'Cedar & Stone', city: 'Bengaluru', score: 3.5, reviews: 54, projects: 4, verified: 57, recommend: 64,
-        metrics: { 'Possession timeline': 3.1, 'Flat quality': 3.8, 'Purchase price parity': 3.5, 'Fittings quality': 3.7, 'Delivered as promised': 3.3, 'After-sales support': 3.4 },
-        strengths: ['service'],
-        reviewsList: [
-          { theme:'quality', rating:4, title:'Thoughtful layout and decent fittings', body:'The apartment layout uses space well and the standard fittings were better than expected. Common-area completion continued after residents started moving in.', meta:'Verified owner · 2 BHK · Possession 2023', tags:['Fittings 4/5','Common areas pending'] },
-          { theme:'delivery', rating:3, title:'Useful updates, but the date moved twice', body:'The team shared progress regularly, but the expected possession quarter shifted twice. The final handover quality was acceptable after a detailed snag list.', meta:'Owner · 3 BHK · Possession 2024', tags:['Delay: 8–12 months','Snag list'] }
-        ]
-      }
-    ];
-
-    const grid = document.querySelector('#developer-grid');
-    const search = document.querySelector('#search');
-    const filter = document.querySelector('#experience-filter');
-    const sort = document.querySelector('#sort');
-    const empty = document.querySelector('#empty-state');
-    let selected = developers[0];
-    let activeTheme = 'all';
-
-    const stars = value => '★'.repeat(Math.round(value)) + '☆'.repeat(5 - Math.round(value));
-
-    function renderCards() {
-      const query = search.value.trim().toLowerCase();
-      const category = filter.value;
-      const sortBy = sort.value;
-      const items = developers
-        .filter(item => (!query || `${item.name} ${item.city}`.toLowerCase().includes(query)) && (category === 'all' || item.strengths.includes(category)))
-        .sort((a,b) => sortBy === 'rating' ? b.score-a.score : sortBy === 'recommend' ? b.recommend-a.recommend : b.reviews-a.reviews);
-      grid.innerHTML = items.map(item => `
-        <button class="developer-card ${selected.id === item.id ? 'active' : ''}" type="button" data-id="${item.id}" aria-label="View ${item.name} rating profile">
-          <div class="card-top"><div><span class="area">${item.city} · ${item.projects} projects</span><h3>${item.name}</h3></div><div class="mini-score">${item.score}<small>/5</small></div></div>
-          <div class="card-bars">
-            <div class="card-bar"><span>Possession timeline</span><i><span style="width:${item.metrics['Possession timeline']*20}%"></span></i></div>
-            <div class="card-bar"><span>Flat quality</span><i><span style="width:${item.metrics['Flat quality']*20}%"></span></i></div>
-            <div class="card-bar"><span>Delivered as promised</span><i><span style="width:${item.metrics['Delivered as promised']*20}%"></span></i></div>
+    <main>
+      <section class="shell hero">
+        <div class="hero-copy">
+          <p class="eyebrow coming">Developer intelligence · in development</p>
+          <h1>
+            A developer can promise you a home. Only an owner can tell you what
+            arrived.
+          </h1>
+          <p class="hero-intro">
+            <strong
+              >FlatData is building the buyer-side record of what happens after
+              the booking cheque:</strong
+            >
+            possession timelines, build quality, price parity, promises kept and
+            after-sales support—project by project, backed by owner experience.
+          </p>
+          <div class="actions">
+            <a class="button button-dark buyer-jump" href="#early-access"
+              >Tell us who to investigate <span>→</span></a
+            >
+            <a class="button owner-jump" href="#early-access"
+              >I own a flat—help build it <span>→</span></a
+            >
           </div>
-          <div class="card-foot"><span><strong>${item.reviews}</strong> reviews</span><span><strong>${item.recommend}%</strong> recommend →</span></div>
-        </button>`).join('');
-      empty.style.display = items.length ? 'none' : 'block';
-      grid.style.display = items.length ? 'grid' : 'none';
-      grid.querySelectorAll('[data-id]').forEach(card => card.addEventListener('click', () => selectDeveloper(card.dataset.id, true)));
-    }
+          <p class="microcopy">
+            Coming soon. No invented scores, no paid rankings, no anonymous
+            pile-on.
+          </p>
+        </div>
+        <aside
+          class="hero-visual"
+          aria-label="Preview of the coming developer intelligence record"
+        >
+          <div class="promise-card">
+            <div class="promise-head">
+              <p class="eyebrow">The record after the sale</p>
+              <h2>What buyers will finally be able to check</h2>
+            </div>
+            <div class="promise-list">
+              <div class="promise-item">
+                <span class="eyebrow">01</span
+                ><strong>Was possession on time?</strong>
+              </div>
+              <div class="promise-item">
+                <span class="eyebrow">02</span
+                ><strong>Did the flat match the promise?</strong>
+              </div>
+              <div class="promise-item">
+                <span class="eyebrow">03</span
+                ><strong>Did the final price stay honest?</strong>
+              </div>
+              <div class="promise-item">
+                <span class="eyebrow">04</span
+                ><strong>What happened after handover?</strong>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
 
-    function selectDeveloper(id, scrollToProfile = false) {
-      selected = developers.find(item => item.id === id) || developers[0];
-      document.querySelector('#profile-heading').textContent = `${selected.name}, unpacked.`;
-      document.querySelector('#detail-name').textContent = selected.name;
-      document.querySelector('#detail-projects').textContent = `${selected.projects} illustrative projects represented`;
-      document.querySelector('#detail-score').innerHTML = `${selected.score} <small>/ 5</small>`;
-      document.querySelector('#detail-evidence').textContent = `${selected.reviews} reviews · ${selected.verified}% verified owners`;
-      document.querySelector('#review-developer').value = selected.name;
-      document.querySelector('#rating-list').innerHTML = Object.entries(selected.metrics).map(([label,value]) => `<div class="rating-item"><span>${label}</span><div class="bar"><span style="width:${value*20}%"></span></div><strong>${value}</strong></div>`).join('');
-      renderReviews();
-      renderCards();
-      if (scrollToProfile) document.querySelector('#profile').scrollIntoView({behavior:'smooth'});
-    }
+      <section class="purpose">
+        <div class="shell">
+          <div class="purpose-grid">
+            <div>
+              <p class="eyebrow">Why this must exist</p>
+              <h2 class="section-title">
+                A ₹1 crore decision deserves more than a brochure and a sales
+                pitch.
+              </h2>
+            </div>
+            <div class="purpose-story">
+              <p>
+                Before you buy, every developer has a story about the home you
+                will receive.
+              </p>
+              <p>
+                After owners move in, the market rarely records whether that
+                story came true.
+              </p>
+              <p class="turn">
+                The evidence exists. It is simply scattered across WhatsApp
+                groups, association meetings and thousands of private memories.
+              </p>
+            </div>
+          </div>
+          <div class="lost-answers">
+            <article class="lost">
+              <span class="eyebrow">Lost in memory</span
+              ><strong
+                >“We were promised June. We got the keys in February.”</strong
+              >
+              <p>
+                Possession experience should become a pattern buyers can
+                inspect.
+              </p>
+            </article>
+            <article class="lost">
+              <span class="eyebrow">Lost in groups</span
+              ><strong
+                >“The sample flat and the delivered fittings were not the
+                same.”</strong
+              >
+              <p>
+                Promise-versus-delivery should be structured, not buried in chat
+                history.
+              </p>
+            </article>
+            <article class="lost">
+              <span class="eyebrow">Lost after handover</span
+              ><strong
+                >“The sale was smooth. The service afterwards was not.”</strong
+              >
+              <p>After-sales experience belongs in the buying decision.</p>
+            </article>
+          </div>
+        </div>
+      </section>
 
-    function renderReviews() {
-      const reviews = selected.reviewsList.filter(review => activeTheme === 'all' || review.theme === activeTheme);
-      document.querySelector('#review-list').innerHTML = reviews.length ? reviews.map(review => `
-        <article class="review"><div class="review-meta"><span class="verified">✓ ${review.meta}</span><span>${stars(review.rating)} · ${review.rating}/5</span></div><h4>${review.title}</h4><p>${review.body}</p><div class="tag-row">${review.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></article>`).join('') : '<div class="review"><p>No illustrative review is tagged with this theme.</p></div>';
-    }
+      <section class="vision">
+        <div class="shell">
+          <div class="vision-head">
+            <div>
+              <p class="eyebrow">What FlatData is building</p>
+              <h2 class="section-title">
+                Not another star rating. A record a buyer can question.
+              </h2>
+            </div>
+            <p class="vision-copy">
+              A single score hides too much. FlatData will separate the
+              experience into the questions that matter—and show the amount,
+              freshness and verification of the evidence behind every answer.
+            </p>
+          </div>
+          <div class="signal-grid">
+            <article class="signal">
+              <span class="eyebrow">01</span
+              ><strong>Possession timeline</strong>
+              <p>
+                Expected date, actual handover and how communication changed.
+              </p>
+            </article>
+            <article class="signal">
+              <span class="eyebrow">02</span><strong>Build quality</strong>
+              <p>Finishing, common areas, defects and how the home aged.</p>
+            </article>
+            <article class="signal">
+              <span class="eyebrow">03</span><strong>Price parity</strong>
+              <p>
+                Whether the final cost remained close to the signed schedule.
+              </p>
+            </article>
+            <article class="signal">
+              <span class="eyebrow">04</span><strong>Promises kept</strong>
+              <p>
+                What the brochure showed, what the agreement said and what
+                arrived.
+              </p>
+            </article>
+            <article class="signal">
+              <span class="eyebrow">05</span
+              ><strong>After-sales support</strong>
+              <p>Responsiveness, snag resolution and service after the keys.</p>
+            </article>
+            <article class="signal">
+              <span class="eyebrow">06</span><strong>Evidence strength</strong>
+              <p>
+                Review count, project spread, freshness and verified-owner
+                share.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
 
-    [search, filter, sort].forEach(control => control.addEventListener(control.tagName === 'INPUT' ? 'input' : 'change', renderCards));
-    document.querySelectorAll('[data-theme]').forEach(tab => tab.addEventListener('click', () => {
-      activeTheme = tab.dataset.theme;
-      document.querySelectorAll('[data-theme]').forEach(item => item.classList.toggle('active', item === tab));
-      renderReviews();
-    }));
+      <section class="method">
+        <div class="shell">
+          <div class="method-head">
+            <p class="eyebrow">How the record earns trust</p>
+            <h2 class="section-title">
+              Owners contribute experience. FlatData contributes discipline.
+            </h2>
+            <p>
+              The goal is not to create a complaint wall. It is to turn lived
+              experience into structured, careful intelligence that helps the
+              next buyer ask better questions.
+            </p>
+          </div>
+          <div class="method-grid">
+            <article class="method-step">
+              <span class="eyebrow">01</span
+              ><strong>Structured questions</strong>
+              <p>
+                Feedback stays focused on delivery, quality, price, promises and
+                service.
+              </p>
+            </article>
+            <article class="method-step">
+              <span class="eyebrow">02</span
+              ><strong>Private verification</strong>
+              <p>
+                Ownership evidence is checked without publishing a person’s unit
+                or identity.
+              </p>
+            </article>
+            <article class="method-step">
+              <span class="eyebrow">03</span><strong>Visible evidence</strong>
+              <p>
+                Every pattern shows how many people, projects and recent
+                experiences support it.
+              </p>
+            </article>
+            <article class="method-step">
+              <span class="eyebrow">04</span><strong>Right to respond</strong>
+              <p>
+                A developer may answer publicly, but cannot pay to remove,
+                improve or outrank.
+              </p>
+            </article>
+          </div>
+          <div class="rule">
+            Evidence before averages. Patterns before outrage. Buyers before
+            advertisers.
+          </div>
+        </div>
+      </section>
 
-    const dialog = document.querySelector('#review-dialog');
-    document.querySelectorAll('[data-open-review]').forEach(button => button.addEventListener('click', () => {
-      document.querySelector('#review-form-view').style.display = 'block';
-      document.querySelector('#review-success').style.display = 'none';
-      dialog.showModal();
-    }));
-    document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => dialog.close()));
-    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-    document.querySelectorAll('[data-star]').forEach(button => button.addEventListener('click', () => {
-      const rating = Number(button.dataset.star);
-      document.querySelectorAll('[data-star]').forEach(star => star.classList.toggle('selected', Number(star.dataset.star) <= rating));
-    }));
-    document.querySelector('#review-form').addEventListener('submit', event => {
-      event.preventDefault();
-      document.querySelector('#review-form-view').style.display = 'none';
-      document.querySelector('#review-success').style.display = 'block';
-    });
+      <section class="early" id="early-access">
+        <div class="shell early-shell">
+          <div class="early-copy">
+            <p class="eyebrow">Help choose what comes first</p>
+            <h2>Which developer should FlatData investigate first?</h2>
+            <p>
+              Demand should shape the launch. Tell us what you are
+              researching—or contribute what you already know as an owner.
+            </p>
+            <p class="early-note">
+              Every request helps prioritise the research queue. Verified owner
+              evidence will determine when a report is credible enough to
+              publish.
+            </p>
+          </div>
+          <div class="signup">
+            <div class="tabs" role="tablist" aria-label="Choose your path">
+              <button
+                class="tab"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                data-tab="buyer"
+              >
+                I’m researching a builder
+              </button>
+              <button
+                class="tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-tab="owner"
+              >
+                I own a flat
+              </button>
+            </div>
+            <form class="form-panel active" id="buyer-form" data-form="buyer">
+              <h3>Request a developer report</h3>
+              <p class="form-intro">
+                Tell FlatData where buyer demand is strongest. You will be
+                notified only when there is enough evidence to publish something
+                useful.
+              </p>
+              <div class="fields">
+                <label
+                  >Developer<input
+                    name="developer"
+                    required
+                    maxlength="120"
+                    autocomplete="organization"
+                    placeholder="Developer name"
+                /></label>
+                <label
+                  >Project<input
+                    name="project"
+                    maxlength="160"
+                    placeholder="Project name, if known"
+                /></label>
+                <label
+                  >Buying stage<select name="buyingStage">
+                    <option>Just researching</option>
+                    <option>Comparing a shortlist</option>
+                    <option>Planning a site visit</option>
+                    <option>Close to booking</option>
+                  </select></label
+                >
+                <label
+                  >Email<input
+                    name="email"
+                    required
+                    type="email"
+                    maxlength="254"
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                /></label>
+                <label class="consent"
+                  ><input name="emailOptIn" required type="checkbox" /><span
+                    >Email me when this developer report has enough evidence. I
+                    can opt out at any time.</span
+                  ></label
+                >
+              </div>
+              <button class="button button-dark" type="submit">
+                Request this report <span>→</span>
+              </button>
+              <p class="form-error" role="alert" aria-live="polite"></p>
+              <p class="privacy">
+                Your request is private. FlatData does not sell leads or share
+                your email with developers. See the
+                <a href="/privacy">privacy policy</a>.
+              </p>
+            </form>
+            <form class="form-panel" id="owner-form" data-form="owner">
+              <h3>Help build the first report</h3>
+              <p class="form-intro">
+                Start with the developer, project and one useful fact. FlatData
+                will ask for private verification before any experience
+                influences a public report.
+              </p>
+              <div class="fields">
+                <label
+                  >Developer<input
+                    name="developer"
+                    required
+                    maxlength="120"
+                    autocomplete="organization"
+                    placeholder="Developer name"
+                /></label>
+                <label
+                  >Project<input
+                    name="project"
+                    required
+                    maxlength="160"
+                    placeholder="Your project or society"
+                /></label>
+                <label
+                  >Relationship<select name="relationship">
+                    <option>Current owner</option>
+                    <option>Past owner</option>
+                    <option>Buyer—purchase completed</option>
+                    <option>Buyer—purchase cancelled</option>
+                  </select></label
+                >
+                <label
+                  >Email<input
+                    name="email"
+                    required
+                    type="email"
+                    maxlength="254"
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                /></label>
+                <label class="full"
+                  >What should the next buyer know?<textarea
+                    name="experience"
+                    maxlength="2000"
+                    placeholder="One useful fact about possession, quality, price, promises or service"
+                  ></textarea>
+                </label>
+                <label class="consent"
+                  ><input name="emailOptIn" required type="checkbox" /><span
+                    >Email me about this developer report and private
+                    verification. I can opt out at any time.</span
+                  ></label
+                >
+              </div>
+              <button class="button button-dark" type="submit">
+                Contribute my experience <span>→</span>
+              </button>
+              <p class="form-error" role="alert" aria-live="polite"></p>
+              <p class="privacy">
+                Your identity and unit details will not be published. FlatData
+                publishes only moderated, anonymised patterns. See the
+                <a href="/privacy">privacy policy</a>.
+              </p>
+            </form>
+            <div class="success" id="success">
+              <div>
+                <p class="eyebrow">Request received</p>
+                <h3>You just made the first report more likely.</h3>
+                <p>
+                  FlatData will email you when this developer has enough
+                  verified evidence to publish something useful.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    selectDeveloper('aster');
-  </script>
-</body>
+      <section class="close">
+        <div class="shell">
+          <p class="eyebrow">Coming soon to FlatData</p>
+          <h2>
+            The next buyer should not have to learn
+            <em>everything the hard way.</em>
+          </h2>
+          <p>
+            Owners have already lived the experience. FlatData is building the
+            record that lets their knowledge protect the people buying next.
+          </p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="shell footer-inner">
+        <a class="footer-brand" href="/">FlatData</a>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="/buyer">Buyers</a><a href="/owner">Owners</a
+          ><a href="/explore">Sale prices</a><a href="/atlas">New projects</a>
+        </nav>
+        <p class="footer-note">
+          We don’t take money from brokers or developers. There is nobody for us
+          to please except the buyer.<br />Developer Intelligence is coming
+          soon.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const tabs = [...document.querySelectorAll('[data-tab]')];
+      const panels = [...document.querySelectorAll('[data-form]')];
+      const success = document.querySelector('#success');
+      const signup = document.querySelector('.signup');
+      function chooseTab(name) {
+        success.classList.remove('show');
+        tabs.forEach((tab) =>
+          tab.setAttribute('aria-selected', String(tab.dataset.tab === name)),
+        );
+        panels.forEach((panel) =>
+          panel.classList.toggle('active', panel.dataset.form === name),
+        );
+      }
+      tabs.forEach((tab) =>
+        tab.addEventListener('click', () => chooseTab(tab.dataset.tab)),
+      );
+      document
+        .querySelectorAll('.buyer-jump')
+        .forEach((link) =>
+          link.addEventListener('click', () => chooseTab('buyer')),
+        );
+      document
+        .querySelectorAll('.owner-jump')
+        .forEach((link) =>
+          link.addEventListener('click', () => chooseTab('owner')),
+        );
+      panels.forEach((panel) =>
+        panel.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const button = panel.querySelector('button[type="submit"]');
+          const error = panel.querySelector('.form-error');
+          const data = new FormData(panel);
+          error.textContent = '';
+          button.disabled = true;
+          try {
+            const response = await fetch('/api/developer-interest', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                audience: panel.dataset.form,
+                developer: data.get('developer'),
+                project: data.get('project'),
+                buyingStage: data.get('buyingStage'),
+                relationship: data.get('relationship'),
+                experience: data.get('experience'),
+                email: data.get('email'),
+                emailOptIn: data.get('emailOptIn') === 'on',
+              }),
+            });
+            const result = await response.json();
+            if (!response.ok)
+              throw new Error(result.error || 'Unable to save your request.');
+            panels.forEach((item) => item.classList.remove('active'));
+            success.classList.add('show');
+            signup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } catch (submissionError) {
+            error.textContent =
+              submissionError instanceof Error
+                ? submissionError.message
+                : 'Unable to save your request.';
+          } finally {
+            button.disabled = false;
+          }
+        }),
+      );
+    </script>
+  </body>
 </html>

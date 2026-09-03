@@ -1,4 +1,4 @@
-CREATE VIEW "public"."buyer_society_evidence" AS (
+CREATE OR REPLACE VIEW "public"."buyer_society_evidence" AS (
   WITH inventory_entities AS (
     SELECT
       'inventory:' || inventory.id AS catalogue_id,

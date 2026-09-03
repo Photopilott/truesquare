@@ -209,6 +209,56 @@ export const bangaloreFlatInventory = pgTable(
   ],
 );
 
+export const developerInterestAudience = pgEnum('developer_interest_audience', [
+  'buyer',
+  'owner',
+]);
+
+export const developerInterestStatus = pgEnum('developer_interest_status', [
+  'pending',
+  'reviewed',
+  'archived',
+]);
+
+export const developerInterestSubmissions = pgTable(
+  'developer_interest_submissions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    audience: developerInterestAudience('audience').notNull(),
+    developer: text('developer').notNull(),
+    project: text('project'),
+    buyingStage: text('buying_stage'),
+    relationship: text('relationship'),
+    experience: text('experience'),
+    email: text('email').notNull(),
+    emailOptIn: boolean('email_opt_in').default(true).notNull(),
+    consentVersion: text('consent_version').notNull(),
+    status: developerInterestStatus('status').default('pending').notNull(),
+    requestFingerprint: text('request_fingerprint').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    reviewedBy: text('reviewed_by'),
+    reviewNotes: text('review_notes'),
+  },
+  (table) => [
+    index('developer_interest_developer_status_idx').on(
+      table.developer,
+      table.status,
+      table.createdAt,
+    ),
+    index('developer_interest_email_created_idx').on(
+      table.email,
+      table.createdAt,
+    ),
+    index('developer_interest_fingerprint_created_idx').on(
+      table.requestFingerprint,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const contributors = pgTable(
   'contributors',
   {
