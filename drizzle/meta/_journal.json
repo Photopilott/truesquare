@@ -134,6 +134,13 @@
       "when": 1788455728919,
       "tag": "0018_apartment_society_aliases",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788549926626,
+      "tag": "0019_admin_lead_reporting",
+      "breakpoints": true
     }
   ]
 }

@@ -39,12 +39,12 @@ for (const entry of journal.entries) {
     .split('--> statement-breakpoint')
     .map((statement) => statement.trim())
     .filter(Boolean);
-  for (const statement of statements) {
-    await sql.query(statement);
-  }
-  await sql.query(
-    'INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ($1, $2)',
-    [hash, entry.when],
-  );
+  await sql.transaction((transaction) => [
+    ...statements.map((statement) => transaction.query(statement)),
+    transaction.query(
+      'INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ($1, $2)',
+      [hash, entry.when],
+    ),
+  ]);
   console.log(`Applied ${entry.tag}.`);
 }
