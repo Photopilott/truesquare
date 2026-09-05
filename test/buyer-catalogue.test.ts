@@ -5,6 +5,7 @@ import {
   buildBuyerSocietyCatalogue,
   buyerEvidenceDisplay,
   buyerEvidenceFor,
+  evidenceBackedBuyerSocieties,
   type BuyerSocietyEvidenceRow,
 } from '../lib/buyer-catalogue-model.ts';
 
@@ -256,4 +257,33 @@ test('uses registered evidence as the primary benchmark when both sources exist'
   assert.equal(display.medianPricePerSqFt, 10_000);
   assert.equal(display.latestDate, '2026-08-15');
   assert.equal(display.label, 'Registered + approved owner evidence');
+});
+
+test('keeps only priced societies and ranks the strongest evidence first', () => {
+  const societies = ['No evidence', 'One sale', 'Five sales', 'No price'];
+  const evidence = new Map([
+    ['No evidence', { publicCount: 0, medianPrice: null, latestDate: null }],
+    [
+      'One sale',
+      { publicCount: 1, medianPrice: 10_000_000, latestDate: '2026-01-01' },
+    ],
+    [
+      'Five sales',
+      { publicCount: 5, medianPrice: 20_000_000, latestDate: '2025-01-01' },
+    ],
+    ['No price', { publicCount: 3, medianPrice: null, latestDate: null }],
+  ]);
+
+  assert.deepEqual(
+    evidenceBackedBuyerSocieties(societies, (society) =>
+      evidence.get(society)!,
+    ),
+    ['Five sales', 'One sale'],
+  );
+  assert.deepEqual(societies, [
+    'No evidence',
+    'One sale',
+    'Five sales',
+    'No price',
+  ]);
 });

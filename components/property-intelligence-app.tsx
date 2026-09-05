@@ -62,6 +62,7 @@ import { trackAnalyticsEvent } from '@/lib/analytics';
 import {
   buyerEvidenceDisplay,
   buyerEvidenceFor,
+  evidenceBackedBuyerSocieties,
   type BuyerSocietySummary,
 } from '@/lib/buyer-catalogue-model';
 import {
@@ -528,7 +529,18 @@ export function PropertyIntelligenceApp({
 
   const filteredSocieties = (() => {
     const budget = budgetFilter === 'All' ? Infinity : Number(budgetFilter);
-    return societies.filter((society) => {
+    const isDefaultCatalogue =
+      !searchQuery.trim() &&
+      locationFilter === 'All' &&
+      bhkFilter === 'All' &&
+      budgetFilter === 'All';
+    const catalogue = isDefaultCatalogue
+      ? evidenceBackedBuyerSocieties(societies, (society) =>
+          buyerDisplayFor(society, bhkFilter),
+        )
+      : societies;
+
+    return catalogue.filter((society) => {
       const matchesLocation =
         locationFilter === 'All' || society.location === locationFilter;
       const databaseEvidence = buyerEvidenceFor(society, bhkFilter);

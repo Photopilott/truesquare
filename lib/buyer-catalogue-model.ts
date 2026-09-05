@@ -265,6 +265,30 @@ export function buyerEvidenceDisplay(evidence: BuyerEvidenceSummary | null) {
   };
 }
 
+export function evidenceBackedBuyerSocieties<T>(
+  societies: readonly T[],
+  evidenceFor: (society: T) => {
+    publicCount: number;
+    medianPrice: number | null;
+    latestDate: string | null;
+  },
+) {
+  return societies
+    .map((society) => ({ society, evidence: evidenceFor(society) }))
+    .filter(
+      ({ evidence }) =>
+        evidence.publicCount > 0 && evidence.medianPrice != null,
+    )
+    .sort(
+      (left, right) =>
+        right.evidence.publicCount - left.evidence.publicCount ||
+        (right.evidence.latestDate ?? '').localeCompare(
+          left.evidence.latestDate ?? '',
+        ),
+    )
+    .map(({ society }) => society);
+}
+
 export function buildBuyerSocietyCatalogue(
   rows: BuyerSocietyEvidenceRow[],
   permanentSocieties: SocietySummary[],
