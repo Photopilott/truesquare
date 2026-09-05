@@ -19,8 +19,7 @@ export const siteNavigation = [
   { label: 'HOME', href: '/' },
   { label: 'OWNERS', href: '/owner' },
   { label: 'BUYERS', href: '/buyer' },
-  { label: 'FLAT PRICE VERIFIED', href: '/explore' },
-  { label: 'NEW FLATS R&D', href: '/atlas' },
+  { label: 'DEEP RESEARCH', href: '/atlas' },
   { label: 'DEVELOPER RATINGS', href: '/developer-ratings.html' },
 ] as const;
 

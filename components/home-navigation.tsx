@@ -185,11 +185,11 @@ export function HomeNavigation() {
                 sponsored placement.
               </p>
               <Link
-                href="/explore"
+                href="/buyer"
                 onClick={() =>
                   trackAnalyticsEvent('primary_cta_click', {
                     button_id: 'home_record_explore',
-                    destination: '/explore',
+                    destination: '/buyer',
                   })
                 }
               >
