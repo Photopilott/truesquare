@@ -257,6 +257,12 @@ export function HomeNavigation() {
                 {item.label}
               </a>
             ))}
+            <Link
+              href="/privacy"
+              className="text-[12px] text-muted-foreground hover:text-foreground"
+            >
+              PRIVACY &amp; TERMS
+            </Link>
           </nav>
           <div className="max-w-md text-[11px] leading-relaxed text-muted-foreground">
             <p>
